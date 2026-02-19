@@ -1,0 +1,4 @@
+item.debug_carrot.name=Debugging carrot
+item.debug_carrot.info.i=Infinity
+itemGroup.main=SRP: Tower Defence!
+srptowerdefense.for_creative=For creativity only

@@ -1,0 +1,4 @@
+item.debug_carrot.name=Отладочная морковка
+item.debug_carrot.info.i=Бесконечный
+itemGroup.main=SRP: Tower Defence!
+srptowerdefense.for_creative=Только для креатива
