@@ -84,7 +84,8 @@ public class EntityPathDrawManager {
             }
         } catch (Exception ignored) {}
 
-        RenderGlobal.drawSelectionBoundingBox(box.offset(pointPos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, alpha);
+
+        boolean flag = true;
 
         if (point instanceof PathPointForced && ((PathPointForced) point).posToBreak != null) {
             for (BlockPos pos : ((PathPointForced) point).posToBreak) {
@@ -95,8 +96,16 @@ public class EntityPathDrawManager {
                     box = boxToBlocks;
                 }
 
+                if (pos.equals(pointPos)) {
+                    flag = false;
+                }
+
                 RenderGlobal.drawSelectionBoundingBox(box.offset(pos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), Color.RED.getRed() / 255.0F, Color.RED.getGreen() / 255.0F, Color.RED.getBlue() / 255.0F, alpha);
             }
+        }
+
+        if (flag) {
+            RenderGlobal.drawSelectionBoundingBox(box.offset(pointPos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, alpha);
         }
     }
 }

@@ -33,11 +33,13 @@ public class EntityAIWaveMove extends EntityAIBase {
 
     @Override
     public void updateTask() {
-        if (this.creature.getNavigator().noPath()) {
+        if (this.creature.ticksExisted % 8 == 0 && this.creature.getNavigator().noPath()) {
             AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
             if (Math.sqrt(this.creature.getDistanceSq(this.target())) < this.pathSearchRange.getAttributeValue() + 8) {
                 blockPos.setPos(this.target());
-                this.creature.getNavigator().tryMoveToXYZ(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ(), this.movementSpeed);
+                if (this.world.isBlockLoaded(blockPos)) {
+                    this.creature.getNavigator().tryMoveToXYZ(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ(), this.movementSpeed);
+                }
             } else {
                 blockPos.setPos(target()).subtract(this.creature.getPosition()).setY(0);
                 Vec3d vec = new Vec3d(blockPos).normalize();
@@ -57,7 +59,9 @@ public class EntityAIWaveMove extends EntityAIBase {
 
                     blockPos.setPos(this.creature).add(x, 0, z).setWorldY(this.world, state -> state.getMaterial().isReplaceable(), false);
 
-                    this.creature.getNavigator().tryMoveToXYZ(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ(), this.movementSpeed);
+                    if (this.world.isBlockLoaded(blockPos)) {
+                        this.creature.getNavigator().tryMoveToXYZ(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ(), this.movementSpeed);
+                    }
                 }
             }
             AdvancedBlockPos.release(blockPos);

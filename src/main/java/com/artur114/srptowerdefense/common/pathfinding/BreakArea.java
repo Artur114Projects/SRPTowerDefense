@@ -14,7 +14,7 @@ public class BreakArea implements Iterable<BlockPos> {
     private BlockPos[] area;
 
     public BreakArea(BlockPos[] area) {
-        this.area = area;
+        this.area = Arrays.copyOf(area, area.length);
     }
 
     public BreakArea(BlockPos pos) {
@@ -38,15 +38,20 @@ public class BreakArea implements Iterable<BlockPos> {
         if (entity.ticksExisted % 8 != 0) {
             return false;
         }
+        boolean flag = false;
         for (int i = 0; i != this.area.length; i++) {
             BlockPos pos = this.area[i];
             if (!entity.world.isAirBlock(pos)) {
                 BlockDamageHandler.entityDamage(entity, pos, damagePer8TicsToOneBlock);
-                return true;
+                if (entity.world.isAirBlock(pos)) {
+                    flag = true;
+                } else {
+                    return true;
+                }
             }
         }
 
-        return false;
+        return flag;
     }
 
     @NotNull

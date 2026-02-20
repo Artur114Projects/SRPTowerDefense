@@ -62,11 +62,6 @@ public class ClientBlockDamageManager {
             for (IClientDamagedChunk chunk : this.loadedChunks) {
                 chunk.update();
             }
-            if (System.currentTimeMillis() % 4000 == 0) {
-                for (IClientDamagedChunk chunk : this.loadedChunks) {
-                    System.out.println(chunk);
-                }
-            }
         }
     }
 

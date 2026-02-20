@@ -72,7 +72,7 @@ public class PathFinderForced extends PathFinder {
                 }
             }
 
-            if (path.lastPoint.distanceManhattan(pathTo) > current.lastPoint.distanceManhattan(pathTo) || path.lpDistanceToTarget > current.lpDistanceToTarget) {
+            if (path.lastPoint.distanceManhattan(pathTo) > current.lastPoint.distanceManhattan(pathTo)) {
                 this.pathHeap.releaseBuilder(path);
                 path = this.pathHeap.copy(current);
             }

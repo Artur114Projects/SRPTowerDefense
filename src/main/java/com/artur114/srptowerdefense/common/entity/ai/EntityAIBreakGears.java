@@ -52,14 +52,14 @@ public class EntityAIBreakGears extends EntityAIBase {
     public void updateTask() {
         double d = this.creature.getDistanceSq(this.foundedGear.getX() + 0.5, this.foundedGear.getY(), this.foundedGear.getZ() + 0.5);
 
-        if (this.creature.getNavigator().noPath() && d > 4D) {
+        if (this.creature.ticksExisted % 8 == 0 && this.creature.getNavigator().noPath() && d > 4D) {
             this.startExecuting();
         }
 
         this.creature.getLookHelper().setLookPosition(this.foundedGear.getX() + 0.5, this.foundedGear.getY() + 0.5, this.foundedGear.getZ() + 0.5, 30F, 30F);
 
         if (this.creature.ticksExisted % 8 == 0 && d <= 4D) {
-            BlockDamageHandler.entityDamage(this.creature, this.foundedGear, 64);
+            BlockDamageHandler.entityDamage(this.creature, this.foundedGear, 256);
             ((EntityParasiteBase) this.creature).setAttackCooldownAni(100);
         }
     }
@@ -88,7 +88,7 @@ public class EntityAIBreakGears extends EntityAIBase {
         entities.sort(Comparator.comparingDouble((t) -> this.creature.getDistanceSq(t.getPos())));
 
         for (TileEntity tile : entities) {
-            if (tile instanceof IInventory && tile.getPos().getY() > this.creature.posY - range && tile.getPos().getY() < this.creature.posY + range) {
+            if (this.world.isBlockLoaded(tile.getPos()) && tile instanceof IInventory && tile.getPos().getY() > this.creature.posY - range && tile.getPos().getY() < this.creature.posY + range) {
                 return tile.getPos();
             }
         }

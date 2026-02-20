@@ -13,7 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.pathfinding.WalkNodeProcessor;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.IntHashMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -27,6 +27,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class WalkNodeProcessorForced extends WalkNodeProcessor {
+    protected final IntHashMap<IBlockState> stateCache = new IntHashMap<>();
+
+    @Override
+    public void init(IBlockAccess world, EntityLiving entity) {
+        super.init(world, entity);
+        this.stateCache.clearMap();
+    }
 
     @Override
     public @NotNull PathPointForced getPathPointToCoords(double x, double y, double z) {
@@ -43,7 +50,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 i = (int) this.entity.getEntityBoundingBox().minY;
                 BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ));
 
-                for (Block block = this.blockaccess.getBlockState(blockpos$mutableblockpos).getBlock(); block == Blocks.FLOWING_WATER || block == Blocks.WATER; block = this.blockaccess.getBlockState(blockpos$mutableblockpos).getBlock()) {
+                for (Block block = this.getBlockState(this.blockaccess, blockpos$mutableblockpos).getBlock(); block == Blocks.FLOWING_WATER || block == Blocks.WATER; block = this.blockaccess.getBlockState(blockpos$mutableblockpos).getBlock()) {
                     ++i;
                     blockpos$mutableblockpos.setPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ));
                 }
@@ -52,7 +59,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
             } else {
                 BlockPos blockpos;
 
-                for (blockpos = new BlockPos(this.entity); (this.blockaccess.getBlockState(blockpos).getMaterial() == Material.AIR || this.blockaccess.getBlockState(blockpos).getBlock().isPassable(this.blockaccess, blockpos)) && blockpos.getY() > 0; blockpos = blockpos.down()) {
+                for (blockpos = new BlockPos(this.entity); (this.getBlockState(this.blockaccess, blockpos).getMaterial() == Material.AIR || this.blockaccess.getBlockState(blockpos).getBlock().isPassable(this.blockaccess, blockpos)) && blockpos.getY() > 0; blockpos = blockpos.down()) {
                     ;
                 }
 
@@ -108,7 +115,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
 
         for (int y = currentPoint.y > 0 ? -1 : 0; y != 2; y++) {
             BlockPos blockpos = blockPos.setPos(currentPoint.x, currentPoint.y + y, currentPoint.z).down();
-            double d0 = (double) currentPoint.y + y - (1.0D - this.blockaccess.getBlockState(blockpos).getBoundingBox(this.blockaccess, blockpos).maxY);
+            double d0 = (double) currentPoint.y + y - (1.0D - this.getBlockState(this.blockaccess, blockpos).getBoundingBox(this.blockaccess, blockpos).maxY);
             PathPointForced pathPointZP = this.getSafePoint(blockPos.setPos(currentPoint.x, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
             PathPointForced pathPointXN = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
             PathPointForced pathPointXP = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
@@ -183,16 +190,14 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     private PathPointForced getSafePoint(AdvancedBlockPos pos, PathPoint prevPoint, double blockBoxHeight) {
         PathPointForced pathpoint = null;
 
-        pos.pushPos();
-        double h = (double) pos.getY() - (1.0D - this.blockaccess.getBlockState(pos.down()).getBoundingBox(this.blockaccess, pos).maxY);
-        pos.popPos();
+        double h = (double) pos.getY() - (1.0D - this.getBlockState(this.blockaccess, pos.down()).getBoundingBox(this.blockaccess, pos).maxY);
+        pos.up();
 
         if (h - blockBoxHeight > 1.125D) {
             return null;
         } else {
             IForcedPathNodeType nodeType = this.pathNodeType(this.entity, pos, prevPoint);
             float f = nodeType.getPriority(this.entity);
-            double width = (double) this.entity.width / 2.0D;
 
             if (f >= 0.0F) {
                 pathpoint = this.openPoint(pos);
@@ -202,12 +207,6 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
 
             if (nodeType.toMc() != PathNodeType.WALKABLE) {
                 if (nodeType == PathNodeTypeForced.OPEN) {
-                    AxisAlignedBB entityBox = new AxisAlignedBB((double) pos.getX() - width + 0.5D, (double) pos.getY() + 0.001D, (double) pos.getZ() - width + 0.5D, (double) pos.getX() + width + 0.5D, (double) ((float) pos.getY() + this.entity.height), (double) pos.getZ() + width + 0.5D);
-
-                    if (this.entity.world.collidesWithAnyBlock(entityBox)) {
-                        return null;
-                    }
-
                     if (this.entity.width >= 1.0F) {
                         IForcedPathNodeType node = this.pathNodeType(this.entity, pos.down(), prevPoint); pos.up();
 
@@ -276,7 +275,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 }
 
                 if (setNode.ord() == -1 && retNode.ord() == -1) {
-                    ((PathNodeTypeBreakage) retNode).applyBreakageNode((PathNodeTypeBreakage) setNode);
+                    ((PathNodeTypeBreakage) setNode).applyBreakageNode((PathNodeTypeBreakage) retNode);
                 }
 
                 if (setNode.getPriority(entity) >= retNode.getPriority(entity))
@@ -342,7 +341,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         IForcedPathNodeType pathNodeType = this.pathNodeTypeRaw(world, pos);
 
         if (pathNodeType == PathNodeTypeForced.OPEN && pos.getY() >= 1) {
-            Block block = world.getBlockState(pos.down()).getBlock();
+            Block block = this.getBlockState(world, pos.down()).getBlock();
             IForcedPathNodeType pathNodeTypeDown = this.pathNodeTypeRaw(world, pos); pos.up();
             pathNodeType = pathNodeTypeDown != PathNodeTypeForced.WALKABLE && pathNodeTypeDown != PathNodeTypeForced.OPEN && pathNodeTypeDown != PathNodeTypeForced.WATER && pathNodeTypeDown != PathNodeTypeForced.LAVA ? PathNodeTypeForced.WALKABLE : PathNodeTypeForced.OPEN;
 
@@ -373,7 +372,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 for (int j = -1; j <= 1; ++j) {
                     if (i != 0 || j != 0) {
                         pos.pushPos();
-                        IBlockState state = world.getBlockState(pos.add(i, 0, j));
+                        IBlockState state = this.getBlockState(world, pos.add(i, 0, j));
                         Block block = state.getBlock();
                         PathNodeType type = block.getAiPathNodeType(state, world, pos, this.currentEntity);
 
@@ -394,7 +393,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     }
 
     protected IForcedPathNodeType pathNodeTypeRaw(IBlockAccess world, AdvancedBlockPos pos) {
-        IBlockState iblockstate = world.getBlockState(pos);
+        IBlockState iblockstate = this.getBlockState(world, pos);
         Block block = iblockstate.getBlock();
         Material material = iblockstate.getMaterial();
 
@@ -463,5 +462,16 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         {
             return PathNodeTypeForced.TRAPDOOR;
         }
+    }
+    
+    private IBlockState getBlockState(IBlockAccess world, BlockPos pos) {
+        IBlockState state = this.stateCache.lookup(pos.hashCode());
+        
+        if (state == null) {
+            state = world.getBlockState(pos);
+            this.stateCache.addKey(pos.hashCode(), state);
+        }
+        
+        return state;
     }
 }
