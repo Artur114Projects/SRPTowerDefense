@@ -175,12 +175,6 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
             }
         }
 
-        for (PathPoint point : pathOptions) {
-            if (point != null && point.y != currentPoint.y) {
-                point.costMalus += 1.0F;
-            }
-        }
-
         AdvancedBlockPos.release(blockPos);
 
         return i;

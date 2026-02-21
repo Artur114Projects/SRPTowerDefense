@@ -24,7 +24,7 @@ public class ParasiteAIRebuildManager {
             }
             parasite.setSkillBreakBlocksValues(0.0F, 0, 0);
             parasite.tasks.addTask(4, new EntityAIBreakGears(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
-            parasite.tasks.addTask(4, new EntityAIWaveMove(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
+//            parasite.tasks.addTask(4, new EntityAIWaveMove(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
         }
     }
 }

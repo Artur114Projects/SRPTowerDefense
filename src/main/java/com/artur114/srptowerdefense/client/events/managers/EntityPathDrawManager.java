@@ -28,7 +28,6 @@ public class EntityPathDrawManager {
     public void renderWorldLastEvent(RenderWorldLastEvent e) {
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayerSP player = mc.player;
-        World world = mc.world;
 
         if (player == null) {
             return;
@@ -90,6 +89,7 @@ public class EntityPathDrawManager {
         if (point instanceof PathPointForced && ((PathPointForced) point).posToBreak != null) {
             for (BlockPos pos : ((PathPointForced) point).posToBreak) {
                 state = entity.world.getBlockState(pos);
+                Color color1 = Color.RED;
                 box = boxToAir;
 
                 if (state.getMaterial() != Material.AIR && !state.getBlock().isPassable(entity.world, pointPos)) {
@@ -100,7 +100,7 @@ public class EntityPathDrawManager {
                     flag = false;
                 }
 
-                RenderGlobal.drawSelectionBoundingBox(box.offset(pos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), Color.RED.getRed() / 255.0F, Color.RED.getGreen() / 255.0F, Color.RED.getBlue() / 255.0F, alpha);
+                RenderGlobal.drawSelectionBoundingBox(box.offset(pos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), color1.getRed() / 255.0F, color1.getGreen() / 255.0F, color1.getBlue() / 255.0F, alpha);
             }
         }
 

@@ -53,7 +53,7 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         int newDamage = (int) (storage.getDamage(x, y, z) + (amount * this.damageMultiplierFor(pos)));
 
         if (newDamage > MAX_DAMAGE) {
-            this.world.destroyBlock(pos, true);
+            this.world.destroyBlock(pos.toImmutable(), false);
             newDamage = 0;
         }
 

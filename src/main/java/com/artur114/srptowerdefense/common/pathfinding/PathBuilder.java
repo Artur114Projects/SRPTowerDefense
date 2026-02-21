@@ -91,7 +91,7 @@ public class PathBuilder {
         this.lastPoint = point;
         this.totalBreakCost += point.breakCost;
         this.totalPathCost = this.totalPathDistance + this.totalBreakCost;
-        this.lpDistanceToTarget = this.lastPoint.distanceManhattan(this.target) + (this.totalPathDistance + (0.2F * this.totalBreakCost)) * 0.5F;
+        this.lpDistanceToTarget = this.lastPoint.distanceManhattan(this.target) * 4.0F + this.totalPathDistance + (0.2F * this.totalBreakCost);
         return this;
     }
 

@@ -35,7 +35,8 @@ public class PathNavigateGroundForced extends PathNavigateGround {
                     BreakArea area = ((PathPointForced) point).posToBreak;
 
                     if (area != null) {
-                        if (area.entityDamage(this.entity, 256 * 4)) {
+                        if (area.entityDamage(this.entity, 128)) {
+                            this.ticksAtLastPos = this.totalTicks;
                             this.timeoutTimer = 0;
                         }
                     }

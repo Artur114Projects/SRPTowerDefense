@@ -45,12 +45,13 @@ public class PathFinderForced extends PathFinder {
         this.pathHeap.init(pathTo);
         PathBuilder path = this.pathHeap.copy(this.pathHeap.addPath(this.pathHeap.createBuilder().addPoint(pathFrom)));
         path.lpDistanceToTarget = Float.MAX_VALUE;
+        int maxIterationCount = 200;
         int iterationCount = 0;
 
         while (!this.pathHeap.isPathEmpty()) {
             iterationCount++;
 
-            if (iterationCount >= 200) {
+            if (iterationCount >= maxIterationCount) {
                 break;
             }
 
@@ -88,7 +89,7 @@ public class PathFinderForced extends PathFinder {
                 PathPointForced option = this.pathOptions[i];
 
                 if (current.totalPathCost < option.bestTotalCost) {
-                    if (current.lpDistanceFromOrigin + current.lastPoint.distanceManhattan(option) < maxDistance) {
+                    if (current.lpDistanceFromOrigin + current.lastPoint.distanceManhattan(option) < (maxDistance)) {
                         this.pathHeap.addPath(this.pathHeap.copy(current).addPoint(option));
                     }
                 }
