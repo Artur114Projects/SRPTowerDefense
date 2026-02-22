@@ -86,12 +86,12 @@ public class PathBuilder {
             this.lpDistanceFromOrigin += distanceToNew;
         }
         if (point.posToBreak != null) {
-            this.breakAreas.put(point.hashCode(), point.posToBreak.copy());
+            this.breakAreas.put(point.hashCode(), point.posToBreak);
         }
         this.lastPoint = point;
         this.totalBreakCost += point.breakCost;
         this.totalPathCost = this.totalPathDistance + this.totalBreakCost;
-        this.lpDistanceToTarget = this.lastPoint.distanceManhattan(this.target) * 4.0F + this.totalPathDistance + (0.2F * this.totalBreakCost);
+        this.lpDistanceToTarget = this.lastPoint.distanceManhattan(this.target) * 2.0F + this.totalPathDistance + (0.2F * this.totalBreakCost);
         return this;
     }
 

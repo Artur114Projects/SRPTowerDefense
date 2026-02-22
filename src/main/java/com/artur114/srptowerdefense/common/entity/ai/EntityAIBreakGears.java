@@ -67,7 +67,7 @@ public class EntityAIBreakGears extends EntityAIBase {
     @Nullable
     private BlockPos findGear() {
         int range = (int) (this.pathSearchRange.getAttributeValue() + 8);
-        int rangeChunk = (range >> 4) + 1;
+        int rangeChunk = (range >> 4);
         AdvancedBlockPos blockPos = AdvancedBlockPos.obtain().setPos(this.creature.posX, this.creature.getEntityBoundingBox().minY, this.creature.posZ);
         ChunkPos center = blockPos.toChunkPos();
         AdvancedBlockPos.release(blockPos);

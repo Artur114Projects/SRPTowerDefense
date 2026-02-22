@@ -12,8 +12,8 @@ public enum PathNodeTypeForced implements IForcedPathNodeType {
     LAVA(-1.0F),
     WATER(8.0F),
     RAIL(0.0F),
-    DANGER_FIRE(8.0F),
-    DAMAGE_FIRE(16.0F),
+    DANGER_FIRE(16.0F),
+    DAMAGE_FIRE(32.0F),
     DANGER_CACTUS(8.0F),
     DAMAGE_CACTUS(-1.0F),
     DANGER_OTHER(8.0F),
@@ -35,6 +35,11 @@ public enum PathNodeTypeForced implements IForcedPathNodeType {
     @Override
     public float getPriority(EntityLiving entity) {
         return entity.getPathPriority(this.toMc());
+    }
+
+    @Override
+    public IForcedPathNodeType copy() {
+        return this;
     }
 
     @Override

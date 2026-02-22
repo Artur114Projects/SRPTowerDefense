@@ -8,6 +8,11 @@ public class PathNodeTypeBreakage implements IForcedPathNodeType {
     private final BreakArea breakArea;
     private float priority;
 
+    public PathNodeTypeBreakage(PathNodeTypeBreakage parent) {
+        this.breakArea = parent.breakArea.copy();
+        this.priority = parent.priority;
+    }
+
     public PathNodeTypeBreakage(BlockPos nodePos, float priority) {
         this.priority = priority;
 
@@ -35,6 +40,11 @@ public class PathNodeTypeBreakage implements IForcedPathNodeType {
     @Override
     public float getPriority(EntityLiving entity) {
         return 4.0F;
+    }
+
+    @Override
+    public IForcedPathNodeType copy() {
+        return new PathNodeTypeBreakage(this);
     }
 
     @Override

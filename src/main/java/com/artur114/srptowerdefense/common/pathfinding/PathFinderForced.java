@@ -9,7 +9,6 @@ import net.minecraft.world.IBlockAccess;
 import javax.annotation.Nullable;
 
 public class PathFinderForced extends PathFinder {
-    public static final int MAX_PATH_FINDING_ITR = 200;
     private final PathPointForced[] pathOptions = new PathPointForced[32];
     private final PathBuildHeap pathHeap = new PathBuildHeap();
     private final WalkNodeProcessorForced nodeProcessor;
@@ -44,8 +43,7 @@ public class PathFinderForced extends PathFinder {
     private Path findPath(PathPointForced pathFrom, PathPointForced pathTo, float maxDistance) {
         this.pathHeap.init(pathTo);
         PathBuilder path = this.pathHeap.copy(this.pathHeap.addPath(this.pathHeap.createBuilder().addPoint(pathFrom)));
-        path.lpDistanceToTarget = Float.MAX_VALUE;
-        int maxIterationCount = 200;
+        int maxIterationCount = (int) (200 * (maxDistance / 32.0F));
         int iterationCount = 0;
 
         while (!this.pathHeap.isPathEmpty()) {
@@ -62,7 +60,7 @@ public class PathFinderForced extends PathFinder {
                 continue;
             }
 
-            if (current.isEnded()) {
+            if (current.isEnded() && (!path.isEnded() || path.totalPathCost > current.totalPathCost)) {
                 this.pathHeap.releaseBuilder(path);
                 path = current;
 
@@ -73,7 +71,7 @@ public class PathFinderForced extends PathFinder {
                 }
             }
 
-            if (path.lastPoint.distanceManhattan(pathTo) > current.lastPoint.distanceManhattan(pathTo)) {
+            if (path.lastPoint.distanceToSquared(pathTo) > current.lastPoint.distanceToSquared(pathTo)) {
                 this.pathHeap.releaseBuilder(path);
                 path = this.pathHeap.copy(current);
             }
@@ -89,7 +87,7 @@ public class PathFinderForced extends PathFinder {
                 PathPointForced option = this.pathOptions[i];
 
                 if (current.totalPathCost < option.bestTotalCost) {
-                    if (current.lpDistanceFromOrigin + current.lastPoint.distanceManhattan(option) < (maxDistance)) {
+                    if (current.lpDistanceFromOrigin + current.lastPoint.distanceManhattan(option) < maxDistance) {
                         this.pathHeap.addPath(this.pathHeap.copy(current).addPoint(option));
                     }
                 }

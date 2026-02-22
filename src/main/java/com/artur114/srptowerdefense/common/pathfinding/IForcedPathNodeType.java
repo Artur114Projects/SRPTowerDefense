@@ -6,6 +6,7 @@ import net.minecraft.pathfinding.PathNodeType;
 public interface IForcedPathNodeType {
     float getPriority();
     float getPriority(EntityLiving entity);
+    IForcedPathNodeType copy();
     PathNodeType toMc();
     int ord();
 }

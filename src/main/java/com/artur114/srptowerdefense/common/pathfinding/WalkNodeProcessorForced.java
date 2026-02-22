@@ -5,6 +5,8 @@ import com.artur114.srptowerdefense.common.blockdamage.BlockDamageHandler;
 import com.artur114.srptowerdefense.common.blockdamage.IDamagedChunk;
 import com.artur114.srptowerdefense.common.util.math.AdvancedBlockPos;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -13,7 +15,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.pathfinding.WalkNodeProcessor;
-import net.minecraft.util.IntHashMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -27,12 +28,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class WalkNodeProcessorForced extends WalkNodeProcessor {
-    protected final IntHashMap<IBlockState> stateCache = new IntHashMap<>();
+    protected final Int2ObjectMap<IForcedPathNodeType> nodeTypeCache = new Int2ObjectOpenHashMap<>();
+    protected final Int2ObjectMap<PathPointForced> pointMap = new Int2ObjectOpenHashMap<>();
+    protected final Int2ObjectMap<IBlockState> stateCache = new Int2ObjectOpenHashMap<>();
 
     @Override
-    public void init(IBlockAccess world, EntityLiving entity) {
-        super.init(world, entity);
-        this.stateCache.clearMap();
+    public void postProcess() {
+        super.postProcess();
+        this.nodeTypeCache.clear();
+        this.stateCache.clear();
+        this.pointMap.clear();
     }
 
     @Override
@@ -50,7 +55,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 i = (int) this.entity.getEntityBoundingBox().minY;
                 BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ));
 
-                for (Block block = this.getBlockState(this.blockaccess, blockpos$mutableblockpos).getBlock(); block == Blocks.FLOWING_WATER || block == Blocks.WATER; block = this.blockaccess.getBlockState(blockpos$mutableblockpos).getBlock()) {
+                for (Block block = this.openBlockState(this.blockaccess, blockpos$mutableblockpos).getBlock(); block == Blocks.FLOWING_WATER || block == Blocks.WATER; block = this.blockaccess.getBlockState(blockpos$mutableblockpos).getBlock()) {
                     ++i;
                     blockpos$mutableblockpos.setPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ));
                 }
@@ -59,7 +64,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
             } else {
                 BlockPos blockpos;
 
-                for (blockpos = new BlockPos(this.entity); (this.getBlockState(this.blockaccess, blockpos).getMaterial() == Material.AIR || this.blockaccess.getBlockState(blockpos).getBlock().isPassable(this.blockaccess, blockpos)) && blockpos.getY() > 0; blockpos = blockpos.down()) {
+                for (blockpos = new BlockPos(this.entity); (this.openBlockState(this.blockaccess, blockpos).getMaterial() == Material.AIR || this.blockaccess.getBlockState(blockpos).getBlock().isPassable(this.blockaccess, blockpos)) && blockpos.getY() > 0; blockpos = blockpos.down()) {
                     ;
                 }
 
@@ -97,14 +102,14 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     @Override
     protected @NotNull PathPointForced openPoint(int x, int y, int z) {
         int i = PathPointForced.makeHash(x, y, z);
-        PathPoint pathpoint = this.pointMap.lookup(i);
+        PathPointForced pathpoint = this.pointMap.get(i);
 
-        if (!(pathpoint instanceof PathPointForced)) {
+        if (pathpoint == null) {
             pathpoint = new PathPointForced(x, y, z);
-            this.pointMap.addKey(i, pathpoint);
+            this.pointMap.put(i, pathpoint);
         }
 
-        return (PathPointForced) pathpoint;
+        return pathpoint;
     }
 
     @Override
@@ -115,7 +120,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
 
         for (int y = currentPoint.y > 0 ? -1 : 0; y != 2; y++) {
             BlockPos blockpos = blockPos.setPos(currentPoint.x, currentPoint.y + y, currentPoint.z).down();
-            double d0 = (double) currentPoint.y + y - (1.0D - this.getBlockState(this.blockaccess, blockpos).getBoundingBox(this.blockaccess, blockpos).maxY);
+            double d0 = (double) currentPoint.y + y - (1.0D - this.openBlockState(this.blockaccess, blockpos).getBoundingBox(this.blockaccess, blockpos).maxY);
             PathPointForced pathPointZP = this.getSafePoint(blockPos.setPos(currentPoint.x, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
             PathPointForced pathPointXN = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
             PathPointForced pathPointXP = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
@@ -137,40 +142,42 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 pathOptions[i++] = pathPointZN;
             }
 
-            boolean flagZN = pathPointZN == null || pathPointZN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZN.costMalus != 0.0F && pathPointZN.posToBreak == null);
-            boolean flagZP = pathPointZP == null || pathPointZP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZP.costMalus != 0.0F && pathPointZP.posToBreak == null);
-            boolean flagXP = pathPointXP == null || pathPointXP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXP.costMalus != 0.0F && pathPointXP.posToBreak == null);
-            boolean flagXN = pathPointXN == null || pathPointXN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXN.costMalus != 0.0F && pathPointXN.posToBreak == null);
+            if (y == 0) {
+                boolean flagZN = pathPointZN == null || pathPointZN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZN.costMalus == 0.0F && pathPointZN.posToBreak == null);
+                boolean flagZP = pathPointZP == null || pathPointZP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZP.costMalus == 0.0F && pathPointZP.posToBreak == null);
+                boolean flagXP = pathPointXP == null || pathPointXP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXP.costMalus == 0.0F && pathPointXP.posToBreak == null);
+                boolean flagXN = pathPointXN == null || pathPointXN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXN.costMalus == 0.0F && pathPointXN.posToBreak == null);
 
-            if (flagZN && flagXN) {
-                PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
+                if (flagZN && flagXN) {
+                    PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
 
-                if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                    pathOptions[i++] = pathPointCorner;
+                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
+                        pathOptions[i++] = pathPointCorner;
+                    }
                 }
-            }
 
-            if (flagZN && flagXP) {
-                PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
+                if (flagZN && flagXP) {
+                    PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
 
-                if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                    pathOptions[i++] = pathPointCorner;
+                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
+                        pathOptions[i++] = pathPointCorner;
+                    }
                 }
-            }
 
-            if (flagZP && flagXN) {
-                PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
+                if (flagZP && flagXN) {
+                    PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x - 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
 
-                if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                    pathOptions[i++] = pathPointCorner;
+                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
+                        pathOptions[i++] = pathPointCorner;
+                    }
                 }
-            }
 
-            if (flagZP && flagXP) {
-                PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
+                if (flagZP && flagXP) {
+                    PathPoint pathPointCorner = this.getSafePoint(blockPos.setPos(currentPoint.x + 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
 
-                if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                    pathOptions[i++] = pathPointCorner;
+                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
+                        pathOptions[i++] = pathPointCorner;
+                    }
                 }
             }
         }
@@ -184,7 +191,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     private PathPointForced getSafePoint(AdvancedBlockPos pos, PathPoint prevPoint, double blockBoxHeight) {
         PathPointForced pathpoint = null;
 
-        double h = (double) pos.getY() - (1.0D - this.getBlockState(this.blockaccess, pos.down()).getBoundingBox(this.blockaccess, pos).maxY);
+        double h = (double) pos.getY() - (1.0D - this.openBlockState(this.blockaccess, pos.down()).getBoundingBox(this.blockaccess, pos).maxY);
         pos.up();
 
         if (h - blockBoxHeight > 1.125D) {
@@ -217,7 +224,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                     while (pos.getY() > 0 && nodeType == PathNodeTypeForced.OPEN) {
                         pos.down();
 
-                        if (i++ >= this.entity.getMaxFallHeight()) {
+                        if (i++ >= (this.entity.getMaxFallHeight() * 2)) {
                             return null;
                         }
 
@@ -332,31 +339,37 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     }
 
     public IForcedPathNodeType pathNodeType(IBlockAccess world, AdvancedBlockPos pos) {
-        IForcedPathNodeType pathNodeType = this.pathNodeTypeRaw(world, pos);
+        IForcedPathNodeType node = this.nodeTypeCache.get(pos.hashCode());
 
-        if (pathNodeType == PathNodeTypeForced.OPEN && pos.getY() >= 1) {
-            Block block = this.getBlockState(world, pos.down()).getBlock();
-            IForcedPathNodeType pathNodeTypeDown = this.pathNodeTypeRaw(world, pos); pos.up();
-            pathNodeType = pathNodeTypeDown != PathNodeTypeForced.WALKABLE && pathNodeTypeDown != PathNodeTypeForced.OPEN && pathNodeTypeDown != PathNodeTypeForced.WATER && pathNodeTypeDown != PathNodeTypeForced.LAVA ? PathNodeTypeForced.WALKABLE : PathNodeTypeForced.OPEN;
+        if (node == null) {
+            node = this.pathNodeTypeRaw(world, pos);
 
-            if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_FIRE || block == Blocks.MAGMA)
-            {
-                pathNodeType = PathNodeTypeForced.DAMAGE_FIRE;
+            if (node == PathNodeTypeForced.OPEN && pos.getY() >= 1) {
+                Block block = this.openBlockState(world, pos.down()).getBlock();
+                IForcedPathNodeType pathNodeTypeDown = this.pathNodeTypeRaw(world, pos); pos.up();
+                node = pathNodeTypeDown != PathNodeTypeForced.WALKABLE && pathNodeTypeDown != PathNodeTypeForced.OPEN && pathNodeTypeDown != PathNodeTypeForced.WATER && pathNodeTypeDown != PathNodeTypeForced.LAVA ? PathNodeTypeForced.WALKABLE : PathNodeTypeForced.OPEN;
+
+                if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_FIRE || block == Blocks.MAGMA)
+                {
+                    node = PathNodeTypeForced.DAMAGE_FIRE;
+                }
+
+                if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_CACTUS)
+                {
+                    node = PathNodeTypeForced.DAMAGE_CACTUS;
+                }
+
+                if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_OTHER)
+                {
+                    node = PathNodeTypeForced.DAMAGE_OTHER;
+                }
             }
 
-            if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_CACTUS)
-            {
-                pathNodeType = PathNodeTypeForced.DAMAGE_CACTUS;
-            }
-
-            if (pathNodeTypeDown == PathNodeTypeForced.DAMAGE_OTHER)
-            {
-                pathNodeType = PathNodeTypeForced.DAMAGE_OTHER;
-            }
+            node = this.checkNeighborBlocksF(world, pos, node);
+            this.nodeTypeCache.put(pos.hashCode(), node);
         }
 
-        pathNodeType = this.checkNeighborBlocksF(world, pos, pathNodeType);
-        return pathNodeType;
+        return node.copy();
     }
 
     public IForcedPathNodeType checkNeighborBlocksF(IBlockAccess world, AdvancedBlockPos pos, IForcedPathNodeType pathNodeType) {
@@ -366,13 +379,13 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 for (int j = -1; j <= 1; ++j) {
                     if (i != 0 || j != 0) {
                         pos.pushPos();
-                        IBlockState state = this.getBlockState(world, pos.add(i, 0, j));
+                        IBlockState state = this.openBlockState(world, pos.add(i, 0, j));
                         Block block = state.getBlock();
                         PathNodeType type = block.getAiPathNodeType(state, world, pos, this.currentEntity);
 
                         if (block == Blocks.CACTUS || type == PathNodeType.DAMAGE_CACTUS) {
                             pathNodeType = PathNodeTypeForced.DANGER_CACTUS;
-                        } else if (block == Blocks.FIRE || type == PathNodeType.DAMAGE_FIRE) {
+                        } else if (block == Blocks.FIRE || type == PathNodeType.DAMAGE_FIRE || type == PathNodeType.LAVA) {
                             pathNodeType = PathNodeTypeForced.DANGER_FIRE;
                         } else if (type == PathNodeType.DAMAGE_OTHER)  {
                             pathNodeType = PathNodeTypeForced.DANGER_OTHER;
@@ -387,7 +400,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
     }
 
     protected IForcedPathNodeType pathNodeTypeRaw(IBlockAccess world, AdvancedBlockPos pos) {
-        IBlockState iblockstate = this.getBlockState(world, pos);
+        IBlockState iblockstate = this.openBlockState(world, pos);
         Block block = iblockstate.getBlock();
         Material material = iblockstate.getMaterial();
 
@@ -440,7 +453,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                 }
                 else if (block.getBlockHardness(iblockstate, this.entity.world, pos) != -1)
                 {
-                    return new PathNodeTypeBreakage(pos, (block.getBlockHardness(iblockstate, this.entity.world, pos) * 2.0F) * (1.0F - ((float) BlockDamageHandler.getDamage(this.entity.world, pos) / IDamagedChunk.MAX_DAMAGE)));
+                    return new PathNodeTypeBreakage(pos, block.getBlockHardness(iblockstate, this.entity.world, pos) * (1.0F - ((float) BlockDamageHandler.getDamage(this.entity.world, pos) / IDamagedChunk.MAX_DAMAGE)));
                 }
                 else
                 {
@@ -457,15 +470,15 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
             return PathNodeTypeForced.TRAPDOOR;
         }
     }
-    
-    private IBlockState getBlockState(IBlockAccess world, BlockPos pos) {
-        IBlockState state = this.stateCache.lookup(pos.hashCode());
-        
+
+    private IBlockState openBlockState(IBlockAccess world, BlockPos pos) {
+        IBlockState state = this.stateCache.get(pos.hashCode());
+
         if (state == null) {
             state = world.getBlockState(pos);
-            this.stateCache.addKey(pos.hashCode(), state);
+            this.stateCache.put(pos.hashCode(), state);
         }
-        
+
         return state;
     }
 }

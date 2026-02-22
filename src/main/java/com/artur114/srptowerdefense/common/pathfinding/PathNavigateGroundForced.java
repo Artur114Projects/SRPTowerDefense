@@ -15,6 +15,7 @@ public class PathNavigateGroundForced extends PathNavigateGround {
     protected @NotNull PathFinder getPathFinder() {
         this.nodeProcessor = new WalkNodeProcessorForced();
         this.nodeProcessor.setCanEnterDoors(true);
+        this.nodeProcessor.setCanSwim(true);
         return new PathFinderForced((WalkNodeProcessorForced) this.nodeProcessor);
     }
 
@@ -35,7 +36,7 @@ public class PathNavigateGroundForced extends PathNavigateGround {
                     BreakArea area = ((PathPointForced) point).posToBreak;
 
                     if (area != null) {
-                        if (area.entityDamage(this.entity, 128)) {
+                        if (area.entityDamage(this.entity, 128 * 8)) {
                             this.ticksAtLastPos = this.totalTicks;
                             this.timeoutTimer = 0;
                         }

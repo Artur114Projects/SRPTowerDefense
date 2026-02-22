@@ -14,7 +14,7 @@ public class BreakArea implements Iterable<BlockPos> {
     private BlockPos[] area;
 
     public BreakArea(BlockPos[] area) {
-        this.area = Arrays.copyOf(area, area.length);
+        this.area = area;
     }
 
     public BreakArea(BlockPos pos) {

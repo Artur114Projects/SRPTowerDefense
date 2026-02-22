@@ -74,6 +74,6 @@ public class EntityAIWaveMove extends EntityAIBase {
     }
 
     private BlockPos target() {
-        return new BlockPos(8, 100, 8);
+        return new BlockPos(8, 10, 8);
     }
 }
