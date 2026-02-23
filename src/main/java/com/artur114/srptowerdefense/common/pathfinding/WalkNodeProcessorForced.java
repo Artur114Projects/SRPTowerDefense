@@ -1,9 +1,9 @@
 package com.artur114.srptowerdefense.common.pathfinding;
 
 
-import com.artur114.srptowerdefense.common.blockdamage.BlockDamageHandler;
-import com.artur114.srptowerdefense.common.blockdamage.IDamagedChunk;
-import com.artur114.srptowerdefense.common.util.math.AdvancedBlockPos;
+import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
+import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;

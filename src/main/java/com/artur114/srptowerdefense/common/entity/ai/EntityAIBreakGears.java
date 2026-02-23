@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
-import com.artur114.srptowerdefense.common.blockdamage.BlockDamageHandler;
-import com.artur114.srptowerdefense.common.util.math.AdvancedBlockPos;
+import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageHandler;
+import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.SharedMonsterAttributes;

@@ -1,8 +1,8 @@
 package com.artur114.srptowerdefense.common.blocks;
 
 import com.artur114.srptowerdefense.common.tileentity.interf.*;
-import com.artur114.srptowerdefense.common.util.MaterialArray;
-import com.artur114.srptowerdefense.common.util.interfaces.IHasTileEntity;
+import com.artur114.bananalib.util.MaterialArray;
+import com.artur114.srptowerdefense.register.IHasTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;

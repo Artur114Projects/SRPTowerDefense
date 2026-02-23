@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.items;
 
 import com.artur114.srptowerdefense.common.init.InitItems;
-import com.artur114.srptowerdefense.common.util.interfaces.IHasModel;
+import com.artur114.srptowerdefense.register.IHasModel;
 import com.artur114.srptowerdefense.main.TowerDefence;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;

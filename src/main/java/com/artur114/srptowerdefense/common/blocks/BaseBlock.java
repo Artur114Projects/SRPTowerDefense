@@ -2,8 +2,8 @@ package com.artur114.srptowerdefense.common.blocks;
 
 import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
-import com.artur114.srptowerdefense.common.util.MaterialArray;
-import com.artur114.srptowerdefense.common.util.interfaces.IHasModel;
+import com.artur114.bananalib.util.MaterialArray;
+import com.artur114.srptowerdefense.register.IHasModel;
 import com.artur114.srptowerdefense.main.TowerDefence;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;

@@ -1,23 +1,16 @@
 package com.artur114.srptowerdefense.common.items;
 
 
-import com.artur114.srptowerdefense.common.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageHandler;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNodeType;
-import net.minecraft.pathfinding.PathPoint;
-import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

@@ -1,9 +1,9 @@
 package com.artur114.srptowerdefense.common.network.client;
 
-import com.artur114.srptowerdefense.common.blockdamage.IDamagedChunk;
-import com.artur114.srptowerdefense.common.blockdamage.client.IClientDamagedChunk;
+import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
+import com.artur114.srptowerdefense.common.systems.blockdamage.client.IClientDamagedChunk;
 import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
-import com.artur114.srptowerdefense.common.util.math.MathUtils;
+import com.artur114.bananalib.math.BananaMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +28,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
         this.chunk = chunkIn;
         this.data = dataIn;
 
-        this.data.setLong("chunkPos", MathUtils.chunkPosAsLong(chunkIn));
+        this.data.setLong("chunkPos", BananaMath.chunkPosAsLong(chunkIn));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
 
         this.data = ByteBufUtils.readTag(buf);
 
-        this.chunk = MathUtils.chunkPosFromLong(this.data.getLong("chunkPos"));
+        this.chunk = BananaMath.chunkPosFromLong(this.data.getLong("chunkPos"));
     }
 
     @Override

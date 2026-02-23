@@ -1,6 +1,6 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
-import com.artur114.srptowerdefense.common.util.math.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
