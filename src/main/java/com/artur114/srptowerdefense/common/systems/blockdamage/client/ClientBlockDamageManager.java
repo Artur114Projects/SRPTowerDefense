@@ -2,8 +2,8 @@ package com.artur114.srptowerdefense.common.systems.blockdamage.client;
 
 import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
 import com.artur114.srptowerdefense.common.capabilities.GenericCapProviderNS;
-import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -23,7 +23,7 @@ public class ClientBlockDamageManager {
             return;
         }
 
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && damagedChunk.isRemote()) {
             ((IClientDamagedChunk) damagedChunk).unloadChunk();
@@ -39,7 +39,7 @@ public class ClientBlockDamageManager {
             return;
         }
 
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && damagedChunk.isRemote()) {
             this.loadedChunks.add((IClientDamagedChunk) damagedChunk);
@@ -55,6 +55,6 @@ public class ClientBlockDamageManager {
     }
 
     public void attachCapabilitiesEventChunk(AttachCapabilitiesEvent<Chunk> e) {
-        e.addCapability(new ResourceLocation(TowerDefence.MODID, "blocks_damage"), new GenericCapProviderNS<>(new ClientDamagedChunk(e.getObject().getPos(), e.getObject().getWorld().provider.getDimension()), TowerDefenceCapabilities.BLOCK_DAMAGE));
+        e.addCapability(new ResourceLocation(SRPTDMain.MODID, "blocks_damage"), new GenericCapProviderNS<>(new ClientDamagedChunk(e.getObject().getPos(), e.getObject().getWorld().provider.getDimension()), SRPTDCapabilities.BLOCK_DAMAGE));
     }
 }

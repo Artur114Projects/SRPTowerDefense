@@ -4,7 +4,7 @@ import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.register.IHasModel;
 import com.artur114.srptowerdefense.register.IHasTileEntity;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -50,7 +50,7 @@ public abstract class BaseBlockContainer<T extends TileEntity> extends BlockCont
 
     @Override
     public void registerModels() {
-        TowerDefence.PROXY.registerItemRenderer(this.item, 0, "inventory");
+        SRPTDMain.PROXY.registerItemRenderer(this.item, 0, "inventory");
     }
 
     protected void getTileAndCall(World world, BlockPos pos, Predicate<T> run) {
@@ -61,7 +61,7 @@ public abstract class BaseBlockContainer<T extends TileEntity> extends BlockCont
     }
 
     public BaseBlockContainer<T> setModCreativeTab() {
-        this.setCreativeTab(TowerDefence.CREATIVE_TAB);
+        this.setCreativeTab(SRPTDMain.CREATIVE_TAB);
         return this;
     }
 

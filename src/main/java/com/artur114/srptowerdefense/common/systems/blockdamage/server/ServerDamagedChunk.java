@@ -6,7 +6,7 @@ import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageEvents
 import com.artur114.srptowerdefense.common.systems.blockdamage.DamagedChunk;
 import com.artur114.srptowerdefense.common.systems.blockdamage.ExtendedDamageStorage1Byte;
 import com.artur114.srptowerdefense.common.systems.blockdamage.IExtendedDamageStorage;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -150,7 +150,7 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
     @Override
     public void syncToClient(EntityPlayerMP clientIn) {
         if (clientIn != null) {
-            TowerDefence.NETWORK.sendTo(new CPacketSyncBlocksDamage(this.dimension, this.pos, this.syncManager.data()), clientIn);
+            SRPTDMain.NETWORK.sendTo(new CPacketSyncBlocksDamage(this.dimension, this.pos, this.syncManager.data()), clientIn);
         } else {
             this.syncManager.finish();
         }
@@ -159,7 +159,7 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
     @Override
     public void sendInitialDataToClient(EntityPlayerMP clientIn) {
         if (!this.isEmpty() && clientIn != null) {
-            TowerDefence.NETWORK.sendTo(new CPacketSyncBlocksDamage(this.dimension, this.pos, this.serializeNBT()), clientIn);
+            SRPTDMain.NETWORK.sendTo(new CPacketSyncBlocksDamage(this.dimension, this.pos, this.serializeNBT()), clientIn);
         }
     }
 

@@ -2,7 +2,7 @@ package com.artur114.srptowerdefense.common.items;
 
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.register.IHasModel;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
 import net.minecraft.util.text.TextFormatting;
@@ -19,7 +19,7 @@ public abstract class BaseItem extends Item implements IHasModel {
 
 
     protected void setModCreativeTab() {
-        this.setCreativeTab(TowerDefence.CREATIVE_TAB);
+        this.setCreativeTab(SRPTDMain.CREATIVE_TAB);
     }
 
     protected void addForCreativeOnlyTooltip(List<String> tooltip) {
@@ -28,6 +28,6 @@ public abstract class BaseItem extends Item implements IHasModel {
 
     @Override
     public void registerModels() {
-        TowerDefence.PROXY.registerItemRenderer(this, 0, "inventory");
+        SRPTDMain.PROXY.registerItemRenderer(this, 0, "inventory");
     }
 }

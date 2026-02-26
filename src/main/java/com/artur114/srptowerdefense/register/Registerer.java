@@ -3,7 +3,7 @@ package com.artur114.srptowerdefense.register;
 import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.common.network.client.CPacketSyncBlocksDamage;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -94,6 +94,6 @@ public class Registerer {
 
     public static void initNetwork() {
         int i = 0;
-        TowerDefence.NETWORK.registerMessage(new CPacketSyncBlocksDamage.HandlerSPC(), CPacketSyncBlocksDamage.class, i++, Side.CLIENT);
+        SRPTDMain.NETWORK.registerMessage(new CPacketSyncBlocksDamage.HandlerSPC(), CPacketSyncBlocksDamage.class, i++, Side.CLIENT);
     }
 }

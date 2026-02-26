@@ -145,6 +145,6 @@ public class Box2DM implements IBox2DM {
 
     @Override
     public String toString() {
-        return "[" + this.minX() + ", " + minY() + "] -> ["  + this.maxX() + ", " + this.maxY() + "]";
+        return "[" + ((float) this.minX()) + ", " + ((float) this.minY()) + "] -> ["  + ((float) this.maxX()) + ", " + ((float) this.maxY()) + "]";
     }
 }

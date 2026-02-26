@@ -2,7 +2,7 @@ package com.artur114.srptowerdefense.common.network.client;
 
 import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
 import com.artur114.srptowerdefense.common.systems.blockdamage.client.IClientDamagedChunk;
-import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
+import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.bananalib.math.BananaMath;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -57,7 +57,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
                 Minecraft mc = Minecraft.getMinecraft();
                 if (mc.world.provider.getDimension() == message.dimension) {
                     Chunk chunk = mc.world.getChunkFromChunkCoords(message.chunk.x, message.chunk.z);
-                    IDamagedChunk protectedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+                    IDamagedChunk protectedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
                     if (protectedChunk instanceof IClientDamagedChunk) {
                         ((IClientDamagedChunk) protectedChunk).processSyncData(message.data);
                     }

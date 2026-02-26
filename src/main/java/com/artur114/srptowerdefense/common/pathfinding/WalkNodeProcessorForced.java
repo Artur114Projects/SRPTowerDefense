@@ -260,6 +260,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         nodeType = this.pathNodeType(world, pos, prevPoint, xSize, ySize, zSize, canBreakDoorsIn, canEnterDoorsIn, set, nodeType);
         this.currentEntity = null;
         set = set.stream().sorted(Comparator.comparingInt(IForcedPathNodeType::ord)).collect(Collectors.toCollection(LinkedHashSet::new));
+        // TODO: 26.02.2026 ^ что нибудь с этим сделать
 
         if (set.contains(PathNodeTypeForced.FENCE))
         {

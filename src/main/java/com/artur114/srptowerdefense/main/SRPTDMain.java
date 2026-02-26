@@ -11,14 +11,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber
-@Mod(modid = TowerDefence.MODID, useMetadata = true)
-public class TowerDefence {
+@Mod(modid = SRPTDMain.MODID, useMetadata = true)
+public class SRPTDMain {
     public static final String MODID = "srptowerdefense";
     public static final String CLIENT_PROXY = "com.artur114.srptowerdefense.proxy.ClientProxy";
     public static final String SERVER_PROXY = "com.artur114.srptowerdefense.proxy.ServerProxy";
 
     public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("main") {public @NotNull ItemStack getTabIconItem() {return new ItemStack(InitItems.DEBUGGING_CARROT);}};
-    public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(TowerDefence.MODID);
+    public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(SRPTDMain.MODID);
     @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
     public static IProxy PROXY;
 

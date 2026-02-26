@@ -4,7 +4,7 @@ import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.bananalib.util.MaterialArray;
 import com.artur114.srptowerdefense.register.IHasModel;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -61,7 +61,7 @@ public abstract class BaseBlock extends Block implements IHasModel {
     }
 
     public BaseBlock setModCreativeTab() {
-        this.setCreativeTab(TowerDefence.CREATIVE_TAB);
+        this.setCreativeTab(SRPTDMain.CREATIVE_TAB);
         return this;
     }
 
@@ -80,7 +80,7 @@ public abstract class BaseBlock extends Block implements IHasModel {
 
     @Override
     public void registerModels() {
-        TowerDefence.PROXY.registerItemRenderer(this.item, 0, "inventory");
+        SRPTDMain.PROXY.registerItemRenderer(this.item, 0, "inventory");
     }
 
     @Override

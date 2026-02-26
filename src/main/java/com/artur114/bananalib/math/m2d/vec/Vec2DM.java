@@ -144,6 +144,6 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public String toString() {
-        return "(" + this.x() + ", " + this.y() + ")";
+        return "(" + ((float) this.x()) + ", " + ((float) this.y()) + ")";
     }
 }

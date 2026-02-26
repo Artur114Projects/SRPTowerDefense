@@ -131,6 +131,6 @@ public class Vec2D implements IVec2D {
 
     @Override
     public String toString() {
-        return "(" + this.x() + ", " + this.y() + ")";
+        return "(" + ((float) this.x()) + ", " + ((float) this.y()) + ")";
     }
 }

@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.systems.blockdamage;
 
 import com.artur114.srptowerdefense.common.systems.blockdamage.server.IServerDamagedChunk;
-import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
+import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -16,7 +16,7 @@ public class BlockDamageHandler {
             return 0;
         }
 
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null) {
             return damagedChunk.getDamage(pos);
@@ -35,7 +35,7 @@ public class BlockDamageHandler {
 
     public static void entityDamage(EntityLiving entity, BlockPos pos, int damagePer8Tics) {
         Chunk chunk = entity.world.getChunkFromBlockCoords(pos);
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && !damagedChunk.isRemote()) {
             float multiplier = ((IServerDamagedChunk) damagedChunk).damageMultiplierFor(pos);
@@ -55,7 +55,7 @@ public class BlockDamageHandler {
 
     public static void damage(World world, BlockPos pos, int amount) {
         Chunk chunk = world.getChunkFromBlockCoords(pos);
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && !damagedChunk.isRemote()) {
             ((IServerDamagedChunk) damagedChunk).damage(pos, amount);
@@ -64,7 +64,7 @@ public class BlockDamageHandler {
 
     public static void repair(World world, BlockPos pos, int amount) {
         Chunk chunk = world.getChunkFromBlockCoords(pos);
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && !damagedChunk.isRemote()) {
             ((IServerDamagedChunk) damagedChunk).repair(pos, amount);

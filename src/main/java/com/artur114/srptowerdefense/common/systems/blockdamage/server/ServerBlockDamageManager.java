@@ -3,8 +3,8 @@ package com.artur114.srptowerdefense.common.systems.blockdamage.server;
 
 import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
 import com.artur114.srptowerdefense.common.capabilities.GenericCapProviderS;
-import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
+import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -29,7 +29,7 @@ public class ServerBlockDamageManager {
     /*--------------------------------------EVENTS--------------------------------------*/
 
     public void attachCapabilitiesEventChunk(AttachCapabilitiesEvent<Chunk> e) {
-        e.addCapability(new ResourceLocation(TowerDefence.MODID, "blocks_damage"), new GenericCapProviderS<>(new ServerDamagedChunk(e.getObject().getWorld(), e.getObject().getPos()), TowerDefenceCapabilities.BLOCK_DAMAGE));
+        e.addCapability(new ResourceLocation(SRPTDMain.MODID, "blocks_damage"), new GenericCapProviderS<>(new ServerDamagedChunk(e.getObject().getWorld(), e.getObject().getPos()), SRPTDCapabilities.BLOCK_DAMAGE));
     }
 
     public void blockEventBreakEvent(BlockEvent.BreakEvent e) {
@@ -39,7 +39,7 @@ public class ServerBlockDamageManager {
             return;
         }
 
-        IDamagedChunk damagedChunk = chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+        IDamagedChunk damagedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && !damagedChunk.isRemote()) {
             ((IServerDamagedChunk) damagedChunk).onBlockBreak(e.getPos());
@@ -57,7 +57,7 @@ public class ServerBlockDamageManager {
     public void chunkWatchEventWatch(ChunkWatchEvent.Watch e) {
         Chunk chunk = e.getChunkInstance();
         if (chunk != null && !chunk.isEmpty()) {
-            IServerDamagedChunk protectedChunk = (IServerDamagedChunk) chunk.getCapability(TowerDefenceCapabilities.BLOCK_DAMAGE, null);
+            IServerDamagedChunk protectedChunk = (IServerDamagedChunk) chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
             if (protectedChunk != null && !protectedChunk.isEmpty()) {
                 protectedChunk.sendInitialDataToClient(e.getPlayer());
             }

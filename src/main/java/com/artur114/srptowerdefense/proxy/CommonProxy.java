@@ -1,14 +1,13 @@
 package com.artur114.srptowerdefense.proxy;
 
-import com.artur114.srptowerdefense.common.capabilities.TowerDefenceCapabilities;
-import com.artur114.srptowerdefense.main.TowerDefence;
+import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.srptowerdefense.register.Registerer;
 import net.minecraftforge.fml.common.event.*;
 
 public class CommonProxy implements IProxy {
     @Override
     public void preInit(FMLPreInitializationEvent e) {
-        TowerDefenceCapabilities.preInit();
+        SRPTDCapabilities.preInit();
         Registerer.preInit(e);
     }
 
