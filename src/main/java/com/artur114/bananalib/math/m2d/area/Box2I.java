@@ -75,7 +75,7 @@ public class Box2I implements IBox2I {
 
     @Override
     public boolean contains(int x, int y) {
-        return x > this.minX() && y > this.minY() && x < this.maxX() && y < this.maxY();
+        return x >= this.minX() && y >= this.minY() && x <= this.maxX() && y <= this.maxY();
     }
 
     @Override

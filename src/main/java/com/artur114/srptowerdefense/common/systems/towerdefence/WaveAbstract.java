@@ -37,7 +37,7 @@ public abstract class WaveAbstract implements IWave {
 
     public WaveAbstract(IVec2I pos, BlockPos target, float speed) {
         this.pos = new Vec2DM(pos);
-        this.box = new Box2IM(pos, pos.add(1, 1));
+        this.box = new Box2IM(pos, pos);
 
         this.speed = speed;
         this.target = target;
@@ -105,7 +105,7 @@ public abstract class WaveAbstract implements IWave {
         int x = BananaMath.floor(this.pos.x());
         int y = BananaMath.floor(this.pos.y());
 
-        this.box.set(x, y, x + 1, y + 1);
+        this.box.set(x, y, x, y);
 
         System.out.println(this.pos);
     }
@@ -151,10 +151,10 @@ public abstract class WaveAbstract implements IWave {
         return id;
     }
 
-    protected void addEntities(EntityCounted counted) {
-        EntityRecord[] records = counted.records(this.rand, this);
-        for (EntityRecord record : records) {
-            this.entityRecords.put(record.id, record);
+    protected void addEntities(ICanCreateEntity creator, int count) {
+        for (int i = 0; i != count; i++) {
+            int id = this.rand.nextInt();
+            this.entityRecords.put(id, new EntityRecord(creator, this, id));
         }
     }
 
@@ -254,17 +254,19 @@ public abstract class WaveAbstract implements IWave {
                     world.spawnEntity(entity);
 
                     this.loaded = true;
+
+                    System.out.println("Record(" + this.id + ")" + " loaded");
                 }
             }
         }
 
-        public void unload(WaveEntityData data) {
-            Chunk chunk = data.entity.world.getChunkFromChunkCoords(data.entity.chunkCoordX, data.entity.chunkCoordZ);
-            chunk.removeEntity(data.entity);
-            data.entity.setDead();
-            this.entity = null;
+        public void unload(WaveEntityData entity) {
+            entity.kill();
 
+            this.entity = null;
             this.loaded = false;
+
+            System.out.println("Record(" + this.id + ")" + " unloaded");
         }
 
         public boolean isLoaded() {

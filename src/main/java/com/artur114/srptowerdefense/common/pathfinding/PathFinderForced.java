@@ -41,6 +41,8 @@ public class PathFinderForced extends PathFinder {
 
     @Nullable
     private Path findPath(PathPointForced pathFrom, PathPointForced pathTo, float maxDistance) {
+        long nano = System.nanoTime();
+
         this.pathHeap.init(pathTo);
         PathBuilder path = this.pathHeap.copy(this.pathHeap.addPath(this.pathHeap.createBuilder().addPoint(pathFrom)));
         int maxIterationCount = (int) (200 * (maxDistance / 32.0F));
@@ -99,6 +101,8 @@ public class PathFinderForced extends PathFinder {
         this.pathHeap.releaseAll();
         Path build = path.build();
         this.pathHeap.releaseBuilder(path);
+
+        System.out.println("Pathfinding is took:" + ((System.nanoTime() - nano) / 1000000.0F) + "ms");
 
         return build;
     }
