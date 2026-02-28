@@ -6,8 +6,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class WaveTest extends WaveAbstract {
     public WaveTest(IVec2I pos) {
-        super(pos, new BlockPos(8, 10, 8), 1.0F / 16.0F);
+        super(pos, new BlockPos(8, 10, 8), 1.0F);
 
-        this.addEntities(new EntityCreatorClass(EntityInfHuman.class), 1);
+        this.addEntities(new EntityCreatorClass(EntityInfHuman.class), 16);
     }
 }

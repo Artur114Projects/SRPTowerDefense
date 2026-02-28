@@ -15,6 +15,7 @@ import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -22,7 +23,9 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
@@ -51,8 +54,13 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
 
             for (int x = box.minX(); x <= box.maxX(); x++) {
                 for (int y = box.minY(); y <= box.maxY(); y++) {
-                    Chunk chunk = this.world.getChunkProvider().getLoadedChunk(x, y);
-                    if (chunk != null) wave.onChunkLoaded(chunk);
+                    Chunk chunk = this.world.getChunkProvider().id2ChunkMap.get(ChunkPos.asLong(x, y));
+
+                    if (chunk == null || chunk.unloadQueued || !chunk.isLoaded()) {
+                        continue;
+                    }
+
+                    wave.onChunkLoaded(chunk);
                 }
             }
 
@@ -71,16 +79,38 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     }
 
     public void chunkUnload(Chunk chunk) {
+        List<Entity> toRemove = new ArrayList<>();
         for (ClassInheritanceMultiMap<Entity> entities : chunk.getEntityLists()) {
             for (Entity entity : entities) {
-                this.processUnloadEntity(entity);
+                if (this.processUnloadEntity(entity)) {
+                    toRemove.add(entity);
+                }
             }
+        }
+        for (Entity entity : toRemove) {
+            ClassInheritanceMultiMap<Entity>[] entityLists = chunk.getEntityLists();
+            int index = entity.chunkCoordY;
+
+            if (index < 0) {
+                index = 0;
+            }
+
+            if (index >= entityLists.length) {
+                index = entityLists.length - 1;
+            }
+
+            entityLists[index].remove(entity);
         }
     }
 
     public void unload() {
         for (Entity entity : this.world.loadedEntityList) {
-            this.processUnloadEntity(entity);
+            if (this.processUnloadEntity(entity)) {
+                Chunk chunk = this.world.getChunkProvider().getLoadedChunk(entity.chunkCoordX, entity.chunkCoordZ);
+                if (chunk != null) {
+                    chunk.removeEntity(entity);
+                }
+            }
         }
     }
 
@@ -93,12 +123,15 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
         this.wavesMap.put(id, wave);
     }
 
-    private void processUnloadEntity(Entity entity) {
+    private boolean processUnloadEntity(Entity entity) {
         WaveEntityData data = entity.getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
         if (data != null && data.isBindToWave()) {
             IWave wave = this.wavesMap.get(data.waveId());
-            if (wave != null) wave.onEntityUnload(data);
+            if (wave != null) {
+                return wave.onEntityUnload(data);
+            }
         }
+        return false;
     }
 
     @Override

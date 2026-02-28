@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -23,9 +24,10 @@ import java.util.Random;
 
 public abstract class WaveAbstract implements IWave {
     protected Int2ObjectMap<EntityRecord> entityRecords;
+    protected AdvancedBlockPos entityMoveTarget;
     protected TowerDefenceManager owner;
-    protected WorldServer world;
     protected IVec2D targetChunk;
+    protected WorldServer world;
     protected BlockPos target;
     protected IVec2DM pos;
     protected IBox2IM box;
@@ -61,6 +63,10 @@ public abstract class WaveAbstract implements IWave {
             if (!record.isLoaded()) {
                 blockPos.setPos(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setWorldY(this.world);
                 record.load(this.world, blockPos);
+
+                if (this.entityMoveTarget == null) {
+                    this.entityMoveTarget = new AdvancedBlockPos(chunk.getPos()).add(8, 0, 8).setWorldY(this.world);
+                }
             }
         }
 
@@ -68,11 +74,15 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
-    public void onEntityUnload(WaveEntityData entity) {
+    public boolean onEntityUnload(WaveEntityData entity) {
         if (entity.data.hasKey(EntityRecord.ENTITY_RECORD_NBT_LOCATION)) {
             EntityRecord record = this.entityRecords.get(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
-            if (record != null) record.unload(entity);
+            if (record != null) {
+                record.unload(entity);
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
@@ -85,20 +95,16 @@ public abstract class WaveAbstract implements IWave {
     @Override
     public void move(IVec2D vec) {
         if (this.entityRecords.values().stream().anyMatch(EntityRecord::isLoaded)) {
-            IVec2DM vec2D = new Vec2DM();
-            int count = 0;
-
-            for (EntityRecord record : this.entityRecords.values()) {
-                if (record.isLoaded()) {
-                    double x = record.entity().entity.posX / 16.0D;
-                    double y = record.entity().entity.posZ / 16.0D;
-                    vec2D.add(x, y);
-                    count++;
-                }
+            if (!this.isMoveTargetValide()) {
+                this.updateMoveTarget();
             }
 
-            this.pos.set(vec2D.scale(1.0D / count));
+            this.updateEntitiesMoveSpeed();
+            this.rebindMoveTarget();
+            this.updateWavePos();
         } else {
+            this.entityMoveTarget = null;
+
             this.pos.add(vec);
         }
 
@@ -117,7 +123,7 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public float speed() {
-        return this.speed;
+        return this.speed / 16.0F;
     }
 
     @Override
@@ -158,6 +164,83 @@ public abstract class WaveAbstract implements IWave {
         }
     }
 
+    private void updateWavePos() {
+        IVec2DM vec2D = new Vec2DM();
+        int count = 0;
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (record.isLoaded()) {
+                double x = record.entity().entity.posX / 16.0D;
+                double y = record.entity().entity.posZ / 16.0D;
+                vec2D.add(x, y);
+                count++;
+            }
+        }
+
+        this.pos.set(vec2D.scale(1.0D / count));
+    }
+
+    private void updateMoveTarget() {
+        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
+        blockPos.setPos(this.target()).subtract(this.entityMoveTarget).setY(0);
+        Vec3d vec = new Vec3d(blockPos).normalize();
+
+        double range = 16.0F;
+        int r = 4;
+
+        int x = MathHelper.floor((range * 0.8) * vec.x) + (this.rand.nextInt(r * 2) - r);
+        int z = MathHelper.floor((range * 0.8) * vec.z) + (this.rand.nextInt(r * 2) - r);
+        blockPos.setPos(this.entityMoveTarget).add(x, 0, z).setWorldY(this.world, state -> state.getMaterial().isReplaceable(), false);
+        this.entityMoveTarget.setPos(blockPos);
+
+        AdvancedBlockPos.release(blockPos);
+    }
+
+    private void rebindMoveTarget() {
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (record.isLoaded()) {
+                record.entity().setMoveTarget(this.entityMoveTarget);
+            }
+        }
+    }
+
+    private void updateEntitiesMoveSpeed() {
+        float maxDistance = -1.0F;
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (record.isLoaded()) {
+                float dist = (float) record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget);
+                if (dist > maxDistance) {
+                    maxDistance = dist;
+                }
+            }
+        }
+
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (record.isLoaded()) {
+                record.entity().setMoveSpeed((float) ((this.speed * 2.0F) * (record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget) / maxDistance)));
+            }
+        }
+    }
+
+    private boolean isMoveTargetValide() {
+        float avDistance = -1.0F;
+        int entitiesCount = 0;
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (record.isLoaded()) {
+                avDistance += (float) record.entity().entity.getDistanceSq(this.entityMoveTarget.getX() + 0.5, record.entity().entity.posY, this.entityMoveTarget.getZ() + 0.5);
+                entitiesCount++;
+            }
+        }
+
+        avDistance /= entitiesCount;
+
+
+        return avDistance > 8.0F * 8.0F;
+    }
+
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
 
@@ -166,31 +249,6 @@ public abstract class WaveAbstract implements IWave {
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         return null;
-    }
-
-    public static class EntityCounted {
-        private final ICanCreateEntity creator;
-        private final int count;
-
-        public EntityCounted(Class<? extends EntityLiving> clazz, int count) {
-            this.creator = new EntityCreatorClass(clazz);
-            this.count = count;
-        }
-
-        public EntityCounted(ResourceLocation rl, int count) {
-            this.creator = new EntityCreatorRl(rl);
-            this.count = count;
-        }
-
-        private EntityRecord[] records(Random keysCreator, WaveAbstract parent) {
-            EntityRecord[] records = new EntityRecord[this.count];
-
-            for (int i = 0; i != this.count; i++) {
-                records[i] = new EntityRecord(this.creator, parent, keysCreator.nextInt());
-            }
-
-            return records;
-        }
     }
 
     public static class EntityCreatorRl implements ICanCreateEntity {

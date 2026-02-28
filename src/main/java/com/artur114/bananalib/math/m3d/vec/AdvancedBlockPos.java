@@ -460,9 +460,10 @@ public class AdvancedBlockPos extends BlockPos.MutableBlockPos {
         this.contextDeep = -1;
     }
 
-    public void clear() {
+    public AdvancedBlockPos clear() {
         this.setPos(0, 0, 0);
         this.clearContext(false);
+        return this;
     }
 
     public boolean equalsXZ(BlockPos pos) {
