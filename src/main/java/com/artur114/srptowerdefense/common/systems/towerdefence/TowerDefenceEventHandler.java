@@ -12,6 +12,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,7 +24,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class TowerDefenceEventHandler {
     @SubscribeEvent
     public static void attachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> e) {
-        if (e.getObject() != null && e.getObject() instanceof EntityParasiteBase && e.getObject().world != null && !e.getObject().world.isRemote) e.addCapability(new ResourceLocation(SRPTDMain.MODID, "wave_data"), new GenericCapProviderNS<>(new WaveEntityData((EntityParasiteBase) e.getObject()), SRPTDCapabilities.WAVE_ENTITY_DATA));
+        if (e.getObject() != null && e.getObject() instanceof EntityParasiteBase && e.getObject().world != null && !e.getObject().world.isRemote) e.addCapability(new ResourceLocation(SRPTDMain.MODID, "wave_data"), new GenericCapProviderS<>(new WaveEntityData((EntityParasiteBase) e.getObject()), SRPTDCapabilities.WAVE_ENTITY_DATA));
     }
 
     @SubscribeEvent
@@ -44,7 +45,7 @@ public class TowerDefenceEventHandler {
 
     @SubscribeEvent
     public static void livingDead(LivingDeathEvent e) {
-        if (e.getEntity().world != null &&!e.getEntity().world.isRemote) {
+        if (e.getEntity().world != null && !e.getEntity().world.isRemote) {
             TowerDefenceManager manager = e.getEntity().world.getCapability(SRPTDCapabilities.TOWER_DEFENCE_SYSTEM, null);
 
             if (manager != null) {
@@ -64,23 +65,12 @@ public class TowerDefenceEventHandler {
     }
 
     @SubscribeEvent
-    public static void chunkUnload(ChunkEvent.Unload e) {
+    public static void chunkSave(ChunkDataEvent.Save e) {
         if (!e.getWorld().isRemote) {
             TowerDefenceManager manager = e.getWorld().getCapability(SRPTDCapabilities.TOWER_DEFENCE_SYSTEM, null);
 
             if (manager != null) {
-                manager.chunkUnload(e.getChunk());
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void worldUnload(WorldEvent.Unload e) {
-        if (!e.getWorld().isRemote) {
-            TowerDefenceManager manager = e.getWorld().getCapability(SRPTDCapabilities.TOWER_DEFENCE_SYSTEM, null);
-
-            if (manager != null) {
-                manager.unload();
+                manager.chunkSave(e.getData());
             }
         }
     }

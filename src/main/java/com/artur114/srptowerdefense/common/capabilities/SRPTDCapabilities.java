@@ -59,11 +59,17 @@ public class SRPTDCapabilities {
         CapabilityManager.INSTANCE.register(WaveEntityData.class, new Capability.IStorage<WaveEntityData>() {
             @Override
             public NBTBase writeNBT(Capability<WaveEntityData> capability, WaveEntityData instance, EnumFacing side) {
-                return null;
+                return instance.serializeNBT();
             }
 
             @Override
-            public void readNBT(Capability<WaveEntityData> capability, WaveEntityData instance, EnumFacing side, NBTBase nbt) {}
+            public void readNBT(Capability<WaveEntityData> capability, WaveEntityData instance, EnumFacing side, NBTBase nbt) {
+                if (!(nbt instanceof NBTTagCompound)) {
+                    return;
+                }
+
+                instance.deserializeNBT((NBTTagCompound) nbt);
+            }
         }, () -> new WaveEntityData(null));
     }
 }

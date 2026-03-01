@@ -4,8 +4,9 @@ import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.INBTSerializable;
 
-public class WaveEntityData {
+public class WaveEntityData implements INBTSerializable<NBTTagCompound> {
     public final EntityParasiteBase entity;
     public NBTTagCompound data;
     private AdvancedBlockPos blockPos;
@@ -53,5 +54,19 @@ public class WaveEntityData {
 
     public int waveId() {
         return this.wave.id();
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound compound = new NBTTagCompound();
+        compound.setBoolean("bindToWave", this.isBindToWave());
+        return compound;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt) {
+//        if (nbt.getBoolean("bindToWave")) {
+//            this.kill();
+//        }
     }
 }

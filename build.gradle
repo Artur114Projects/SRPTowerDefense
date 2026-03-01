@@ -63,6 +63,9 @@ jar {
             attributes "FMLCorePlugin": coreModClass
             attributes "FMLCorePluginContainsFMLMod": "true"
         }
+        if (atfile != "null") {
+            attributes "FMLAT": atfile
+        }
     }
 }
 

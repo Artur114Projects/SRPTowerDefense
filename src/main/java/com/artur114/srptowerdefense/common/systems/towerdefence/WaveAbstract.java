@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -57,6 +58,14 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public void onChunkLoaded(Chunk chunk) {
+        for (int x = chunk.x - 3; x != chunk.x + 4; x++) {
+            for (int z = chunk.z - 3; z != chunk.z + 4; z++) {
+                if (!this.world.getChunkProvider().chunkExists(x, z)) {
+                    return;
+                }
+            }
+        }
+
         AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
 
         for (EntityRecord record : this.entityRecords.values()) {
@@ -74,21 +83,13 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
-    public boolean onEntityUnload(WaveEntityData entity) {
-        if (entity.data.hasKey(EntityRecord.ENTITY_RECORD_NBT_LOCATION)) {
-            EntityRecord record = this.entityRecords.get(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
-            if (record != null) {
-                record.unload(entity);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public void onEntityDied(WaveEntityData entity) {
         if (entity.data.hasKey(EntityRecord.ENTITY_RECORD_NBT_LOCATION)) {
-            this.entityRecords.remove(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
+            EntityRecord record = this.entityRecords.remove(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
+
+            if (record != null) {
+                System.out.println("Record(" + record.id + ") is removed");
+            }
         }
     }
 
@@ -114,6 +115,8 @@ public abstract class WaveAbstract implements IWave {
         this.box.set(x, y, x, y);
 
         System.out.println(this.pos);
+        System.out.println(this.box);
+        System.out.println();
     }
 
     @Override
@@ -216,10 +219,9 @@ public abstract class WaveAbstract implements IWave {
             }
         }
 
-
         for (EntityRecord record : this.entityRecords.values()) {
             if (record.isLoaded()) {
-                record.entity().setMoveSpeed((float) ((this.speed * 2.0F) * (record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget) / maxDistance)));
+                record.entity().setMoveSpeed((float) (this.speed * (record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget) / maxDistance)));
             }
         }
     }
@@ -286,7 +288,6 @@ public abstract class WaveAbstract implements IWave {
         private final ICanCreateEntity record;
         private final WaveAbstract owner;
         private final int id;
-        private boolean loaded = false;
         private WaveEntityData entity;
 
         private EntityRecord(ICanCreateEntity record, WaveAbstract owner, int id) {
@@ -296,9 +297,6 @@ public abstract class WaveAbstract implements IWave {
         }
 
         public void load(World world, BlockPos pos) {
-            if (this.loaded) {
-                return;
-            }
             EntityLiving entity = this.record.create(world);
             if (entity != null) {
                 WaveEntityData data = entity.getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
@@ -308,27 +306,30 @@ public abstract class WaveAbstract implements IWave {
                     data.data.setInteger(ENTITY_RECORD_NBT_LOCATION, this.id);
                     data.bindWave(this.owner);
 
-                    entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
-                    world.spawnEntity(entity);
+                    entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
+                    entity.rotationYawHead = entity.rotationYaw;
+                    entity.renderYawOffset = entity.rotationYaw;
+                    entity.onInitialSpawn(world.getDifficultyForLocation(new BlockPos(entity)), null);
+                    entity.forceSpawn = true;
 
-                    this.loaded = true;
+                    if (!world.spawnEntity(entity) || !entity.isAddedToWorld() || !entity.addedToChunk) {
+                        this.entity = null;
+                        System.out.println("OHIUUIIUHOHHHO");
+                        return;
+                    }
 
                     System.out.println("Record(" + this.id + ")" + " loaded");
                 }
             }
         }
 
-        public void unload(WaveEntityData entity) {
-            entity.kill();
-
-            this.entity = null;
-            this.loaded = false;
-
-            System.out.println("Record(" + this.id + ")" + " unloaded");
-        }
-
         public boolean isLoaded() {
-            return this.loaded;
+            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.entity.entity.world.isAreaLoaded(this.entity.entity.getPosition(), 32 + 8);
+            if (!loaded && this.entity != null) {
+                System.out.println("Record(" + this.id + ")" + " unloaded");
+            }
+            if (!loaded) this.entity = null;
+            return loaded;
         }
 
         public WaveEntityData entity() {
