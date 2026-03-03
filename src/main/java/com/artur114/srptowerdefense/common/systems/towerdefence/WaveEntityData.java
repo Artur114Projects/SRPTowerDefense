@@ -2,7 +2,9 @@ package com.artur114.srptowerdefense.common.systems.towerdefence;
 
 import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
+import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
@@ -45,6 +47,9 @@ public class WaveEntityData implements INBTSerializable<NBTTagCompound> {
     }
 
     public void bindWave(IWave wave) {
+        this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
+        this.entity.cannotDespawn(false);
+        this.entity.setWait(0);
         this.wave = wave;
     }
 
@@ -64,9 +69,5 @@ public class WaveEntityData implements INBTSerializable<NBTTagCompound> {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
-//        if (nbt.getBoolean("bindToWave")) {
-//            this.kill();
-//        }
-    }
+    public void deserializeNBT(NBTTagCompound nbt) {}
 }

@@ -1,6 +1,6 @@
 package com.artur114.srptowerdefense.common.systems.towerdefence;
 
-import com.artur114.srptowerdefense.common.capabilities.GenericCapProviderNS;
+import com.artur114.bananalib.math.m2d.vec.Vec2I;
 import com.artur114.srptowerdefense.common.capabilities.GenericCapProviderS;
 import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.srptowerdefense.main.SRPTDMain;
@@ -14,11 +14,12 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import java.util.Random;
 
 @Mod.EventBusSubscriber
 public class TowerDefenceEventHandler {
@@ -34,11 +35,17 @@ public class TowerDefenceEventHandler {
 
     @SubscribeEvent
     public static void worldTick(TickEvent.WorldTickEvent e) {
-        if (e.phase == TickEvent.Phase.START && !e.world.isRemote && e.world.getTotalWorldTime() % 20 == 0) {
+        if (e.phase == TickEvent.Phase.START && !e.world.isRemote && e.world.getTotalWorldTime() % 8 == 0) {
             TowerDefenceManager manager = e.world.getCapability(SRPTDCapabilities.TOWER_DEFENCE_SYSTEM, null);
 
             if (manager != null) {
                 manager.update();
+
+
+                if (e.world.getTotalWorldTime() % 4800 == 0) { // Debug
+                    Random rand = new Random();
+                    manager.addWave(new WaveTest(new Vec2I(rand.nextInt(80) - 40, rand.nextInt(80) - 40)), rand.nextInt());
+                }
             }
         }
     }
@@ -60,6 +67,17 @@ public class TowerDefenceEventHandler {
             WaveEntityData data = e.getEntity().getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
             if (data != null && data.isBindToWave()) {
                 e.setResult(Event.Result.DENY);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void chunkLoad(ChunkEvent.Load e) {
+        if (!e.getWorld().isRemote) {
+            TowerDefenceManager manager = e.getWorld().getCapability(SRPTDCapabilities.TOWER_DEFENCE_SYSTEM, null);
+
+            if (manager != null) {
+                manager.chunkLoad(e.getChunk());
             }
         }
     }

@@ -6,7 +6,6 @@ import com.artur114.bananalib.math.m2d.area.IBox2IM;
 import com.artur114.bananalib.math.m2d.vec.IVec2DM;
 import com.artur114.bananalib.math.m2d.vec.Vec2DM;
 import com.artur114.bananalib.math.m2d.vec.Vec2I;
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
 import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.srptowerdefense.main.SRPTDMain;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -31,7 +30,7 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
         this.world = world;
 
         Random rand = new Random();
-        this.addWave(new WaveTest(new Vec2I(rand.nextInt(40) - 20, rand.nextInt(40) - 20)), 0);
+        this.addWave(new WaveTest(new Vec2I(rand.nextInt(80) - 40, rand.nextInt(80) - 40)), 0);
     }
 
     public void update() {
@@ -55,11 +54,11 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
                     for (int y = boxNew.minY(); y <= boxNew.maxY(); y++) {
                         Chunk chunk = this.world.getChunkProvider().id2ChunkMap.get(ChunkPos.asLong(x, y));
 
-                        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded()) {
-                            continue;
+                        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded() || !this.world.isAreaLoaded(chunk.getPos().getBlock(0, 128, 0), 32 + 16)) {
+                            continue; // TODO: 03.03.2026 добавить проверку на forced чанки
                         }
 
-                        wave.onChunkLoaded(chunk);
+                        wave.onEntryToLoadedChunk(chunk);
                     }
                 }
             }
@@ -75,6 +74,15 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
         if (data != null && data.isBindToWave()) {
             IWave wave = this.wavesMap.get(data.waveId());
             if (wave != null) wave.onEntityDied(data);
+        }
+    }
+
+    public void chunkLoad(Chunk chunk) {
+        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded() || !this.world.isAreaLoaded(chunk.getPos().getBlock(0, 128, 0), 32 + 16)) {
+            return; // TODO: 03.03.2026 добавить проверку на forced чанки
+        }
+        for (IWave wave : this.wavesMap.values()) {
+            wave.ondChunkLoaded(chunk);
         }
     }
 

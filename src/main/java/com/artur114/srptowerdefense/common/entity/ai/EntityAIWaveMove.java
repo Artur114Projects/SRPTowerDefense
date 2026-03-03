@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 public class EntityAIWaveMove extends EntityAIBase {
+    private final AdvancedBlockPos prevTarget = new AdvancedBlockPos();
     private final EntityCreature creature;
     private final WaveEntityData waveData;
 
@@ -32,9 +33,15 @@ public class EntityAIWaveMove extends EntityAIBase {
     public void updateTask() {
         if (this.waveData.moveSpeed() != -1.0F) {
             this.creature.getNavigator().setSpeed(this.waveData.moveSpeed());
-            if (this.creature.ticksExisted % 8 == 0) {
+            if (this.creature.ticksExisted % 8 == 0 && (!this.prevTarget.equals(this.waveData.moveTarget()) || this.creature.getNavigator().noPath())) {
                 BlockPos pos = this.waveData.moveTarget();
-                if (pos != null) this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
+                if (pos != null) {
+                    this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
+                    if (!this.prevTarget.equals(pos)) {
+                        System.out.println("wave(" + this.waveData.waveId() + ") move to:" + pos);
+                    }
+                    this.prevTarget.setPos(pos);
+                }
             }
         }
     }

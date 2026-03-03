@@ -10,8 +10,9 @@ import net.minecraft.world.chunk.Chunk;
 
 public interface IWave extends IReadFromNBT, IWriteToNBT {
     void init(WorldServer world, TowerDefenceManager owner, int id);
-    void onChunkLoaded(Chunk chunk);
+    void onEntryToLoadedChunk(Chunk chunk);
     void onEntityDied(WaveEntityData entity);
+    void ondChunkLoaded(Chunk chunk);
     void move(IVec2D vec);
     boolean isAlive();
     float speed();

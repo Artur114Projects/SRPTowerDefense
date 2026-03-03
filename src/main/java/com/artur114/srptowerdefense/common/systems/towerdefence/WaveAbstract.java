@@ -57,15 +57,25 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
-    public void onChunkLoaded(Chunk chunk) {
-        for (int x = chunk.x - 3; x != chunk.x + 4; x++) {
-            for (int z = chunk.z - 3; z != chunk.z + 4; z++) {
-                if (!this.world.getChunkProvider().chunkExists(x, z)) {
-                    return;
+    public void ondChunkLoaded(Chunk chunk) {
+        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (!record.isLoaded()) {
+                blockPos.setPos(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setWorldY(this.world);
+                record.load(this.world, blockPos);
+
+                if (this.entityMoveTarget == null) {
+                    this.entityMoveTarget = new AdvancedBlockPos(chunk.getPos()).add(8, 0, 8).setWorldY(this.world);
                 }
             }
         }
 
+        AdvancedBlockPos.release(blockPos);
+    }
+
+    @Override
+    public void onEntryToLoadedChunk(Chunk chunk) {
         AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
 
         for (EntityRecord record : this.entityRecords.values()) {
@@ -126,7 +136,7 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public float speed() {
-        return this.speed / 16.0F;
+        return (this.speed / 16.0F) * (8.0F / 20.0F);
     }
 
     @Override
@@ -184,6 +194,10 @@ public abstract class WaveAbstract implements IWave {
     }
 
     private void updateMoveTarget() {
+        if (this.entityMoveTarget.distanceSq(this.target()) < 64 * 64) {
+            this.entityMoveTarget.setPos(this.target()); return;
+        }
+
         AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
         blockPos.setPos(this.target()).subtract(this.entityMoveTarget).setY(0);
         Vec3d vec = new Vec3d(blockPos).normalize();
@@ -227,6 +241,10 @@ public abstract class WaveAbstract implements IWave {
     }
 
     private boolean isMoveTargetValide() {
+        if (this.entityMoveTarget.equals(this.target())) {
+            return true;
+        }
+
         float avDistance = -1.0F;
         int entitiesCount = 0;
 
@@ -258,6 +276,10 @@ public abstract class WaveAbstract implements IWave {
 
         public EntityCreatorRl(ResourceLocation rl) {
             this.rl = rl;
+        }
+
+        public EntityCreatorRl(String rl) {
+            this.rl = new ResourceLocation(rl);
         }
 
         @Override
@@ -312,9 +334,8 @@ public abstract class WaveAbstract implements IWave {
                     entity.onInitialSpawn(world.getDifficultyForLocation(new BlockPos(entity)), null);
                     entity.forceSpawn = true;
 
-                    if (!world.spawnEntity(entity) || !entity.isAddedToWorld() || !entity.addedToChunk) {
+                    if (!world.spawnEntity(entity)) {
                         this.entity = null;
-                        System.out.println("OHIUUIIUHOHHHO");
                         return;
                     }
 
@@ -324,7 +345,7 @@ public abstract class WaveAbstract implements IWave {
         }
 
         public boolean isLoaded() {
-            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.entity.entity.world.isAreaLoaded(this.entity.entity.getPosition(), 32 + 8);
+            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.entity.entity.world.isAreaLoaded(this.entity.entity.getPosition(), 32);
             if (!loaded && this.entity != null) {
                 System.out.println("Record(" + this.id + ")" + " unloaded");
             }

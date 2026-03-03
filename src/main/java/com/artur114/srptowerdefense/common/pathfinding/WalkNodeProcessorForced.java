@@ -194,6 +194,17 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         double h = (double) pos.getY() - (1.0D - this.openBlockState(this.blockaccess, pos.down()).getBoundingBox(this.blockaccess, pos).maxY);
         pos.up();
 
+        int y = pos.getY();
+        pos.pushPos();
+        boolean flag = this.openBlockState(this.blockaccess, pos.setPos(prevPoint.x, prevPoint.y - 1, prevPoint.z)).getMaterial().isLiquid();
+        pos.popPos();
+        pos.pushPos();
+        if (flag && this.openBlockState(this.blockaccess, pos).getMaterial() == Material.AIR && this.openBlockState(this.blockaccess, pos.down()).getMaterial().isSolid()) {
+            y--;
+        }
+        pos.popPos();
+        pos.setY(y);
+
         if (h - blockBoxHeight > 1.125D) {
             return null;
         } else {
@@ -224,7 +235,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
                     while (pos.getY() > 0 && nodeType == PathNodeTypeForced.OPEN) {
                         pos.down();
 
-                        if (i++ >= (this.entity.getMaxFallHeight() * 2)) {
+                        if (i++ >= (this.entity.getMaxFallHeight() * 2) || pos.getY() <= 0) {
                             return null;
                         }
 
