@@ -100,6 +100,32 @@ public class BananaMath {
         }
     }
 
+    public static int mod(float v) {
+        if (v < 0) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    public static int mod(int v) {
+        if (v < 0) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    public static int round(double d) {
+        int i = (int) d;
+        return d - i > 0.5 ? i + 1 : i;
+    }
+
+    public static int round(float d) {
+        int i = (int) d;
+        return d - i > 0.5F ? i + 1 : i;
+    }
+
     public static int floor(double d) {
         int i = (int) d;
         return d < (double) i ? i - 1 : i;

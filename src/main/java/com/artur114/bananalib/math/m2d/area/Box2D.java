@@ -28,6 +28,11 @@ public class Box2D implements IBox2D {
     }
 
     @Override
+    public IBox2D grow(double amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
     public IBox2D grow(double x, double y) {
         return new Box2D(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
     }

@@ -4,6 +4,7 @@ import com.artur114.bananalib.math.m2d.vec.IVec2D;
 import com.artur114.bananalib.math.m2d.vec.IVec2I;
 
 public interface IBox2I {
+    IBox2I grow(int amount);
     IBox2I grow(int x, int y);
     IBox2I grow(IVec2I vec2D);
     IBox2I offset(int x, int y);

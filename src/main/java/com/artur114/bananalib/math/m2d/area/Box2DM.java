@@ -49,6 +49,11 @@ public class Box2DM implements IBox2DM {
     }
 
     @Override
+    public IBox2DM grow(double amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
     public IBox2DM grow(double x, double y) {
         return this.set(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
     }

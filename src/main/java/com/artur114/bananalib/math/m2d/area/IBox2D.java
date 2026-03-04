@@ -3,6 +3,7 @@ package com.artur114.bananalib.math.m2d.area;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;
 
 public interface IBox2D {
+    IBox2D grow(double amount);
     IBox2D grow(double x, double y);
     IBox2D grow(IVec2D vec2D);
     IBox2D offset(double x, double y);

@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.systems.blockdamage;
 
-import com.artur114.bananalib.util.IReadFromNBT;
-import com.artur114.bananalib.util.IWriteToNBT;
+import com.artur114.bananalib.util.nbt.IReadFromNBT;
+import com.artur114.bananalib.util.nbt.IWriteToNBT;
 import net.minecraft.util.math.BlockPos;
 
 public interface IExtendedDamageStorage extends IWriteToNBT, IReadFromNBT {

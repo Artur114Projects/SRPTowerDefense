@@ -11,7 +11,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -119,8 +118,8 @@ public abstract class WaveAbstract implements IWave {
             this.pos.add(vec);
         }
 
-        int x = BananaMath.floor(this.pos.x());
-        int y = BananaMath.floor(this.pos.y());
+        int x = BananaMath.round(this.pos.x());
+        int y = BananaMath.round(this.pos.y());
 
         this.box.set(x, y, x, y);
 
@@ -203,7 +202,7 @@ public abstract class WaveAbstract implements IWave {
         Vec3d vec = new Vec3d(blockPos).normalize();
 
         double range = 16.0F;
-        int r = 4;
+        int r = 2;
 
         int x = MathHelper.floor((range * 0.8) * vec.x) + (this.rand.nextInt(r * 2) - r);
         int z = MathHelper.floor((range * 0.8) * vec.z) + (this.rand.nextInt(r * 2) - r);
@@ -339,22 +338,39 @@ public abstract class WaveAbstract implements IWave {
                         return;
                     }
 
-                    System.out.println("Record(" + this.id + ")" + " loaded");
+                    System.out.println("Record(" + this.id + ")" + " loaded to pos:" + pos);
                 }
             }
         }
 
         public boolean isLoaded() {
-            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.entity.entity.world.isAreaLoaded(this.entity.entity.getPosition(), 32);
+            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.canEntityUpdate();
             if (!loaded && this.entity != null) {
+                this.entity = this.entity.kill();
                 System.out.println("Record(" + this.id + ")" + " unloaded");
             }
-            if (!loaded) this.entity = null;
             return loaded;
         }
 
         public WaveEntityData entity() {
             return this.entity;
+        }
+
+        private boolean canEntityUpdate() {
+            EntityLiving entity = this.entity.entity;
+            World world = entity.world;
+            int x = MathHelper.floor(entity.posX);
+            int z = MathHelper.floor(entity.posZ);
+            boolean isForced = !world.isRemote && world.getPersistentChunks().containsKey(new net.minecraft.util.math.ChunkPos(x >> 4, z >> 4));
+            int range = isForced ? 0 : 32;
+
+            AdvancedBlockPos from = AdvancedBlockPos.obtain().setPos(x - range, 0, z - range);
+            AdvancedBlockPos to = AdvancedBlockPos.obtain().setPos(x + range, 0, z + range);
+            boolean flag = world.isAreaLoaded(from, to);
+            AdvancedBlockPos.release(from);
+            AdvancedBlockPos.release(to);
+
+            return flag;
         }
     }
 }

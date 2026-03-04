@@ -6,6 +6,7 @@ import com.artur114.bananalib.math.m2d.area.IBox2IM;
 import com.artur114.bananalib.math.m2d.vec.IVec2DM;
 import com.artur114.bananalib.math.m2d.vec.Vec2DM;
 import com.artur114.bananalib.math.m2d.vec.Vec2I;
+import com.artur114.bananalib.util.BananaUtils;
 import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.srptowerdefense.main.SRPTDMain;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -29,8 +30,7 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     public TowerDefenceManager(WorldServer world) {
         this.world = world;
 
-        Random rand = new Random();
-        this.addWave(new WaveTest(new Vec2I(rand.nextInt(80) - 40, rand.nextInt(80) - 40)), 0);
+        this.addWave(new WaveTest(new Vec2I(20, 0)), 0);
     }
 
     public void update() {
@@ -54,11 +54,13 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
                     for (int y = boxNew.minY(); y <= boxNew.maxY(); y++) {
                         Chunk chunk = this.world.getChunkProvider().id2ChunkMap.get(ChunkPos.asLong(x, y));
 
-                        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded() || !this.world.isAreaLoaded(chunk.getPos().getBlock(0, 128, 0), 32 + 16)) {
-                            continue; // TODO: 03.03.2026 добавить проверку на forced чанки
+                        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded()) {
+                            continue;
                         }
 
-                        wave.onEntryToLoadedChunk(chunk);
+                        if (this.world.getPersistentChunks().containsKey(chunk.getPos()) || BananaUtils.isChunksLoaded(this.world, box.set(x, y, x, y).grow(this.chunkLoadCheckRange()))) {
+                            wave.onEntryToLoadedChunk(chunk);
+                        }
                     }
                 }
             }
@@ -78,11 +80,10 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     }
 
     public void chunkLoad(Chunk chunk) {
-        if (chunk == null || chunk.unloadQueued || !chunk.isLoaded() || !this.world.isAreaLoaded(chunk.getPos().getBlock(0, 128, 0), 32 + 16)) {
-            return; // TODO: 03.03.2026 добавить проверку на forced чанки
-        }
         for (IWave wave : this.wavesMap.values()) {
-            wave.ondChunkLoaded(chunk);
+            if (wave.box().contains(chunk.x, chunk.z)) {
+                wave.ondChunkLoaded(chunk);
+            }
         }
     }
 
@@ -124,6 +125,10 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     public void addWave(IWave wave, int id) {
         wave.init(this.world, this, id);
         this.wavesMap.put(id, wave);
+    }
+
+    private int chunkLoadCheckRange() {
+        return 3;
     }
 
     @Override

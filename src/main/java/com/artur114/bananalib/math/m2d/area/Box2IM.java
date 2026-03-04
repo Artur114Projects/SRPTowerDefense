@@ -50,6 +50,11 @@ public class Box2IM implements IBox2IM {
     }
 
     @Override
+    public IBox2IM grow(int amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
     public IBox2IM grow(int x, int y) {
         return this.set(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
     }

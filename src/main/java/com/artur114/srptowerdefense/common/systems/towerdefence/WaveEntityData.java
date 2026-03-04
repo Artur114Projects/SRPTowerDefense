@@ -22,12 +22,12 @@ public class WaveEntityData implements INBTSerializable<NBTTagCompound> {
         this.speed = -1.0F;
     }
 
-    public void kill() {
+    public WaveEntityData kill() {
         this.data = new NBTTagCompound();
         this.entity.isDead = true;
         this.blockPos = null;
         this.speed = -1.0F;
-        this.wave = null;
+        return null;
     }
 
     public float moveSpeed() {

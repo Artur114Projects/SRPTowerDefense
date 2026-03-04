@@ -42,9 +42,9 @@ public class TowerDefenceEventHandler {
                 manager.update();
 
 
-                if (e.world.getTotalWorldTime() % 4800 == 0) { // Debug
+                if (e.world.getTotalWorldTime() % 1200 == 0) { // Debug
                     Random rand = new Random();
-                    manager.addWave(new WaveTest(new Vec2I(rand.nextInt(80) - 40, rand.nextInt(80) - 40)), rand.nextInt());
+                    manager.addWave(new WaveTest(new Vec2I(20, 0)), rand.nextInt());
                 }
             }
         }

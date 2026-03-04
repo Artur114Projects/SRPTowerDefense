@@ -1,4 +1,4 @@
-package com.artur114.bananalib.util;
+package com.artur114.bananalib.util.nbt;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

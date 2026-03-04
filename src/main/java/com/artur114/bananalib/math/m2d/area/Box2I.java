@@ -29,6 +29,11 @@ public class Box2I implements IBox2I {
     }
 
     @Override
+    public IBox2I grow(int amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
     public IBox2I grow(int x, int y) {
         return new Box2I(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
     }

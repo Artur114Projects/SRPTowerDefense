@@ -1,15 +1,16 @@
-import com.artur114.srptowerdefense.common.pathfinding.PathNodeTypeBreakage;
-import net.minecraft.util.math.BlockPos;
+import com.artur114.bananalib.math.BananaMath;
 
-import java.util.Arrays;
+import java.util.Random;
 
 public class Test {
     public static void main(String[] args) {
-        int i;
-        for (int index = 10; index > 0; index = i)
-        {
-            i = index - 1 >> 1;
-            System.out.println(i);
+        Random rand = new Random();
+        for (int i = 0; i != 100; i++) {
+            double d = rand.nextDouble() * 10.0D;
+            System.out.println(d);
+            System.out.println(BananaMath.floor(d));
+            System.out.println(Math.round(d));
+            System.out.println();
         }
     }
 }
