@@ -64,6 +64,11 @@ public class Vec2IM implements IVec2IM {
     }
 
     @Override
+    public IVec2IM set(IVec2D vec) {
+        return this.set(BananaMath.floor(vec.x()), BananaMath.floor(vec.y()));
+    }
+
+    @Override
     public IVec2IM add(int x, int y) {
         return this.set(this.x() + x, this.y() + y);
     }

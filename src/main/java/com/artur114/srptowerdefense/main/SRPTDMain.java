@@ -10,6 +10,8 @@ import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.jetbrains.annotations.NotNull;
 
+
+// TODO: 05.03.2026 Вырезать опцию smooth world в optiFine
 @Mod.EventBusSubscriber
 @Mod(modid = SRPTDMain.MODID, useMetadata = true)
 public class SRPTDMain {

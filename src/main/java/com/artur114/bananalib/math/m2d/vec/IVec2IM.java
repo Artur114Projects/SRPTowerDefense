@@ -3,6 +3,7 @@ package com.artur114.bananalib.math.m2d.vec;
 public interface IVec2IM extends IVec2I {
     IVec2IM set(int x, int y);
     IVec2IM set(IVec2I vec);
+    IVec2IM set(IVec2D vec);
     IVec2IM add(int x, int y);
     IVec2IM add(IVec2I vec);
     IVec2IM subtract(int x, int y);

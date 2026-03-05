@@ -4,11 +4,10 @@ import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import com.artur114.srptowerdefense.common.entity.ai.EntityAIBreakGears;
 import com.artur114.srptowerdefense.common.entity.ai.EntityAIWaveMove;
 import com.artur114.srptowerdefense.common.pathfinding.PathNavigateGroundForced;
-import com.artur114.srptowerdefense.common.systems.towerdefence.WaveEntityData;
+import com.artur114.srptowerdefense.common.systems.towerdefence.TowerDefenceEntity;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 
@@ -26,7 +25,7 @@ public class ParasiteAIRebuildManager {
             }
             parasite.setSkillBreakBlocksValues(0.0F, 0, 0);
             parasite.tasks.addTask(4, new EntityAIBreakGears(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
-            WaveEntityData data = parasite.getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
+            TowerDefenceEntity data = parasite.getCapability(SRPTDCapabilities.TD_ENTITY_DATA, null);
             if (data != null) {
                 parasite.tasks.addTask(4, new EntityAIWaveMove(data));
             }

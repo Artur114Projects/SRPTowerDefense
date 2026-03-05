@@ -6,6 +6,7 @@ import com.artur114.bananalib.math.m2d.area.IBox2I;
 import com.artur114.bananalib.math.m2d.area.IBox2IM;
 import com.artur114.bananalib.math.m2d.vec.*;
 import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.util.BananaUtils;
 import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -14,6 +15,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -26,9 +28,9 @@ public abstract class WaveAbstract implements IWave {
     protected Int2ObjectMap<EntityRecord> entityRecords;
     protected AdvancedBlockPos entityMoveTarget;
     protected TowerDefenceManager owner;
-    protected IVec2D targetChunk;
+    protected IVec2DM targetChunk;
+    protected IWaveTarget target;
     protected WorldServer world;
-    protected BlockPos target;
     protected IVec2DM pos;
     protected IBox2IM box;
     protected Random rand;
@@ -37,15 +39,45 @@ public abstract class WaveAbstract implements IWave {
 
     public WaveAbstract() {}
 
-    public WaveAbstract(IVec2I pos, BlockPos target, float speed) {
-        this.pos = new Vec2DM(pos);
-        this.box = new Box2IM(pos, pos);
+    public WaveAbstract(IVec2I wavePos, IWaveTarget target, float speed) {
+        this.pos = new Vec2DM(wavePos);
+        this.box = new Box2IM(wavePos, wavePos);
 
         this.speed = speed;
         this.target = target;
         this.rand = new Random();
+        this.targetChunk = new Vec2DM();
         this.entityRecords = new Int2ObjectOpenHashMap<>();
-        this.targetChunk = new Vec2D((target.getX() >> 4) + 0.5F, (target.getZ() >> 4) + 0.5F);
+    }
+
+    @Override
+    public void update() {
+        IVec2DM vec = new Vec2DM();
+        IBox2IM box = new Box2IM();
+
+        box.set(this.box());
+
+        if (this.pos().distanceSq(this.targetChunk()) > 1.0D) {
+            this.move(vec.set(this.targetChunk()).subtract(this.pos()).normalize().scale(this.speed()));
+        }
+
+        IBox2I boxNew = this.box();
+
+        if (!boxNew.equals(box)) {
+            for (int x = boxNew.minX(); x <= boxNew.maxX(); x++) {
+                for (int y = boxNew.minY(); y <= boxNew.maxY(); y++) {
+                    Chunk chunk = this.world.getChunkProvider().id2ChunkMap.get(ChunkPos.asLong(x, y));
+
+                    if (chunk == null || chunk.unloadQueued || !chunk.isLoaded()) {
+                        continue;
+                    }
+
+                    if (this.world.getPersistentChunks().containsKey(chunk.getPos()) || BananaUtils.isChunksLoaded(this.world, box.set(x, y, x, y).grow(2))) {
+                        this.onEntryToLoadedChunk(chunk);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -56,43 +88,12 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
-    public void ondChunkLoaded(Chunk chunk) {
-        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
-
-        for (EntityRecord record : this.entityRecords.values()) {
-            if (!record.isLoaded()) {
-                blockPos.setPos(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setWorldY(this.world);
-                record.load(this.world, blockPos);
-
-                if (this.entityMoveTarget == null) {
-                    this.entityMoveTarget = new AdvancedBlockPos(chunk.getPos()).add(8, 0, 8).setWorldY(this.world);
-                }
-            }
-        }
-
-        AdvancedBlockPos.release(blockPos);
+    public void onChunkLoaded(Chunk chunk) {
+        this.loadRecords(chunk);
     }
 
     @Override
-    public void onEntryToLoadedChunk(Chunk chunk) {
-        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
-
-        for (EntityRecord record : this.entityRecords.values()) {
-            if (!record.isLoaded()) {
-                blockPos.setPos(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setWorldY(this.world);
-                record.load(this.world, blockPos);
-
-                if (this.entityMoveTarget == null) {
-                    this.entityMoveTarget = new AdvancedBlockPos(chunk.getPos()).add(8, 0, 8).setWorldY(this.world);
-                }
-            }
-        }
-
-        AdvancedBlockPos.release(blockPos);
-    }
-
-    @Override
-    public void onEntityDied(WaveEntityData entity) {
+    public void onEntityDied(TowerDefenceEntity entity) {
         if (entity.data.hasKey(EntityRecord.ENTITY_RECORD_NBT_LOCATION)) {
             EntityRecord record = this.entityRecords.remove(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
 
@@ -103,34 +104,21 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
-    public void move(IVec2D vec) {
-        if (this.entityRecords.values().stream().anyMatch(EntityRecord::isLoaded)) {
-            if (!this.isMoveTargetValide()) {
-                this.updateMoveTarget();
-            }
+    public NBTTagCompound modifyEntityData(NBTTagCompound entity) {
+        return null;
+    }
 
-            this.updateEntitiesMoveSpeed();
-            this.rebindMoveTarget();
-            this.updateWavePos();
-        } else {
-            this.entityMoveTarget = null;
+    @Override
+    public void onRemove() {}
 
-            this.pos.add(vec);
-        }
-
-        int x = BananaMath.round(this.pos.x());
-        int y = BananaMath.round(this.pos.y());
-
-        this.box.set(x, y, x, y);
-
-        System.out.println(this.pos);
-        System.out.println(this.box);
-        System.out.println();
+    @Override
+    public int ticksToUpdate() {
+        return 1;
     }
 
     @Override
     public boolean isAlive() {
-        return !this.entityRecords.isEmpty();
+        return !this.entityRecords.isEmpty() && this.target.isValide();
     }
 
     @Override
@@ -145,11 +133,11 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public IVec2D targetChunk() {
-        return this.targetChunk;
+        return this.targetChunk.set(this.target.causeChunk());
     }
 
     @Override
-    public BlockPos target() {
+    public IWaveTarget target() {
         return this.target;
     }
 
@@ -176,7 +164,53 @@ public abstract class WaveAbstract implements IWave {
         }
     }
 
-    private void updateWavePos() {
+    protected void onEntryToLoadedChunk(Chunk chunk) {
+        this.loadRecords(chunk);
+    }
+
+    protected void move(IVec2D vec) {
+        if (this.entityRecords.values().stream().anyMatch(EntityRecord::isLoaded)) {
+            if (!this.isMoveTargetValide()) {
+                this.updateMoveTarget();
+            }
+
+            this.updateEntitiesMoveSpeed();
+            this.rebindMoveTarget();
+            this.updateWavePos();
+        } else {
+            this.entityMoveTarget = null;
+
+            this.pos.add(vec);
+        }
+
+        int x = BananaMath.round(this.pos.x());
+        int y = BananaMath.round(this.pos.y());
+
+        this.box.set(x, y, x, y);
+
+        System.out.println(this.pos);
+        System.out.println(this.box);
+        System.out.println();
+    }
+
+    protected void loadRecords(Chunk chunk) {
+        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
+
+        for (EntityRecord record : this.entityRecords.values()) {
+            if (!record.isLoaded()) {
+                blockPos.setPos(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setWorldY(this.world);
+                record.load(this.world, blockPos);
+
+                if (this.entityMoveTarget == null) {
+                    this.entityMoveTarget = new AdvancedBlockPos(chunk.getPos()).add(8, 0, 8).setWorldY(this.world);
+                }
+            }
+        }
+
+        AdvancedBlockPos.release(blockPos);
+    }
+
+    protected void updateWavePos() {
         IVec2DM vec2D = new Vec2DM();
         int count = 0;
 
@@ -192,27 +226,27 @@ public abstract class WaveAbstract implements IWave {
         this.pos.set(vec2D.scale(1.0D / count));
     }
 
-    private void updateMoveTarget() {
-        if (this.entityMoveTarget.distanceSq(this.target()) < 64 * 64) {
-            this.entityMoveTarget.setPos(this.target()); return;
+    protected void updateMoveTarget() {
+        if (this.entityMoveTarget.distanceSq(this.target.causePos()) < 64 * 64) {
+            this.entityMoveTarget.setPos(this.target.causePos()); return;
         }
 
         AdvancedBlockPos blockPos = AdvancedBlockPos.obtain();
-        blockPos.setPos(this.target()).subtract(this.entityMoveTarget).setY(0);
+        blockPos.setPos(this.target.causePos()).subtract(this.entityMoveTarget).setY(0);
         Vec3d vec = new Vec3d(blockPos).normalize();
 
         double range = 16.0F;
         int r = 2;
 
-        int x = MathHelper.floor((range * 0.8) * vec.x) + (this.rand.nextInt(r * 2) - r);
-        int z = MathHelper.floor((range * 0.8) * vec.z) + (this.rand.nextInt(r * 2) - r);
+        int x = BananaMath.round(range * vec.x) + (this.rand.nextInt(r * 2) - r);
+        int z = BananaMath.round(range * vec.z) + (this.rand.nextInt(r * 2) - r);
         blockPos.setPos(this.entityMoveTarget).add(x, 0, z).setWorldY(this.world, state -> state.getMaterial().isReplaceable(), false);
         this.entityMoveTarget.setPos(blockPos);
 
         AdvancedBlockPos.release(blockPos);
     }
 
-    private void rebindMoveTarget() {
+    protected void rebindMoveTarget() {
         for (EntityRecord record : this.entityRecords.values()) {
             if (record.isLoaded()) {
                 record.entity().setMoveTarget(this.entityMoveTarget);
@@ -220,7 +254,7 @@ public abstract class WaveAbstract implements IWave {
         }
     }
 
-    private void updateEntitiesMoveSpeed() {
+    protected void updateEntitiesMoveSpeed() {
         float maxDistance = -1.0F;
 
         for (EntityRecord record : this.entityRecords.values()) {
@@ -239,8 +273,8 @@ public abstract class WaveAbstract implements IWave {
         }
     }
 
-    private boolean isMoveTargetValide() {
-        if (this.entityMoveTarget.equals(this.target())) {
+    protected boolean isMoveTargetValide() {
+        if (this.entityMoveTarget.equals(this.target.causePos())) {
             return true;
         }
 
@@ -309,7 +343,7 @@ public abstract class WaveAbstract implements IWave {
         private final ICanCreateEntity record;
         private final WaveAbstract owner;
         private final int id;
-        private WaveEntityData entity;
+        private TowerDefenceEntity entity;
 
         private EntityRecord(ICanCreateEntity record, WaveAbstract owner, int id) {
             this.record = record;
@@ -320,12 +354,12 @@ public abstract class WaveAbstract implements IWave {
         public void load(World world, BlockPos pos) {
             EntityLiving entity = this.record.create(world);
             if (entity != null) {
-                WaveEntityData data = entity.getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
+                TowerDefenceEntity data = entity.getCapability(SRPTDCapabilities.TD_ENTITY_DATA, null);
                 if (data != null) {
                     this.entity = data;
 
                     data.data.setInteger(ENTITY_RECORD_NBT_LOCATION, this.id);
-                    data.bindWave(this.owner);
+                    data.bind(this.owner);
 
                     entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
                     entity.rotationYawHead = entity.rotationYaw;
@@ -352,7 +386,7 @@ public abstract class WaveAbstract implements IWave {
             return loaded;
         }
 
-        public WaveEntityData entity() {
+        public TowerDefenceEntity entity() {
             return this.entity;
         }
 

@@ -62,6 +62,11 @@ public class Vec2DM implements IVec2DM {
     }
 
     @Override
+    public IVec2DM set(IVec2I vec) {
+        return this.set(vec.x(), vec.y());
+    }
+
+    @Override
     public IVec2DM add(double x, double y) {
         return this.set(this.x() + x, this.y() + y);
     }

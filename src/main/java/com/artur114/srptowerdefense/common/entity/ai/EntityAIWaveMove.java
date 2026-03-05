@@ -1,24 +1,20 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
 import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
-import com.artur114.srptowerdefense.common.systems.towerdefence.WaveEntityData;
+import com.artur114.srptowerdefense.common.systems.towerdefence.IWave;
+import com.artur114.srptowerdefense.common.systems.towerdefence.TowerDefenceEntity;
 import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EntityAIWaveMove extends EntityAIBase {
     private final AdvancedBlockPos prevTarget = new AdvancedBlockPos();
+    private final TowerDefenceEntity waveData;
     private final EntityCreature creature;
-    private final WaveEntityData waveData;
 
-    public EntityAIWaveMove(WaveEntityData data) {
+    public EntityAIWaveMove(TowerDefenceEntity data) {
         this.creature = data.entity;
         this.waveData = data;
         this.setMutexBits(16);
@@ -26,7 +22,7 @@ public class EntityAIWaveMove extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
-        return this.waveData.isBindToWave() && this.creature.getAttackTarget() == null;
+        return this.waveData.isBindToTDObj() && this.waveData.isObjInstanceOf(IWave.class) && this.creature.getAttackTarget() == null;
     }
 
     @Override
@@ -38,7 +34,7 @@ public class EntityAIWaveMove extends EntityAIBase {
                 if (pos != null) {
                     this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
                     if (!this.prevTarget.equals(pos)) {
-                        System.out.println("wave(" + this.waveData.waveId() + ") move to:" + pos);
+                        System.out.println("wave(" + this.waveData.objectId() + ") move to:" + pos);
                     }
                     this.prevTarget.setPos(pos);
                 }

@@ -25,7 +25,7 @@ import java.util.Random;
 public class TowerDefenceEventHandler {
     @SubscribeEvent
     public static void attachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> e) {
-        if (e.getObject() != null && e.getObject() instanceof EntityParasiteBase && e.getObject().world != null && !e.getObject().world.isRemote) e.addCapability(new ResourceLocation(SRPTDMain.MODID, "wave_data"), new GenericCapProviderS<>(new WaveEntityData((EntityParasiteBase) e.getObject()), SRPTDCapabilities.WAVE_ENTITY_DATA));
+        if (e.getObject() != null && e.getObject() instanceof EntityParasiteBase && e.getObject().world != null && !e.getObject().world.isRemote) e.addCapability(new ResourceLocation(SRPTDMain.MODID, "tower_defence_entity"), new GenericCapProviderS<>(new TowerDefenceEntity((EntityParasiteBase) e.getObject()), SRPTDCapabilities.TD_ENTITY_DATA));
     }
 
     @SubscribeEvent
@@ -44,7 +44,7 @@ public class TowerDefenceEventHandler {
 
                 if (e.world.getTotalWorldTime() % 1200 == 0) { // Debug
                     Random rand = new Random();
-                    manager.addWave(new WaveTest(new Vec2I(20, 0)), rand.nextInt());
+                    manager.addObject(new WaveDebug(new Vec2I(20, 0)), rand.nextInt());
                 }
             }
         }
@@ -64,8 +64,8 @@ public class TowerDefenceEventHandler {
     @SubscribeEvent
     public static void canDeSpawn(LivingSpawnEvent.AllowDespawn e) {
         if (!e.getWorld().isRemote && e.getEntity() != null) {
-            WaveEntityData data = e.getEntity().getCapability(SRPTDCapabilities.WAVE_ENTITY_DATA, null);
-            if (data != null && data.isBindToWave()) {
+            TowerDefenceEntity data = e.getEntity().getCapability(SRPTDCapabilities.TD_ENTITY_DATA, null);
+            if (data != null && data.isBindToTDObj()) {
                 e.setResult(Event.Result.DENY);
             }
         }
