@@ -1,13 +1,11 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import com.artur114.srptowerdefense.common.systems.towerdefence.IWave;
 import com.artur114.srptowerdefense.common.systems.towerdefence.TowerDefenceEntity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EntityAIWaveMove extends EntityAIBase {
     private final AdvancedBlockPos prevTarget = new AdvancedBlockPos();

@@ -115,7 +115,7 @@ public class Vec2IM implements IVec2IM {
     }
 
     @Override
-    public IVec2DM toD() {
+    public IVec2DM toDouble() {
         return new Vec2DM(this);
     }
 

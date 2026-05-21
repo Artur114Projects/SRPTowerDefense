@@ -1,4 +1,4 @@
-package com.artur114.bananalib.math.m3d.area;
+package com.artur114.bananalib.math.m3dl.area;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;

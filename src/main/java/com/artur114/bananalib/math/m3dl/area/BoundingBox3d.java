@@ -1,7 +1,7 @@
-package com.artur114.bananalib.math.m3d.area;
+package com.artur114.bananalib.math.m3dl.area;
 
 import com.artur114.bananalib.math.EnumRotate;
-import com.artur114.bananalib.math.m3d.vec.Pos3d;
+import com.artur114.bananalib.math.m3dl.vec.Pos3d;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.util.math.BlockPos;

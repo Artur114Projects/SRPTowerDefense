@@ -1,6 +1,6 @@
 package com.artur114.srptowerdefense.common.systems.blockdamage;
 
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import com.google.common.collect.AbstractIterator;
 import it.unimi.dsi.fastutil.shorts.Short2ByteMap;
 import it.unimi.dsi.fastutil.shorts.Short2ByteOpenHashMap;

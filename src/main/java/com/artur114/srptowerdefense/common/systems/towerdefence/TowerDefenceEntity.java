@@ -1,6 +1,6 @@
 package com.artur114.srptowerdefense.common.systems.towerdefence;
 
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;

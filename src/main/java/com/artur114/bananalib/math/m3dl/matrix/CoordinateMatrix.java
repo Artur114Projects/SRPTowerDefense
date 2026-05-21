@@ -1,4 +1,4 @@
-package com.artur114.bananalib.math.m3d.matrix;
+package com.artur114.bananalib.math.m3dl.matrix;
 
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;

@@ -1,4 +1,4 @@
-package com.artur114.bananalib.math.m3d.vec;
+package com.artur114.bananalib.math.m3dl.vec;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Rotation;

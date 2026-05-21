@@ -113,7 +113,7 @@ public class Vec2DM implements IVec2DM {
     }
 
     @Override
-    public IVec2IM toI() {
+    public IVec2IM toInt() {
         return new Vec2IM(this);
     }
 

@@ -3,7 +3,7 @@ package com.artur114.srptowerdefense.common.systems.blockdamage.client;
 import com.artur114.srptowerdefense.common.systems.blockdamage.DamagedChunk;
 import com.artur114.srptowerdefense.common.systems.blockdamage.ExtendedDamageStorageMapped;
 import com.artur114.srptowerdefense.common.systems.blockdamage.IExtendedDamageStorage;
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.nbt.NBTTagCompound;

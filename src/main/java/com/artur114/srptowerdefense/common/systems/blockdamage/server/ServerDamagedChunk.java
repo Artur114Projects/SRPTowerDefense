@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.systems.blockdamage.server;
 
 import com.artur114.srptowerdefense.common.network.client.CPacketSyncBlocksDamage;
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageEventsHandler;
 import com.artur114.srptowerdefense.common.systems.blockdamage.DamagedChunk;
 import com.artur114.srptowerdefense.common.systems.blockdamage.ExtendedDamageStorage1Byte;

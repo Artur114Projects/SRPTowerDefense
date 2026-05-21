@@ -14,7 +14,7 @@ public interface IVec2I {
     IVec2I scale(IVec2I vec);
     IVec2I toImmutable();
     IVec2D normalize();
-    IVec2D toD();
+    IVec2D toDouble();
     float lengthSq();
     float length();
     int x();

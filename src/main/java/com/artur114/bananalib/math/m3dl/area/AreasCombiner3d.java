@@ -1,6 +1,6 @@
-package com.artur114.bananalib.math.m3d.area;
+package com.artur114.bananalib.math.m3dl.area;
 
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderGlobal;

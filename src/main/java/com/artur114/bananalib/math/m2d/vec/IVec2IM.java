@@ -11,5 +11,5 @@ public interface IVec2IM extends IVec2I {
     IVec2IM scale(int x, int y);
     IVec2IM scale(IVec2I vec);
     IVec2DM normalize();
-    IVec2DM toD();
+    IVec2DM toDouble();
 }

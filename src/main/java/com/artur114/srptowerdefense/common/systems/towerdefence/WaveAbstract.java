@@ -5,7 +5,7 @@ import com.artur114.bananalib.math.m2d.area.Box2IM;
 import com.artur114.bananalib.math.m2d.area.IBox2I;
 import com.artur114.bananalib.math.m2d.area.IBox2IM;
 import com.artur114.bananalib.math.m2d.vec.*;
-import com.artur114.bananalib.math.m3d.vec.AdvancedBlockPos;
+import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
 import com.artur114.bananalib.util.BananaUtils;
 import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
