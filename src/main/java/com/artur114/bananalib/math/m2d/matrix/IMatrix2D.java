@@ -61,6 +61,7 @@ public interface IMatrix2D {
     IBox2D[] transform(IBox2D... box);
     IBox2DM[] transform(IBox2DM... box);
     DoubleBuffer writeToBuffer(DoubleBuffer buf);
+    IMatrix2D toMutable();
     IMatrix2D toImmutable();
     IMatrix2F toFloat();
 }

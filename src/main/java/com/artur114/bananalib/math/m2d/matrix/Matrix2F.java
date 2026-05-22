@@ -4,9 +4,8 @@ import com.artur114.bananalib.math.BananaMath;
 import com.artur114.bananalib.math.m2d.area.*;
 import com.artur114.bananalib.math.m2d.vec.*;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 public class Matrix2F implements IMatrix2F {
     public static final Matrix2F IDENTITY = new Matrix2F();
@@ -35,6 +34,12 @@ public class Matrix2F implements IMatrix2F {
     public Matrix2F(IMatrix2F m) {
         this.m00 = m.m00(); this.m01 = m.m01(); this.m02 = m.m02();
         this.m10 = m.m10(); this.m11 = m.m11(); this.m12 = m.m12();
+        this.det = this.m00 * this.m11 - this.m01 * this.m10;
+    }
+
+    public Matrix2F(FloatBuffer buf) {
+        this.m00 = buf.get(); this.m01 = buf.get(); this.m02 = buf.get();
+        this.m10 = buf.get(); this.m11 = buf.get(); this.m12 = buf.get();
         this.det = this.m00 * this.m11 - this.m01 * this.m10;
     }
 
@@ -473,8 +478,12 @@ public class Matrix2F implements IMatrix2F {
         buf.put(0.0F);
         buf.put(0.0F);
         buf.put(1.0F);
-        buf.flip();
         return buf;
+    }
+
+    @Override
+    public IMatrix2FM toMutable() {
+        return new Matrix2FM(this);
     }
 
     @Override
@@ -485,5 +494,27 @@ public class Matrix2F implements IMatrix2F {
     @Override
     public IMatrix2D toDouble() {
         return new Matrix2D(this);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + this.m00 + ", " + this.m01 + ", " + this.m02 + "]\n[" + this.m10 + ", " + this.m11 + ", " + this.m12 + "]\n[" + 0.0 + ", " + 0.0 + ", " + 1.0 + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof IMatrix2F)) {
+            return false;
+        }
+        IMatrix2F m = ((IMatrix2F) obj);
+        return
+                m.m00() == this.m00 && m.m01() == this.m01 && m.m02() == this.m02 &&
+                m.m10() == this.m10 && m.m11() == this.m11 && m.m12() == this.m12 &&
+                m.m20() == 0.0F && m.m21() == 0.0F && m.m22() == 1.0F;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.m00, this.m01, this.m02, this.m10, this.m11, this.m12, 0.0F, 0.0F, 1.0F);
     }
 }

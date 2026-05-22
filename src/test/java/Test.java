@@ -14,5 +14,6 @@ public class Test {
         IVec2D vecT = matrix.transform(vec);
         System.out.println(vecT);
         System.out.println(matrix.invert().transform(vecT));
+        System.out.println(matrix);
     }
 }

@@ -5,42 +5,200 @@ import com.artur114.bananalib.math.m2d.area.*;
 import com.artur114.bananalib.math.m2d.vec.*;
 
 import java.nio.DoubleBuffer;
+import java.util.Arrays;
 import java.util.Objects;
 
-public class Matrix2D implements IMatrix2D {
-    public static final Matrix2D IDENTITY = new Matrix2D();
-    private final double m00, m01, m02;
-    private final double m10, m11, m12;
-    private final double det;
+public class Matrix2DM implements IMatrix2DM {
+    private static final ThreadLocal<Matrix2DM[]> pool = ThreadLocal.withInitial(() -> new Matrix2DM[16]);
+    private static final ThreadLocal<Integer> poolCursor = ThreadLocal.withInitial(() -> -1);
 
-    public Matrix2D() {
+    public static Matrix2DM obtain() {
+        Matrix2DM[] pol = pool.get();
+        int polCursor = poolCursor.get();
+
+        if (polCursor < 0) {
+            return new Matrix2DM();
+        }
+
+        Matrix2DM matrix = pol[polCursor];
+        pol[polCursor--] = null;
+        poolCursor.set(polCursor);
+
+        if (matrix == null) {
+            return new Matrix2DM();
+        }
+
+        matrix.released = false;
+        return matrix;
+    }
+
+    public static void release(Matrix2DM matrix) {
+        if (matrix == null) {
+            return;
+        }
+        if (matrix.released) {
+            throw new IllegalArgumentException("Double release!");
+        }
+
+        Matrix2DM[] pol = pool.get();
+        int polCursor = poolCursor.get();
+
+        if (polCursor + 1 >= pol.length) {
+            pol = Arrays.copyOf(pol, pol.length * 2);
+            pool.set(pol);
+        }
+
+        matrix.released = true;
+        matrix.resetStack().setIdentity();
+        pol[++polCursor] = matrix;
+        poolCursor.set(polCursor);
+    }
+
+    private static final double EPS = 1e-12;
+    private double[][] stateStack = null;
+    private int stateCursor = 0;
+    private double m00, m01, m02;
+    private double m10, m11, m12;
+    private boolean released;
+
+    public Matrix2DM() {
         this.m00 = 1.0D; this.m01 = 0.0D; this.m02 = 0.0D;
         this.m10 = 0.0D; this.m11 = 1.0D; this.m12 = 0.0D;
-        this.det = 1.0D;
     }
 
-    public Matrix2D(double m00, double m01, double m02, double m10, double m11, double m12) {
+    public Matrix2DM(double m00, double m01, double m02, double m10, double m11, double m12) {
         this.m00 = m00; this.m01 = m01; this.m02 = m02;
         this.m10 = m10; this.m11 = m11; this.m12 = m12;
-        this.det = this.m00 * this.m11 - this.m01 * this.m10;
     }
 
-    public Matrix2D(IMatrix2D m) {
+    public Matrix2DM(IMatrix2D m) {
         this.m00 = m.m00(); this.m01 = m.m01(); this.m02 = m.m02();
         this.m10 = m.m10(); this.m11 = m.m11(); this.m12 = m.m12();
-        this.det = this.m00 * this.m11 - this.m01 * this.m10;
     }
 
-    public Matrix2D(IMatrix2F m) {
+    public Matrix2DM(IMatrix2F m) {
         this.m00 = m.m00(); this.m01 = m.m01(); this.m02 = m.m02();
         this.m10 = m.m10(); this.m11 = m.m11(); this.m12 = m.m12();
-        this.det = this.m00 * this.m11 - this.m01 * this.m10;
     }
 
-    public Matrix2D(DoubleBuffer buf) {
+    public Matrix2DM(DoubleBuffer buf) {
         this.m00 = buf.get(); this.m01 = buf.get(); this.m02 = buf.get();
         this.m10 = buf.get(); this.m11 = buf.get(); this.m12 = buf.get();
-        this.det = this.m00 * this.m11 - this.m01 * this.m10;
+    }
+
+    @Override
+    public IMatrix2DM set(double m00, double m01, double m02, double m10, double m11, double m12) {
+        this.m00 = m00;
+        this.m01 = m01;
+        this.m02 = m02;
+        this.m10 = m10;
+        this.m11 = m11;
+        this.m12 = m12;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM set(double[] ms) {
+        if (ms.length < 6) {
+            throw new IllegalArgumentException();
+        }
+        this.m00 = ms[0];
+        this.m01 = ms[1];
+        this.m02 = ms[2];
+        this.m10 = ms[3];
+        this.m11 = ms[4];
+        this.m12 = ms[5];
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM00(double m00) {
+        this.m00 = m00;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM01(double m01) {
+        this.m01 = m01;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM02(double m02) {
+        this.m02 = m02;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM10(double m10) {
+        this.m10 = m10;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM11(double m11) {
+        this.m11 = m11;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setM12(double m12) {
+        this.m12 = m12;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM setIdentity() {
+        this.m00 = 1.0D; this.m01 = 0.0D; this.m02 = 0.0D;
+        this.m10 = 0.0D; this.m11 = 1.0D; this.m12 = 0.0D;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM collapseStack() {
+        this.stateStack = null;
+        this.stateCursor = 0;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM resetStack() {
+        this.stateCursor = 0;
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM pushMatrix() {
+        if (this.stateStack == null) {
+            this.stateStack = new double[1][];
+        }
+        if (this.stateCursor >= this.stateStack.length) {
+            this.stateStack = Arrays.copyOf(this.stateStack, this.stateCursor + 1);
+        }
+        double[] arr = this.stateStack[this.stateCursor++];
+
+        if (arr == null) {
+            arr = new double[6];
+        }
+
+        arr[0] = this.m00;
+        arr[1] = this.m01;
+        arr[2] = this.m02;
+        arr[3] = this.m10;
+        arr[4] = this.m11;
+        arr[5] = this.m12;
+
+        this.stateStack[this.stateCursor - 1] = arr;
+
+        return this;
+    }
+
+    @Override
+    public IMatrix2DM popMatrix() {
+        if (this.stateCursor - 1 < 0) {
+            throw new IllegalStateException();
+        }
+        return this.set(this.stateStack[--this.stateCursor]);
     }
 
     @Override
@@ -90,161 +248,160 @@ public class Matrix2D implements IMatrix2D {
 
     @Override
     public double determinant() {
-        return this.det;
+        return this.m00 * this.m11 - this.m01 * this.m10;
     }
 
     @Override
     public boolean isReversible() {
-        return Math.abs(this.det) > 1e-12;
+        return Math.abs(this.determinant()) > EPS;
     }
 
     @Override
-    public IMatrix2D invert() {
-        if (!this.isReversible()) throw new ArithmeticException("Couldn't invert unreversible matrix");
-        double detInv = 1.0D / this.det;
-        return new Matrix2D(
+    public IMatrix2DM invert() {
+        double det = this.determinant();
+        if (Math.abs(det) < EPS) throw new ArithmeticException("Couldn't invert unreversible matrix");
+        double detInv = 1.0D / det;
+        return this.set(
             this.m11 * detInv, -this.m01 * detInv, (this.m01 * this.m12 - this.m11 * this.m02) * detInv,
             -this.m10 * detInv, this.m00 * detInv, -(this.m00 * this.m12 - this.m10 * this.m02) * detInv
         );
     }
 
     @Override
-    public IMatrix2D mul(IMatrix2D matrix) {
+    public IMatrix2DM mul(IMatrix2D matrix) {
         double m1v00 = matrix.m00(), m1v01 = matrix.m01(), m1v02 = matrix.m02();
         double m1v10 = matrix.m10(), m1v11 = matrix.m11(), m1v12 = matrix.m12();
         double m2v00 = this.m00, m2v01 = this.m01, m2v02 = this.m02;
         double m2v10 = this.m10, m2v11 = this.m11, m2v12 = this.m12;
-        return new Matrix2D(
-                (m1v00 * m2v00) + (m1v01 * m2v10),
-                (m1v00 * m2v01) + (m1v01 * m2v11),
-                (m1v00 * m2v02) + (m1v01 * m2v12) + (m1v02),
+        return this.set(
+            (m1v00 * m2v00) + (m1v01 * m2v10),
+            (m1v00 * m2v01) + (m1v01 * m2v11),
+            (m1v00 * m2v02) + (m1v01 * m2v12) + (m1v02),
 
-                (m1v10 * m2v00) + (m1v11 * m2v10),
-                (m1v10 * m2v01) + (m1v11 * m2v11),
-                (m1v10 * m2v02) + (m1v11 * m2v12) + (m1v12)
+            (m1v10 * m2v00) + (m1v11 * m2v10),
+            (m1v10 * m2v01) + (m1v11 * m2v11),
+            (m1v10 * m2v02) + (m1v11 * m2v12) + (m1v12)
         );
     }
 
     @Override
-    public IMatrix2D mul(IMatrix2F matrix) {
+    public IMatrix2DM mul(IMatrix2F matrix) {
         float m1v00 = matrix.m00(), m1v01 = matrix.m01(), m1v02 = matrix.m02();
         float m1v10 = matrix.m10(), m1v11 = matrix.m11(), m1v12 = matrix.m12();
         double m2v00 = this.m00, m2v01 = this.m01, m2v02 = this.m02;
         double m2v10 = this.m10, m2v11 = this.m11, m2v12 = this.m12;
-        return new Matrix2D(
-                (m1v00 * m2v00) + (m1v01 * m2v10),
-                (m1v00 * m2v01) + (m1v01 * m2v11),
-                (m1v00 * m2v02) + (m1v01 * m2v12) + (m1v02),
+        return this.set(
+            (m1v00 * m2v00) + (m1v01 * m2v10),
+            (m1v00 * m2v01) + (m1v01 * m2v11),
+            (m1v00 * m2v02) + (m1v01 * m2v12) + (m1v02),
 
-                (m1v10 * m2v00) + (m1v11 * m2v10),
-                (m1v10 * m2v01) + (m1v11 * m2v11),
-                (m1v10 * m2v02) + (m1v11 * m2v12) + (m1v12)
+            (m1v10 * m2v00) + (m1v11 * m2v10),
+            (m1v10 * m2v01) + (m1v11 * m2v11),
+            (m1v10 * m2v02) + (m1v11 * m2v12) + (m1v12)
         );
     }
 
     @Override
-    public IMatrix2D mulPost(IMatrix2D matrix) {
+    public IMatrix2DM mulPost(IMatrix2D matrix) {
         double m2v00 = matrix.m00(), m2v01 = matrix.m01(), m2v02 = matrix.m02();
         double m2v10 = matrix.m10(), m2v11 = matrix.m11(), m2v12 = matrix.m12();
         double m1v00 = this.m00;
         double m1v01 = this.m01;
         double m1v10 = this.m10;
         double m1v11 = this.m11;
-        return new Matrix2D(
-                (m1v00 * m2v00) + (m1v01 * m2v10),
-                (m1v00 * m2v01) + (m1v01 * m2v11),
-                (m1v00 * m2v02) + (m1v01 * m2v12) + (this.m02),
+        return this.set(
+            (m1v00 * m2v00) + (m1v01 * m2v10),
+            (m1v00 * m2v01) + (m1v01 * m2v11),
+            (m1v00 * m2v02) + (m1v01 * m2v12) + (this.m02),
 
-                (m1v10 * m2v00) + (m1v11 * m2v10),
-                (m1v10 * m2v01) + (m1v11 * m2v11),
-                (m1v10 * m2v02) + (m1v11 * m2v12) + (this.m12)
+            (m1v10 * m2v00) + (m1v11 * m2v10),
+            (m1v10 * m2v01) + (m1v11 * m2v11),
+            (m1v10 * m2v02) + (m1v11 * m2v12) + (this.m12)
         );
     }
 
     @Override
-    public IMatrix2D mulPost(IMatrix2F matrix) {
-        double m2v00 = matrix.m00(), m2v01 = matrix.m01(), m2v02 = matrix.m02();
-        double m2v10 = matrix.m10(), m2v11 = matrix.m11(), m2v12 = matrix.m12();
+    public IMatrix2DM mulPost(IMatrix2F matrix) {
+        float m2v00 = matrix.m00(), m2v01 = matrix.m01(), m2v02 = matrix.m02();
+        float m2v10 = matrix.m10(), m2v11 = matrix.m11(), m2v12 = matrix.m12();
         double m1v00 = this.m00;
         double m1v01 = this.m01;
         double m1v10 = this.m10;
         double m1v11 = this.m11;
-        return new Matrix2D(
-                (m1v00 * m2v00) + (m1v01 * m2v10),
-                (m1v00 * m2v01) + (m1v01 * m2v11),
-                (m1v00 * m2v02) + (m1v01 * m2v12) + (this.m02),
+        return this.set(
+            (m1v00 * m2v00) + (m1v01 * m2v10),
+            (m1v00 * m2v01) + (m1v01 * m2v11),
+            (m1v00 * m2v02) + (m1v01 * m2v12) + (this.m02),
 
-                (m1v10 * m2v00) + (m1v11 * m2v10),
-                (m1v10 * m2v01) + (m1v11 * m2v11),
-                (m1v10 * m2v02) + (m1v11 * m2v12) + (this.m12)
+            (m1v10 * m2v00) + (m1v11 * m2v10),
+            (m1v10 * m2v01) + (m1v11 * m2v11),
+            (m1v10 * m2v02) + (m1v11 * m2v12) + (this.m12)
         );
     }
 
     @Override
-    public IMatrix2D scale(int x, int y) {
-        return new Matrix2D(
-                x * this.m00, x * this.m01, x * this.m02,
-                y * this.m10, y * this.m11, y * this.m12
+    public IMatrix2DM scale(int x, int y) {
+        return this.set(
+            x * this.m00, x * this.m01, x * this.m02,
+            y * this.m10, y * this.m11, y * this.m12
         );
     }
 
     @Override
-    public IMatrix2D scale(double x, double y) {
-        return new Matrix2D(
-                x * this.m00, x * this.m01, x * this.m02,
-                y * this.m10, y * this.m11, y * this.m12
+    public IMatrix2DM scale(double x, double y) {
+        return this.set(
+            x * this.m00, x * this.m01, x * this.m02,
+            y * this.m10, y * this.m11, y * this.m12
         );
     }
 
     @Override
-    public IMatrix2D scale(IVec2D vec) {
+    public IMatrix2DM scale(IVec2D vec) {
         return this.scale(vec.x(), vec.y());
     }
 
     @Override
-    public IMatrix2D scale(IVec2I vec) {
+    public IMatrix2DM scale(IVec2I vec) {
         return this.scale(vec.x(), vec.y());
     }
 
     @Override
-    public IMatrix2D translate(int x, int y) {
-        return new Matrix2D(
-                this.m00, this.m01, this.m02 + x,
-                this.m10, this.m11, this.m12 + y
-        );
+    public IMatrix2DM translate(int x, int y) {
+        this.m02 += x;
+        this.m12 += y;
+        return this;
     }
 
     @Override
-    public IMatrix2D translate(double x, double y) {
-        return new Matrix2D(
-                this.m00, this.m01, this.m02 + x,
-                this.m10, this.m11, this.m12 + y
-        );
+    public IMatrix2DM translate(double x, double y) {
+        this.m02 += x;
+        this.m12 += y;
+        return this;
     }
 
     @Override
-    public IMatrix2D translate(IVec2D vec) {
+    public IMatrix2DM translate(IVec2D vec) {
         return this.translate(vec.x(), vec.y());
     }
 
     @Override
-    public IMatrix2D translate(IVec2I vec) {
+    public IMatrix2DM translate(IVec2I vec) {
         return this.translate(vec.x(), vec.y());
     }
 
     @Override
-    public IMatrix2D rotate(double degrees) {
+    public IMatrix2DM rotate(double degrees) {
         double rads = Math.toRadians(degrees);
         double sin = Math.sin(rads);
         double cos = Math.cos(rads);
-        return new Matrix2D(
-                (cos * this.m00) + (sin * this.m10), (cos * this.m01) + (sin * this.m11), (cos * this.m02) + (sin * this.m12),
-                (-sin * this.m00) + (cos * this.m10), (-sin * this.m01) + (cos * this.m11), (-sin * this.m02) + (cos * this.m12)
+        return this.set(
+            (cos * this.m00) + (sin * this.m10), (cos * this.m01) + (sin * this.m11), (cos * this.m02) + (sin * this.m12),
+            (-sin * this.m00) + (cos * this.m10), (-sin * this.m01) + (cos * this.m11), (-sin * this.m02) + (cos * this.m12)
         );
     }
 
     @Override
-    public IMatrix2D rotateAround(int x, int y, double degrees) {
+    public IMatrix2DM rotateAround(int x, int y, double degrees) {
         double rads = Math.toRadians(degrees);
         double sin = Math.sin(rads);
         double cos = Math.cos(rads);
@@ -255,14 +412,11 @@ public class Matrix2D implements IMatrix2D {
         double m00r = (cos * m00p) + (sin * m10p), m01r = (cos * m01p) + (sin * m11p), m02r = (cos * m02p) + (sin * m12p);
         double m10r = (-sin * m00p) + (cos * m10p), m11r = (-sin * m01p) + (cos * m11p), m12r = (-sin * m02p) + (cos * m12p);
 
-        return new Matrix2D(
-                m00r, m01r, m02r + x,
-                m10r, m11r, m12r + y
-        );
+        return this.set(m00r, m01r, m02r + x, m10r, m11r, m12r + y);
     }
 
     @Override
-    public IMatrix2D rotateAround(double x, double y, double degrees) {
+    public IMatrix2DM rotateAround(double x, double y, double degrees) {
         double rads = Math.toRadians(degrees);
         double sin = Math.sin(rads);
         double cos = Math.cos(rads);
@@ -273,19 +427,16 @@ public class Matrix2D implements IMatrix2D {
         double m00r = (cos * m00p) + (sin * m10p), m01r = (cos * m01p) + (sin * m11p), m02r = (cos * m02p) + (sin * m12p);
         double m10r = (-sin * m00p) + (cos * m10p), m11r = (-sin * m01p) + (cos * m11p), m12r = (-sin * m02p) + (cos * m12p);
 
-        return new Matrix2D(
-                m00r, m01r, m02r + x,
-                m10r, m11r, m12r + y
-        );
+        return this.set(m00r, m01r, m02r + x, m10r, m11r, m12r + y);
     }
 
     @Override
-    public IMatrix2D rotateAround(IVec2D point, double degrees) {
+    public IMatrix2DM rotateAround(IVec2D point, double degrees) {
         return this.rotateAround(point.x(), point.y(), degrees);
     }
 
     @Override
-    public IMatrix2D rotateAround(IVec2I point, double degrees) {
+    public IMatrix2DM rotateAround(IVec2I point, double degrees) {
         return this.rotateAround(point.x(), point.y(), degrees);
     }
 
@@ -455,25 +606,25 @@ public class Matrix2D implements IMatrix2D {
         buf.put(this.m10);
         buf.put(this.m11);
         buf.put(this.m12);
-        buf.put(0.0F);
-        buf.put(0.0F);
-        buf.put(1.0F);
+        buf.put(0.0D);
+        buf.put(0.0D);
+        buf.put(1.0D);
         return buf;
     }
 
     @Override
     public IMatrix2D toMutable() {
-        return new Matrix2DM(this);
-    }
-
-    @Override
-    public IMatrix2D toImmutable() {
         return this;
     }
 
     @Override
-    public IMatrix2F toFloat() {
-        return new Matrix2F(this);
+    public IMatrix2D toImmutable() {
+        return new Matrix2D(this);
+    }
+
+    @Override
+    public IMatrix2FM toFloat() {
+        return new Matrix2FM(this);
     }
 
     @Override
