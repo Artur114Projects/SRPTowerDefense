@@ -28,74 +28,12 @@ public class Box2I implements IBox2I {
         this(from.x(), from.y(), to.x(), to.y());
     }
 
-    @Override
-    public IBox2I grow(int amount) {
-        return this.grow(amount, amount);
+    public Box2I(IBox2D box) {
+        this(box.minX(), box.minY(), box.maxX(), box.maxY());
     }
 
-    @Override
-    public IBox2I grow(int x, int y) {
-        return new Box2I(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
-    }
-
-    @Override
-    public IBox2I grow(IVec2I vec2D) {
-        return this.grow(vec2D.x(), vec2D.y());
-    }
-
-    @Override
-    public IBox2I offset(int x, int y) {
-        return new Box2I(this.minX() + x, this.minY() + y, this.maxX() + x, this.maxY() + y);
-    }
-
-    @Override
-    public IBox2I offset(IVec2I vec2D) {
-        return this.offset(vec2D.x(), vec2D.y());
-    }
-
-    @Override
-    public IBox2I toImmutable() {
-        return this;
-    }
-
-    @Override
-    public IBox2D toD() {
-        return new Box2D(this.minX(), this.minY(), this.maxX(), this.maxY());
-    }
-
-    @Override
-    public boolean intersects(int minX, int minY, int maxX, int maxY) {
-        return this.minX() < maxX && this.maxX() > minX && this.minY() < maxY && this.maxY() > minY;
-    }
-
-    @Override
-    public boolean intersects(IVec2I from, IVec2I to) {
-        return this.intersects(from.x(), from.y(), to.x(), to.y());
-    }
-
-    @Override
-    public boolean intersects(IBox2I area2D) {
-        return this.intersects(area2D.minX(), area2D.minY(), area2D.maxX(), area2D.maxY());
-    }
-
-    @Override
-    public boolean contains(int x, int y) {
-        return x >= this.minX() && y >= this.minY() && x <= this.maxX() && y <= this.maxY();
-    }
-
-    @Override
-    public boolean contains(IBox2I area2D) {
-        return this.contains(area2D.minX(), area2D.minY()) && this.contains(area2D.maxX(), area2D.maxY());
-    }
-
-    @Override
-    public boolean contains(IVec2I vec2D) {
-        return this.contains(vec2D.x(), vec2D.y());
-    }
-
-    @Override
-    public double size() {
-        return (this.maxX - this.minX) * (this.maxY - this.minY);
+    public Box2I(IBox2I box) {
+        this(box.minX(), box.minY(), box.maxX(), box.maxY());
     }
 
     @Override
@@ -116,6 +54,136 @@ public class Box2I implements IBox2I {
     @Override
     public int maxY() {
         return this.maxY;
+    }
+
+    @Override
+    public int size() {
+        return (this.maxX - this.minX) * (this.maxY - this.minY);
+    }
+
+    @Override
+    public IBox2I grow(double amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
+    public IBox2I grow(double x, double y) {
+        return new Box2I(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
+    }
+
+    @Override
+    public IBox2I grow(int amount) {
+        return this.grow(amount, amount);
+    }
+
+    @Override
+    public IBox2I grow(int x, int y) {
+        return new Box2I(this.minX() - x, this.minY() - y, this.maxX() + x, this.maxY() + y);
+    }
+
+    @Override
+    public IBox2I grow(IVec2I vec2D) {
+        return this.grow(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public IBox2I grow(IVec2D vec2D) {
+        return this.grow(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public IBox2I offset(int x, int y) {
+        return new Box2I(this.minX() + x, this.minY() + y, this.maxX() + x, this.maxY() + y);
+    }
+
+    @Override
+    public IBox2I offset(double x, double y) {
+        return new Box2I(this.minX() + x, this.minY() + y, this.maxX() + x, this.maxY() + y);
+    }
+
+    @Override
+    public IBox2I offset(IVec2D vec2D) {
+        return this.offset(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public IBox2I offset(IVec2I vec2D) {
+        return this.offset(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public boolean intersects(int minX, int minY, int maxX, int maxY) {
+        return this.minX() <= maxX && this.maxX() >= minX && this.minY() <= maxY && this.maxY() >= minY;
+    }
+
+    @Override
+    public boolean intersects(double minX, double minY, double maxX, double maxY) {
+        return this.minX() <= maxX && this.maxX() >= minX && this.minY() <= maxY && this.maxY() >= minY;
+    }
+
+    @Override
+    public boolean intersects(IVec2D boxFrom, IVec2D boxTo) {
+        return this.intersects(boxFrom.x(), boxFrom.y(), boxTo.x(), boxTo.y());
+    }
+
+    @Override
+    public boolean intersects(IVec2I boxFrom, IVec2I boxTo) {
+        return this.intersects(boxFrom.x(), boxFrom.y(), boxTo.x(), boxTo.y());
+    }
+
+    @Override
+    public boolean intersects(IBox2D area2D) {
+        return this.intersects(area2D.minX(), area2D.minY(), area2D.maxX(), area2D.maxY());
+    }
+
+    @Override
+    public boolean intersects(IBox2I area2D) {
+        return this.intersects(area2D.minX(), area2D.minY(), area2D.maxX(), area2D.maxY());
+    }
+
+    @Override
+    public boolean contains(int x, int y) {
+        return x >= this.minX() && y >= this.minY() && x <= this.maxX() && y <= this.maxY();
+    }
+
+    @Override
+    public boolean contains(double x, double y) {
+        return x >= this.minX() && y >= this.minY() && x <= this.maxX() && y <= this.maxY();
+    }
+
+    @Override
+    public boolean contains(IBox2I area2D) {
+        return this.contains(area2D.minX(), area2D.minY()) && this.contains(area2D.maxX(), area2D.maxY());
+    }
+
+    @Override
+    public boolean contains(IBox2D area2D) {
+        return this.contains(area2D.minX(), area2D.minY()) && this.contains(area2D.maxX(), area2D.maxY());
+    }
+
+    @Override
+    public boolean contains(IVec2I vec2D) {
+        return this.contains(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public boolean contains(IVec2D vec2D) {
+        return this.contains(vec2D.x(), vec2D.y());
+    }
+
+    @Override
+    public IBox2IM toMutable() {
+        return new Box2IM(this);
+    }
+
+    @Override
+    public IBox2I toImmutable() {
+        return this;
+    }
+
+    @Override
+    public IBox2D toDouble() {
+        return new Box2D(this);
     }
 
     @Override
