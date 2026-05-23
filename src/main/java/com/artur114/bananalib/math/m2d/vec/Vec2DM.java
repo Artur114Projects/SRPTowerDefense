@@ -1,5 +1,7 @@
 package com.artur114.bananalib.math.m2d.vec;
 
+import com.artur114.bananalib.math.BananaMath;
+
 import java.util.Arrays;
 
 public class Vec2DM implements IVec2DM {
@@ -105,6 +107,30 @@ public class Vec2DM implements IVec2DM {
     }
 
     @Override
+    public IVec2DM setX(int x) {
+        this.x = x;
+        return this;
+    }
+
+    @Override
+    public IVec2DM setX(double x) {
+        this.x = x;
+        return this;
+    }
+
+    @Override
+    public IVec2DM setY(int y) {
+        this.y = y;
+        return this;
+    }
+
+    @Override
+    public IVec2DM setY(double y) {
+        this.y = y;
+        return this;
+    }
+
+    @Override
     public IVec2DM setZero() {
         this.x = 0;
         this.y = 0;
@@ -165,26 +191,58 @@ public class Vec2DM implements IVec2DM {
     }
 
     @Override
+    @SuppressWarnings("SuspiciousNameCombination")
+    public IVec2D yx() {
+        return new Vec2D(this.y, this.x);
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousNameCombination")
+    public IVec2I yxI() {
+        return new Vec2I(this.y, this.x);
+    }
+
+    @Override
     public double length() {
         return Math.sqrt(this.lengthSq());
     }
 
     @Override
     public double lengthSq() {
-        return this.x() * this.x() + this.y() * this.y();
+        return this.x * this.x + this.y * this.y;
+    }
+    
+    @Override
+    public double dot(IVec2I vec) {
+        return this.x * vec.x() + this.y * vec.y();
+    }
+
+    @Override
+    public double dot(IVec2D vec) {
+        return this.x * vec.x() + this.y * vec.y();
+    }
+
+    @Override
+    public double cross(IVec2I vec) {
+        return this.x * vec.y() - this.y * vec.x();
+    }
+
+    @Override
+    public double cross(IVec2D vec) {
+        return this.x * vec.y() - this.y * vec.x();
     }
 
     @Override
     public double distance(int x, int y) {
-        double deltaX = x - this.x();
-        double deltaY = y - this.y();
+        double deltaX = x - this.x;
+        double deltaY = y - this.y;
         return Math.sqrt(deltaY * deltaY + deltaX * deltaX);
     }
 
     @Override
     public double distance(double x, double y) {
-        double deltaX = x - this.x();
-        double deltaY = y - this.y();
+        double deltaX = x - this.x;
+        double deltaY = y - this.y;
         return Math.sqrt(deltaY * deltaY + deltaX * deltaX);
     }
 
@@ -200,15 +258,15 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public double distanceSq(int x, int y) {
-        double deltaX = x - this.x();
-        double deltaY = y - this.y();
+        double deltaX = x - this.x;
+        double deltaY = y - this.y;
         return deltaY * deltaY + deltaX * deltaX;
     }
 
     @Override
     public double distanceSq(double x, double y) {
-        double deltaX = x - this.x();
-        double deltaY = y - this.y();
+        double deltaX = x - this.x;
+        double deltaY = y - this.y;
         return deltaY * deltaY + deltaX * deltaX;
     }
 
@@ -224,12 +282,12 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public IVec2DM add(int x, int y) {
-        return this.set(this.x() + x, this.y() + y);
+        return this.set(this.x + x, this.y + y);
     }
 
     @Override
     public IVec2DM add(double x, double y) {
-        return this.set(this.x() + x, this.y() + y);
+        return this.set(this.x + x, this.y + y);
     }
 
     @Override
@@ -244,12 +302,12 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public IVec2DM subtract(int x, int y) {
-        return this.set(this.x() - x, this.y() - y);
+        return this.set(this.x - x, this.y - y);
     }
 
     @Override
     public IVec2DM subtract(double x, double y) {
-        return this.set(this.x() - x, this.y() - y);
+        return this.set(this.x - x, this.y - y);
     }
 
     @Override
@@ -264,17 +322,17 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public IVec2DM scale(int val) {
-        return this.set(this.x() * val, this.y() * val);
+        return this.set(this.x * val, this.y * val);
     }
 
     @Override
     public IVec2DM scale(int x, int y) {
-        return this.set(this.x() * x, this.y() * y);
+        return this.set(this.x * x, this.y * y);
     }
 
     @Override
     public IVec2DM scale(double x, double y) {
-        return this.set(this.x() * x, this.y() * y);
+        return this.set(this.x * x, this.y * y);
     }
 
     @Override
@@ -284,7 +342,7 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public IVec2DM scale(double val) {
-        return this.set(this.x() * val, this.y() * val);
+        return this.set(this.x * val, this.y * val);
     }
 
     @Override
@@ -293,9 +351,52 @@ public class Vec2DM implements IVec2DM {
     }
 
     @Override
+    public IVec2DM rotate(double degrees) {
+        if (Math.abs(degrees) < BananaMath.DOUBLE_EPS) {
+            return this;
+        }
+
+        double rad = Math.toRadians(degrees);
+        double sin = Math.sin(rad), cos = Math.cos(rad);
+        return this.set(this.x * cos + this.y * sin, this.y * cos - this.x * sin);
+    }
+
+    @Override
+    public IVec2DM rotateAround(int x, int y, double degrees) {
+        if (Math.abs(degrees) < BananaMath.DOUBLE_EPS) {
+            return this;
+        }
+
+        double rad = Math.toRadians(degrees);
+        double sin = Math.sin(rad), cos = Math.cos(rad);
+        return this.set(((this.x - x) * cos + (this.y - y) * sin) + x, ((this.y - y) * cos - (this.x - x) * sin) + y);
+    }
+
+    @Override
+    public IVec2DM rotateAround(double x, double y, double degrees) {
+        if (Math.abs(degrees) < BananaMath.DOUBLE_EPS) {
+            return this;
+        }
+
+        double rad = Math.toRadians(degrees);
+        double sin = Math.sin(rad), cos = Math.cos(rad);
+        return this.set(((this.x - x) * cos + (this.y - y) * sin) + x, ((this.y - y) * cos - (this.x - x) * sin) + y);
+    }
+
+    @Override
+    public IVec2DM rotateAround(IVec2D point, double degrees) {
+        return this.rotateAround(point.x(), point.y(), degrees);
+    }
+
+    @Override
+    public IVec2DM rotateAround(IVec2I point, double degrees) {
+        return this.rotateAround(point.x(), point.y(), degrees);
+    }
+
+    @Override
     public IVec2DM normalize() {
-        double l = Math.sqrt(this.x() * this.x() + this.y() * this.y());
-        return l < 1.0E-4D ? this.set(0, 0) : this.set(this.x() / l, this.y() / l);
+        double l = Math.sqrt(this.x * this.x + this.y * this.y);
+        return l < 1.0E-4D ? this.set(0, 0) : this.set(this.x / l, this.y / l);
     }
 
     @Override
@@ -305,7 +406,7 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public IVec2D toImmutable() {
-        return new Vec2D(this.x(), this.y());
+        return new Vec2D(this.x, this.y);
     }
 
     @Override
@@ -315,16 +416,16 @@ public class Vec2DM implements IVec2DM {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof IVec2D && ((IVec2D) obj).x() == this.x() && ((IVec2D) obj).y() == this.y();
+        return obj instanceof IVec2D && ((IVec2D) obj).x() == this.x && ((IVec2D) obj).y() == this.y;
     }
 
     @Override
     public int hashCode() {
-        return 31 * Double.hashCode(this.x()) + Double.hashCode(this.y());
+        return 31 * Double.hashCode(this.x) + Double.hashCode(this.y);
     }
 
     @Override
     public String toString() {
-        return "(" + ((float) this.x()) + ", " + ((float) this.y()) + ")";
+        return "(" + ((float) this.x) + ", " + ((float) this.y) + ")";
     }
 }

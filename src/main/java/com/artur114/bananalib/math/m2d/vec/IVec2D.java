@@ -3,8 +3,14 @@ package com.artur114.bananalib.math.m2d.vec;
 public interface IVec2D {
     double x();
     double y();
+    IVec2D yx();
+    IVec2I yxI();
     double length();
     double lengthSq();
+    double dot(IVec2I vec);
+    double dot(IVec2D vec);
+    double cross(IVec2I vec);
+    double cross(IVec2D vec);
     double distance(int x, int y);
     double distance(double x, double y);
     double distance(IVec2I vec);
@@ -27,6 +33,11 @@ public interface IVec2D {
     IVec2D scale(double x, double y);
     IVec2D scale(IVec2I vec);
     IVec2D scale(IVec2D vec);
+    IVec2D rotate(double degrees);
+    IVec2D rotateAround(int x, int y, double degrees);
+    IVec2D rotateAround(double x, double y, double degrees);
+    IVec2D rotateAround(IVec2D point, double degrees);
+    IVec2D rotateAround(IVec2I point, double degrees);
     IVec2D normalize();
     IVec2DM toMutable();
     IVec2D toImmutable();

@@ -54,7 +54,6 @@ public class Matrix2FM implements IMatrix2FM {
         poolCursor.set(polCursor);
     }
 
-    private static final float EPS = 1e-6F;
     private float[][] stateStack = null;
     private int stateCursor = 0;
     private float m00, m01, m02;
@@ -258,13 +257,13 @@ public class Matrix2FM implements IMatrix2FM {
 
     @Override
     public boolean isReversible() {
-        return Math.abs(this.determinant()) > EPS;
+        return Math.abs(this.determinant()) > BananaMath.FLOAT_EPS;
     }
 
     @Override
     public IMatrix2FM invert() {
         float det = this.determinant();
-        if (Math.abs(det) < EPS) throw new ArithmeticException("Couldn't invert unreversible matrix");
+        if (Math.abs(det) < BananaMath.FLOAT_EPS) throw new ArithmeticException("Couldn't invert unreversible matrix");
         float detInv = 1.0F / det;
         return this.set(
             this.m11 * detInv, -this.m01 * detInv, (this.m01 * this.m12 - this.m11 * this.m02) * detInv,

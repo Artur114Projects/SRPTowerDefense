@@ -1,4 +1,4 @@
-package com.artur114.bananalib.math;
+package com.artur114.bananalib.math.m3dl;
 
 import net.minecraft.util.Rotation;
 

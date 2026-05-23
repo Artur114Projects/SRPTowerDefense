@@ -95,7 +95,7 @@ public class Matrix2F implements IMatrix2F {
 
     @Override
     public boolean isReversible() {
-        return Math.abs(this.det) > 1e-6;
+        return Math.abs(this.det) > BananaMath.FLOAT_EPS;
     }
 
     @Override

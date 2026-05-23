@@ -95,7 +95,7 @@ public class Matrix2D implements IMatrix2D {
 
     @Override
     public boolean isReversible() {
-        return Math.abs(this.det) > 1e-12;
+        return Math.abs(this.det) > BananaMath.DOUBLE_EPS;
     }
 
     @Override

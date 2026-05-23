@@ -6,6 +6,10 @@ public interface IVec2IM extends IVec2I {
     IVec2IM set(int x, int y);
     IVec2IM set(IVec2D vec);
     IVec2IM set(IVec2I vec);
+    IVec2IM setX(int x);
+    IVec2IM setX(double x);
+    IVec2IM setY(int y);
+    IVec2IM setY(double y);
     IVec2IM setZero();
     IVec2IM collapseStack();
     IVec2IM resetStack();
@@ -25,6 +29,11 @@ public interface IVec2IM extends IVec2I {
     IVec2IM scale(double x, double y);
     IVec2IM scale(IVec2I vec);
     IVec2IM scale(IVec2D vec);
+    IVec2IM rotate(double degrees);
+    IVec2IM rotateAround(int x, int y, double degrees);
+    IVec2IM rotateAround(double x, double y, double degrees);
+    IVec2IM rotateAround(IVec2D point, double degrees);
+    IVec2IM rotateAround(IVec2I point, double degrees);
     IVec2DM normalize();
     IVec2DM toDouble();
 }

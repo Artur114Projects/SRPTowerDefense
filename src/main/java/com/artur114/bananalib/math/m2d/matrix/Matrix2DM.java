@@ -54,7 +54,6 @@ public class Matrix2DM implements IMatrix2DM {
         poolCursor.set(polCursor);
     }
 
-    private static final double EPS = 1e-12;
     private double[][] stateStack = null;
     private int stateCursor = 0;
     private double m00, m01, m02;
@@ -253,13 +252,13 @@ public class Matrix2DM implements IMatrix2DM {
 
     @Override
     public boolean isReversible() {
-        return Math.abs(this.determinant()) > EPS;
+        return Math.abs(this.determinant()) > BananaMath.DOUBLE_EPS;
     }
 
     @Override
     public IMatrix2DM invert() {
         double det = this.determinant();
-        if (Math.abs(det) < EPS) throw new ArithmeticException("Couldn't invert unreversible matrix");
+        if (Math.abs(det) < BananaMath.DOUBLE_EPS) throw new ArithmeticException("Couldn't invert unreversible matrix");
         double detInv = 1.0D / det;
         return this.set(
             this.m11 * detInv, -this.m01 * detInv, (this.m01 * this.m12 - this.m11 * this.m02) * detInv,
