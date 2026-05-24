@@ -89,6 +89,9 @@ public class Box2IM implements IBox2IM {
 
     @Override
     public IBox2IM set(int[] box) {
+        if (box.length < 4) {
+            throw new IllegalArgumentException();
+        }
         this.minX = Math.min(box[0], box[2]);
         this.minY = Math.min(box[1], box[3]);
         this.maxX = Math.max(box[0], box[2]);

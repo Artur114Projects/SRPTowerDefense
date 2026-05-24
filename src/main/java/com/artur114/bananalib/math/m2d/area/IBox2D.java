@@ -33,5 +33,7 @@ public interface IBox2D {
     boolean contains(IVec2D vec2D);
     IBox2DM toMutable();
     IBox2D toImmutable();
-    IBox2I toInt();
+    IBox2I floor();
+    IBox2I round();
+    IBox2I ceil();
 }

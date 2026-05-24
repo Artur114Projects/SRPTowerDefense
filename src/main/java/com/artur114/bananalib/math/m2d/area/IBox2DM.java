@@ -26,5 +26,7 @@ public interface IBox2DM extends IBox2D {
     IBox2DM offset(double x, double y);
     IBox2DM offset(IVec2D vec2D);
     IBox2DM offset(IVec2I vec2D);
-    IBox2IM toInt();
+    IBox2IM floor();
+    IBox2IM round();
+    IBox2IM ceil();
 }

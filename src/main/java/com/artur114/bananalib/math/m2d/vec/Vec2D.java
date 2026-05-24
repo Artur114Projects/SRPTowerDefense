@@ -1,6 +1,12 @@
 package com.artur114.bananalib.math.m2d.vec;
 
 import com.artur114.bananalib.math.BananaMath;
+import com.artur114.bananalib.math.m2d.area.IBox2D;
+import com.artur114.bananalib.math.m2d.area.IBox2I;
+import com.artur114.bananalib.math.m3d.vec.IVec3D;
+import com.artur114.bananalib.math.m3d.vec.IVec3I;
+import com.artur114.bananalib.math.m3d.vec.Vec3D;
+import com.artur114.bananalib.math.m3d.vec.Vec3I;
 
 public class Vec2D implements IVec2D {
     public static final Vec2D ZERO = new Vec2D(0, 0);
@@ -41,9 +47,41 @@ public class Vec2D implements IVec2D {
     }
 
     @Override
+    public IVec3D xyz(double z) {
+        return new Vec3D(this.x, this.y, z);
+    }
+
+    @Override
+    public IVec3D xzy(double z) {
+        return new Vec3D(this.x, z, this.y);
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousNameCombination")
+    public IVec3D zxy(double z) {
+        return new Vec3D(z, this.x, this.y);
+    }
+
+    @Override
     @SuppressWarnings("SuspiciousNameCombination")
     public IVec2I yxI() {
         return new Vec2I(this.y, this.x);
+    }
+
+    @Override
+    public IVec3I xyzI(int z) {
+        return new Vec3I(this.x, this.y, z);
+    }
+
+    @Override
+    public IVec3I xzyI(int z) {
+        return new Vec3I(this.x, z, this.y);
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousNameCombination")
+    public IVec3I zxyI(int z) {
+        return new Vec3I(z, this.x, this.y);
     }
 
     @Override
@@ -195,6 +233,36 @@ public class Vec2D implements IVec2D {
     }
 
     @Override
+    public IVec2D divide(int val) {
+        return new Vec2D(this.x / val, this.y / val);
+    }
+
+    @Override
+    public IVec2D divide(int x, int y) {
+        return new Vec2D(this.x / x, this.y / y);
+    }
+
+    @Override
+    public IVec2D divide(double val) {
+        return new Vec2D(this.x / val, this.y / val);
+    }
+
+    @Override
+    public IVec2D divide(double x, double y) {
+        return new Vec2D(this.x / x, this.y / y);
+    }
+
+    @Override
+    public IVec2D divide(IVec2I vec) {
+        return this.divide(vec.x(), vec.y());
+    }
+
+    @Override
+    public IVec2D divide(IVec2D vec) {
+        return this.divide(vec.x(), vec.y());
+    }
+
+    @Override
     public IVec2D rotate(double degrees) {
         if (Math.abs(degrees) < BananaMath.DOUBLE_EPS) {
             return this;
@@ -238,6 +306,68 @@ public class Vec2D implements IVec2D {
     }
 
     @Override
+    public IVec2D wrap(IBox2I box) {
+        return this.wrap(box.minX(), box.minY(), box.maxX(), box.maxY());
+    }
+
+    @Override
+    public IVec2D wrap(IBox2D box) {
+        return this.wrap(box.minX(), box.minY(), box.maxX(), box.maxY());
+    }
+
+    @Override
+    public IVec2D wrap(int x, int y) {
+        return this.wrap(0, 0, x, y);
+    }
+
+    @Override
+    public IVec2D wrap(double x, double y) {
+        return this.wrap(0.0D, 0.0D, x, y);
+    }
+
+    @Override
+    public IVec2D wrap(int minX, int minY, int maxX, int maxY) {
+        double rangeX = (maxX - minX), rangeY = (maxY - minY);
+        return new Vec2D(minX + ((this.x - minX) % rangeX + rangeX) % rangeX, minY + ((this.y - minY) % rangeY + rangeY) % rangeY);
+    }
+
+    @Override
+    public IVec2D wrap(double minX, double minY, double maxX, double maxY) {
+        double rangeX = (maxX - minX), rangeY = (maxY - minY);
+        return new Vec2D(minX + ((this.x - minX) % rangeX + rangeX) % rangeX, minY + ((this.y - minY) % rangeY + rangeY) % rangeY);
+    }
+
+    @Override
+    public IVec2D clamp(IBox2I box) {
+        return this.clamp(box.minX(), box.minY(), box.maxX(), box.maxY());
+    }
+
+    @Override
+    public IVec2D clamp(IBox2D box) {
+        return this.clamp(box.minX(), box.minY(), box.maxX(), box.maxY());
+    }
+
+    @Override
+    public IVec2D clamp(int x, int y) {
+        return this.clamp(0, 0, x, y);
+    }
+
+    @Override
+    public IVec2D clamp(double x, double y) {
+        return this.clamp(0.0D, 0.0D, x, y);
+    }
+
+    @Override
+    public IVec2D clamp(int minX, int minY, int maxX, int maxY) {
+        return new Vec2D(Math.max(minX, Math.min(maxX, this.x)), Math.max(minY, Math.min(maxY, this.y)));
+    }
+
+    @Override
+    public IVec2D clamp(double minX, double minY, double maxX, double maxY) {
+        return new Vec2D(Math.max(minX, Math.min(maxX, this.x)), Math.max(minY, Math.min(maxY, this.y)));
+    }
+
+    @Override
     public IVec2D normalize() {
         double l = Math.sqrt(this.x * this.x + this.y * this.y);
         return l < 1.0E-4D ? ZERO : new Vec2D(this.x / l, this.y / l);
@@ -254,8 +384,23 @@ public class Vec2D implements IVec2D {
     }
 
     @Override
-    public IVec2I toInt() {
+    public IVec2I floor() {
         return new Vec2I(this);
+    }
+
+    @Override
+    public IVec2I round() {
+        return new Vec2I(BananaMath.round(this.x), BananaMath.round(this.y));
+    }
+
+    @Override
+    public IVec2I ceil() {
+        return new Vec2I(BananaMath.ceil(this.x), BananaMath.ceil(this.y));
+    }
+
+    @Override
+    public IVec2D copy() {
+        return new Vec2D(this);
     }
 
     @Override

@@ -138,4 +138,14 @@ public class BananaMath {
         int i = (int) f;
         return f < (float) i ? i - 1 : i;
     }
+
+    public static int ceil(float f) {
+        int i = (int) f;
+        return f > (float) i ? i + 1 : i;
+    }
+
+    public static int ceil(double d) {
+        int i = (int) d;
+        return d > (double) i ? i + 1 : i;
+    }
 }

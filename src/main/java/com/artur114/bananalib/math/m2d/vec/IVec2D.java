@@ -1,10 +1,21 @@
 package com.artur114.bananalib.math.m2d.vec;
 
+import com.artur114.bananalib.math.m2d.area.IBox2D;
+import com.artur114.bananalib.math.m2d.area.IBox2I;
+import com.artur114.bananalib.math.m3d.vec.IVec3D;
+import com.artur114.bananalib.math.m3d.vec.IVec3I;
+
 public interface IVec2D {
     double x();
     double y();
     IVec2D yx();
+    IVec3D xyz(double z);
+    IVec3D xzy(double z);
+    IVec3D zxy(double z);
     IVec2I yxI();
+    IVec3I xyzI(int z);
+    IVec3I xzyI(int z);
+    IVec3I zxyI(int z);
     double length();
     double lengthSq();
     double dot(IVec2I vec);
@@ -33,13 +44,34 @@ public interface IVec2D {
     IVec2D scale(double x, double y);
     IVec2D scale(IVec2I vec);
     IVec2D scale(IVec2D vec);
+    IVec2D divide(int val);
+    IVec2D divide(int x, int y);
+    IVec2D divide(double val);
+    IVec2D divide(double x, double y);
+    IVec2D divide(IVec2I vec);
+    IVec2D divide(IVec2D vec);
     IVec2D rotate(double degrees);
     IVec2D rotateAround(int x, int y, double degrees);
     IVec2D rotateAround(double x, double y, double degrees);
     IVec2D rotateAround(IVec2D point, double degrees);
     IVec2D rotateAround(IVec2I point, double degrees);
+    IVec2D wrap(IBox2I box);
+    IVec2D wrap(IBox2D box);
+    IVec2D wrap(int x, int y);
+    IVec2D wrap(double x, double y);
+    IVec2D wrap(int minX, int minY, int maxX, int maxY);
+    IVec2D wrap(double minX, double minY, double maxX, double maxY);
+    IVec2D clamp(IBox2I box);
+    IVec2D clamp(IBox2D box);
+    IVec2D clamp(int x, int y);
+    IVec2D clamp(double x, double y);
+    IVec2D clamp(int minX, int minY, int maxX, int maxY);
+    IVec2D clamp(double minX, double minY, double maxX, double maxY);
     IVec2D normalize();
     IVec2DM toMutable();
     IVec2D toImmutable();
-    IVec2I toInt();
+    IVec2I floor();
+    IVec2I round();
+    IVec2I ceil();
+    IVec2D copy();
 }

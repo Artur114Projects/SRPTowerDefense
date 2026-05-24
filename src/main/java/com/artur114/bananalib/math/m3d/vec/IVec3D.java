@@ -1,8 +1,12 @@
 package com.artur114.bananalib.math.m3d.vec;
 
 
+import com.artur114.bananalib.math.m2d.area.IBox2D;
+import com.artur114.bananalib.math.m2d.area.IBox2I;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;
 import com.artur114.bananalib.math.m2d.vec.IVec2I;
+import com.artur114.bananalib.math.m3d.box.IBox3D;
+import com.artur114.bananalib.math.m3d.box.IBox3I;
 
 public interface IVec3D {
     double x();
@@ -15,6 +19,10 @@ public interface IVec3D {
     IVec2D zx();
     IVec2D zy();
     IVec3D zyx();
+    IVec3D zxy();
+    IVec3D yzx();
+    IVec3D xzy();
+    IVec3D yxz();
     IVec2I xyI();
     IVec2I xzI();
     IVec2I yxI();
@@ -22,6 +30,10 @@ public interface IVec3D {
     IVec2I zxI();
     IVec2I zyI();
     IVec3I zyxI();
+    IVec3I zxyI();
+    IVec3I yzxI();
+    IVec3I xzyI();
+    IVec3I yxzI();
     double length();
     double lengthSq();
     double dot(IVec3I vec);
@@ -56,6 +68,8 @@ public interface IVec3D {
     IVec3D subtract(IVec2D vec, double z);
     IVec3D subtract(IVec2I vec);
     IVec3D subtract(IVec2D vec);
+    IVec3D scale(int val);
+    IVec3D scale(double val);
     IVec3D scale(int x, int y, int z);
     IVec3D scale(double x, double y, double z);
     IVec3D scale(IVec3I vec);
@@ -66,6 +80,18 @@ public interface IVec3D {
     IVec3D scale(IVec2D vec, double z);
     IVec3D scale(IVec2I vec);
     IVec3D scale(IVec2D vec);
+    IVec3D divide(int val);
+    IVec3D divide(double val);
+    IVec3D divide(int x, int y, int z);
+    IVec3D divide(double x, double y, double z);
+    IVec3D divide(IVec3I vec);
+    IVec3D divide(IVec3D vec);
+    IVec3D divide(IVec2I vec, int z);
+    IVec3D divide(IVec2I vec, double z);
+    IVec3D divide(IVec2D vec, int z);
+    IVec3D divide(IVec2D vec, double z);
+    IVec3D divide(IVec2I vec);
+    IVec3D divide(IVec2D vec);
     IVec3D rotateX(double degrees);
     IVec3D rotateY(double degrees);
     IVec3D rotateZ(double degrees);
@@ -81,8 +107,35 @@ public interface IVec3D {
     IVec3D rotateZAround(double x, double y, double z, double degrees);
     IVec3D rotateZAround(IVec3I point, double degrees);
     IVec3D rotateZAround(IVec3D point, double degrees);
+    IVec3D wrap(IBox3I box);
+    IVec3D wrap(IBox3D box);
+    IVec3D wrap(IBox2I box, int minZ, int maxZ);
+    IVec3D wrap(IBox2I box, double minZ, double maxZ);
+    IVec3D wrap(IBox2D box, int minZ, int maxZ);
+    IVec3D wrap(IBox2D box, double minZ, double maxZ);
+    IVec3D wrap(IBox2I box);
+    IVec3D wrap(IBox2D box);
+    IVec3D wrap(int x, int y, int z);
+    IVec3D wrap(double x, double y, double z);
+    IVec3D wrap(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+    IVec3D wrap(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
+    IVec3D clamp(IBox3I box);
+    IVec3D clamp(IBox3D box);
+    IVec3D clamp(IBox2I box, int minZ, int maxZ);
+    IVec3D clamp(IBox2I box, double minZ, double maxZ);
+    IVec3D clamp(IBox2D box, int minZ, int maxZ);
+    IVec3D clamp(IBox2D box, double minZ, double maxZ);
+    IVec3D clamp(IBox2I box);
+    IVec3D clamp(IBox2D box);
+    IVec3D clamp(int x, int y, int z);
+    IVec3D clamp(double x, double y, double z);
+    IVec3D clamp(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+    IVec3D clamp(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
     IVec3D normalize();
     IVec3DM toMutable();
     IVec3D toImmutable();
-    IVec3I toInt();
+    IVec3I floor();
+    IVec3I round();
+    IVec3I ceil();
+    IVec3D copy();
 }

@@ -1,5 +1,8 @@
 package com.artur114.bananalib.math.m2d.vec;
 
+import com.artur114.bananalib.math.m2d.area.IBox2D;
+import com.artur114.bananalib.math.m2d.area.IBox2I;
+
 public interface IVec2IM extends IVec2I {
     IVec2IM set(int[] pos);
     IVec2IM set(double x, double y);
@@ -29,11 +32,30 @@ public interface IVec2IM extends IVec2I {
     IVec2IM scale(double x, double y);
     IVec2IM scale(IVec2I vec);
     IVec2IM scale(IVec2D vec);
+    IVec2IM divide(int val);
+    IVec2IM divide(int x, int y);
+    IVec2IM divide(double val);
+    IVec2IM divide(double x, double y);
+    IVec2IM divide(IVec2I vec);
+    IVec2IM divide(IVec2D vec);
     IVec2IM rotate(double degrees);
     IVec2IM rotateAround(int x, int y, double degrees);
     IVec2IM rotateAround(double x, double y, double degrees);
     IVec2IM rotateAround(IVec2D point, double degrees);
     IVec2IM rotateAround(IVec2I point, double degrees);
+    IVec2IM wrap(IBox2I box);
+    IVec2IM wrap(IBox2D box);
+    IVec2IM wrap(int x, int y);
+    IVec2IM wrap(double x, double y);
+    IVec2IM wrap(int minX, int minY, int maxX, int maxY);
+    IVec2IM wrap(double minX, double minY, double maxX, double maxY);
+    IVec2IM clamp(IBox2I box);
+    IVec2IM clamp(IBox2D box);
+    IVec2IM clamp(int x, int y);
+    IVec2IM clamp(double x, double y);
+    IVec2IM clamp(int minX, int minY, int maxX, int maxY);
+    IVec2IM clamp(double minX, double minY, double maxX, double maxY);
     IVec2DM normalize();
     IVec2DM toDouble();
+    IVec2IM copy();
 }

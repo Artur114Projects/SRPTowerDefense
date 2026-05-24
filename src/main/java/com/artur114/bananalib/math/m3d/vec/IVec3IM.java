@@ -1,10 +1,15 @@
 package com.artur114.bananalib.math.m3d.vec;
 
+import com.artur114.bananalib.math.m2d.area.IBox2D;
+import com.artur114.bananalib.math.m2d.area.IBox2I;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;
 import com.artur114.bananalib.math.m2d.vec.IVec2I;
+import com.artur114.bananalib.math.m2d.vec.IVec2IM;
+import com.artur114.bananalib.math.m3d.box.IBox3D;
+import com.artur114.bananalib.math.m3d.box.IBox3I;
 
 public interface IVec3IM extends IVec3I {
-    IVec3IM set(double[] pos);
+    IVec3IM set(int[] pos);
     IVec3IM set(double x, double y, double z);
     IVec3IM set(int x, int y, int z);
     IVec3IM set(IVec3I vec);
@@ -21,8 +26,11 @@ public interface IVec3IM extends IVec3I {
     IVec3IM pushPos();
     IVec3IM popPos();
     IVec3IM setX(int x);
+    IVec3IM setX(double x);
     IVec3IM setY(int y);
+    IVec3IM setY(double y);
     IVec3IM setZ(int z);
+    IVec3IM setZ(double z);
     IVec3IM add(int x, int y, int z);
     IVec3IM add(double x, double y, double z);
     IVec3IM add(IVec3I vec);
@@ -43,6 +51,8 @@ public interface IVec3IM extends IVec3I {
     IVec3IM subtract(IVec2D vec, double z);
     IVec3IM subtract(IVec2I vec);
     IVec3IM subtract(IVec2D vec);
+    IVec3IM scale(int val);
+    IVec3IM scale(double val);
     IVec3IM scale(int x, int y, int z);
     IVec3IM scale(double x, double y, double z);
     IVec3IM scale(IVec3I vec);
@@ -53,6 +63,18 @@ public interface IVec3IM extends IVec3I {
     IVec3IM scale(IVec2D vec, double z);
     IVec3IM scale(IVec2I vec);
     IVec3IM scale(IVec2D vec);
+    IVec3IM divide(int val);
+    IVec3IM divide(double val);
+    IVec3IM divide(int x, int y, int z);
+    IVec3IM divide(double x, double y, double z);
+    IVec3IM divide(IVec3I vec);
+    IVec3IM divide(IVec3D vec);
+    IVec3IM divide(IVec2I vec, int z);
+    IVec3IM divide(IVec2I vec, double z);
+    IVec3IM divide(IVec2D vec, int z);
+    IVec3IM divide(IVec2D vec, double z);
+    IVec3IM divide(IVec2I vec);
+    IVec3IM divide(IVec2D vec);
     IVec3IM rotateX(double degrees);
     IVec3IM rotateY(double degrees);
     IVec3IM rotateZ(double degrees);
@@ -68,6 +90,31 @@ public interface IVec3IM extends IVec3I {
     IVec3IM rotateZAround(double x, double y, double z, double degrees);
     IVec3IM rotateZAround(IVec3I point, double degrees);
     IVec3IM rotateZAround(IVec3D point, double degrees);
+    IVec3IM wrap(IBox3I box);
+    IVec3IM wrap(IBox3D box);
+    IVec3IM wrap(IBox2I box, int minZ, int maxZ);
+    IVec3IM wrap(IBox2I box, double minZ, double maxZ);
+    IVec3IM wrap(IBox2D box, int minZ, int maxZ);
+    IVec3IM wrap(IBox2D box, double minZ, double maxZ);
+    IVec3IM wrap(IBox2I box);
+    IVec3IM wrap(IBox2D box);
+    IVec3IM wrap(int x, int y, int z);
+    IVec3IM wrap(double x, double y, double z);
+    IVec3IM wrap(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+    IVec3IM wrap(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
+    IVec3IM clamp(IBox3I box);
+    IVec3IM clamp(IBox3D box);
+    IVec3IM clamp(IBox2I box, int minZ, int maxZ);
+    IVec3IM clamp(IBox2I box, double minZ, double maxZ);
+    IVec3IM clamp(IBox2D box, int minZ, int maxZ);
+    IVec3IM clamp(IBox2D box, double minZ, double maxZ);
+    IVec3IM clamp(IBox2I box);
+    IVec3IM clamp(IBox2D box);
+    IVec3IM clamp(int x, int y, int z);
+    IVec3IM clamp(double x, double y, double z);
+    IVec3IM clamp(int minX, int minY, int minZ, int maxX, int maxY, int maxZ);
+    IVec3IM clamp(double minX, double minY, double minZ, double maxX, double maxY, double maxZ);
     IVec3DM normalize();
     IVec3DM toDouble();
+    IVec3IM copy();
 }

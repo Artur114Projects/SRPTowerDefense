@@ -1,5 +1,6 @@
 package com.artur114.bananalib.math.m2d.area;
 
+import com.artur114.bananalib.math.BananaMath;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;
 import com.artur114.bananalib.math.m2d.vec.IVec2I;
 
@@ -88,6 +89,9 @@ public class Box2DM implements IBox2DM {
 
     @Override
     public IBox2DM set(double[] box) {
+        if (box.length < 4) {
+            throw new IllegalArgumentException();
+        }
         this.minX = Math.min(box[0], box[2]);
         this.minY = Math.min(box[1], box[3]);
         this.maxX = Math.max(box[0], box[2]);
@@ -333,8 +337,18 @@ public class Box2DM implements IBox2DM {
     }
 
     @Override
-    public IBox2IM toInt() {
+    public IBox2IM floor() {
         return new Box2IM(this);
+    }
+
+    @Override
+    public IBox2IM round() {
+        return new Box2IM(BananaMath.round(this.minX), BananaMath.round(this.minY), BananaMath.round(this.maxX), BananaMath.round(this.maxY));
+    }
+
+    @Override
+    public IBox2IM ceil() {
+        return new Box2IM(BananaMath.ceil(this.minX), BananaMath.ceil(this.minY), BananaMath.ceil(this.maxX), BananaMath.ceil(this.maxY));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.artur114.bananalib.math.m2d.area;
 
+import com.artur114.bananalib.math.BananaMath;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;
 import com.artur114.bananalib.math.m2d.vec.IVec2I;
 
@@ -184,8 +185,18 @@ public class Box2D implements IBox2D {
     }
 
     @Override
-    public IBox2I toInt() {
+    public IBox2I floor() {
         return new Box2I(this);
+    }
+
+    @Override
+    public IBox2I round() {
+        return new Box2I(BananaMath.round(this.minX), BananaMath.round(this.minY), BananaMath.round(this.maxX), BananaMath.round(this.maxY));
+    }
+
+    @Override
+    public IBox2I ceil() {
+        return new Box2I(BananaMath.ceil(this.minX), BananaMath.ceil(this.minY), BananaMath.ceil(this.maxX), BananaMath.ceil(this.maxY));
     }
 
     @Override
