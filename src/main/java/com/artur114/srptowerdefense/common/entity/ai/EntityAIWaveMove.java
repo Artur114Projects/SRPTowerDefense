@@ -1,21 +1,21 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
-import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
-import com.artur114.srptowerdefense.common.systems.towerdefence.IWave;
-import com.artur114.srptowerdefense.common.systems.towerdefence.TowerDefenceEntity;
+import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave;
+import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceEntity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 
 public class EntityAIWaveMove extends EntityAIBase {
-    private final AdvancedBlockPos prevTarget = new AdvancedBlockPos();
+    private final PosMc3IM prevTarget = new PosMc3IM();
     private final TowerDefenceEntity waveData;
     private final EntityCreature creature;
 
     public EntityAIWaveMove(TowerDefenceEntity data) {
         this.creature = data.entity;
         this.waveData = data;
-        this.setMutexBits(16);
+        this.setMutexBits(3);
     }
 
     @Override
@@ -31,10 +31,7 @@ public class EntityAIWaveMove extends EntityAIBase {
                 BlockPos pos = this.waveData.moveTarget();
                 if (pos != null) {
                     this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
-                    if (!this.prevTarget.equals(pos)) {
-                        System.out.println("wave(" + this.waveData.objectId() + ") move to:" + pos);
-                    }
-                    this.prevTarget.setPos(pos);
+                    this.prevTarget.set(pos);
                 }
             }
         }

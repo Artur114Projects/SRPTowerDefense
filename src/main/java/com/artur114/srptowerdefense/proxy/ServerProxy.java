@@ -1,30 +1,29 @@
 package com.artur114.srptowerdefense.proxy;
 
+import com.artur114.bananalib.mc.registry.IRegisterBus;
 import net.minecraftforge.fml.common.event.*;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ServerProxy extends CommonProxy {
     @Override
-    public void preInit(FMLPreInitializationEvent e) {
-        super.preInit(e);
+    public void preInit(IRegisterBus bus, FMLPreInitializationEvent e) {
+        super.preInit(bus, e);
     }
 
     @Override
-    public void init(FMLInitializationEvent e) {
-        super.init(e);
+    public void init(IRegisterBus bus, FMLInitializationEvent e) {
+        super.init(bus, e);
     }
 
     @Override
-    public void postInit(FMLPostInitializationEvent e) {
-        super.postInit(e);
+    public void postInit(IRegisterBus bus, FMLPostInitializationEvent e) {
+        super.postInit(bus, e);
     }
 
     @Override
-    public void serverStarting(FMLServerStartingEvent e) {
-        super.serverStarting(e);
-    }
-
-    @Override
-    public void serverStopping(FMLServerStoppingEvent e) {
-        super.serverStopping(e);
+    public List<Class<?>> classesToRegister() {
+        return Collections.emptyList();
     }
 }

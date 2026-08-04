@@ -1,6 +1,6 @@
 package com.artur114.srptowerdefense.common.pathfinding;
 
-import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageHandler;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;

@@ -1,5 +1,7 @@
 package com.artur114.srptowerdefense.client.events.managers;
 
+import com.artur114.bananalib.mc.cap.BananaCaps;
+import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import com.artur114.srptowerdefense.common.pathfinding.PathPointForced;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -13,7 +15,6 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -60,6 +61,16 @@ public class EntityPathDrawManager {
                 this.renderPathPoint(entity, path, path.getPathPointFromIndex(i));
             }
         }
+
+        BananaCaps.capability(entity, InitCapabilities.TD_ENTITY_DATA).ifPresent(defence -> {
+            BlockPos pos = defence.moveTarget();
+
+            if (pos != null) {
+                Color color = Color.WHITE;
+                RenderGlobal.drawSelectionBoundingBox(boxToAir.offset(pos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, 1);
+                RenderGlobal.drawSelectionBoundingBox(boxToBlocks.offset(pos).offset(-Particle.interpPosX, -Particle.interpPosY, -Particle.interpPosZ), color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, 1);
+            }
+        });
     }
 
     private void renderPathPoint(EntityLiving entity, Path path, PathPoint point) {

@@ -1,7 +1,7 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
-import com.artur114.srptowerdefense.common.systems.blockdamage.BlockDamageHandler;
-import com.artur114.bananalib.math.m3dl.vec.AdvancedBlockPos;
+import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageHandler;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -32,7 +32,7 @@ public class EntityAIBreakGears extends EntityAIBase {
         this.movementSpeed = Math.max(1.0D, movementSpeedIn);
         this.creature = theCreatureIn;
         this.world = theCreatureIn.world;
-        this.setMutexBits(15);
+        this.setMutexBits(3);
     }
 
     public boolean shouldExecute() {
@@ -68,9 +68,9 @@ public class EntityAIBreakGears extends EntityAIBase {
     private BlockPos findGear() {
         int range = (int) (this.pathSearchRange.getAttributeValue() + 8);
         int rangeChunk = (range >> 4);
-        AdvancedBlockPos blockPos = AdvancedBlockPos.obtain().setPos(this.creature.posX, this.creature.getEntityBoundingBox().minY, this.creature.posZ);
-        ChunkPos center = blockPos.toChunkPos();
-        AdvancedBlockPos.release(blockPos);
+        PosMc3IM blockPos = PosMc3IM.obtain().set(this.creature.posX, this.creature.getEntityBoundingBox().minY, this.creature.posZ);
+        ChunkPos center = new ChunkPos(blockPos.chunkX(), blockPos.chunkZ());
+        PosMc3IM.release(blockPos);
 
         ArrayList<TileEntity> entities = new ArrayList<>();
 

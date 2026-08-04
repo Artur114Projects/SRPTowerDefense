@@ -1,4 +1,3 @@
-item.debug_carrot.name=Debugging carrot
-item.debug_carrot.info.i=Infinity
+item.debug_fish.name=Debugging fish
 itemGroup.main=SRP: Tower Defence!
 srptowerdefense.for_creative=For creativity only

@@ -1,76 +1,66 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
         mavenCentral()
+        maven {
+            name = "forge"
+            url = "https://maven.minecraftforge.net"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath("com.anatawa12.forge:ForgeGradle:2.3-1.0.+") {
+            changing = true
+        }
     }
 }
-        
-apply plugin: 'net.minecraftforge.gradle'
 
-version = modVersion
-group = modGroup
-archivesBaseName = modFileName
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'groovy'
+apply plugin: 'java'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+group = "com.artur114.srptowerdefense"
+archivesBaseName = "SRPTowerDefense"
+version = mod_version
 
-minecraft {
-    mappings channel: 'snapshot', version: '20171003-1.12'
-    if (atfile != "null") {
-        accessTransformer = file('src/main/resources/META-INF/' + atfile)
-    }
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            if (properties.get("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
-            }
-        }
+repositories {
+    maven {url 'https://jitpack.io'}
+}
 
-        server {
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            if (properties.get("coreModClass") != "null") {
-                jvmArg '-Dfml.coreMods.load=' + properties.get("coreModClass")
-            }
-        }
-    }
+configurations {
+    include; implementation.extendsFrom(include)
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:24.0.0'
+    include('com.github.Artur114Projects.BananaLib:asm:1.0.5-betta') {transitive=false}
+    include('com.github.Artur114Projects.BananaLib:util:1.0.5-betta') {transitive=false}
+    include('com.github.Artur114Projects.BananaLib:math:1.0.5-betta') {transitive=false}
+    include('com.github.Artur114Projects.BananaLib:mc:1.0.5-betta') {transitive=false}
 
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+    implementation localGroovy()
+    implementation 'com.github.Artur114Projects.BananaLib:math-groovy:1.0.5-betta'
+    implementation 'org.jetbrains:annotations:24.0.0'
     compile fileTree(dir: "libs", includes: ['*.jar'])
 }
 
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": modId,
-            "Specification-Vendor": modId,
-            "Specification-Version": modVersion,
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" : modId,
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-        if (coreModClass != "null") {
-            attributes "FMLCorePlugin": coreModClass
-            attributes "FMLCorePluginContainsFMLMod": "true"
-        }
-        if (atfile != "null") {
-            attributes "FMLAT": atfile
-        }
-    }
+minecraft {
+    runDir = 'run'
+    version = "1.12.2-14.23.5.2847"
+    mappings = "snapshot_20171003"
+    clientRunArgs += ["--uuid", "11111111-1111-1111-1111-111111111111"]
 }
 
-jar.finalizedBy('reobfJar')
-
-sourceSets {
-    main { output.resourcesDir = output.classesDir }
+jar {
+    from {
+        configurations.include.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes([
+            "Implementation-Vendor": mod_author,
+            "Implementation-Version": mod_version,
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "Included-Libs": "[${configurations.include.collect{it.name.substring(0, it.name.lastIndexOf('.'))}.join(", ")}]",
+            "FMLAT": 'td_at.cfg'
+        ])
+    }
 }

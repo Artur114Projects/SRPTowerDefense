@@ -1,5 +1,3 @@
-import com.artur114.bananalib.math.m2d.area.Box2I;
-import com.artur114.bananalib.math.m2d.area.IBox2I;
 import com.artur114.bananalib.math.m2d.matrix.IMatrix2D;
 import com.artur114.bananalib.math.m2d.matrix.Matrix2DM;
 import com.artur114.bananalib.math.m2d.vec.IVec2D;

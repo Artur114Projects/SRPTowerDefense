@@ -1,33 +1,42 @@
 package com.artur114.srptowerdefense.proxy;
 
-import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
-import com.artur114.srptowerdefense.register.Registerer;
+import com.artur114.bananalib.mc.registry.IRegisterBus;
+import com.artur114.srptowerdefense.common.init.InitBlocks;
+import com.artur114.srptowerdefense.common.init.InitCapabilities;
+import com.artur114.srptowerdefense.common.init.InitItems;
+import com.artur114.srptowerdefense.register.RegisterHandler;
 import net.minecraftforge.fml.common.event.*;
 
-public class CommonProxy implements IProxy {
+import java.util.Arrays;
+import java.util.List;
+
+public abstract class CommonProxy implements IProxy {
     @Override
-    public void preInit(FMLPreInitializationEvent e) {
-        SRPTDCapabilities.preInit();
-        Registerer.preInit(e);
+    public void preInit(IRegisterBus bus, FMLPreInitializationEvent e) {
+        bus.scanAndRegister(this.commonClassesToReg().toArray(new Class[0]));
+        bus.scanAndRegister(this.classesToRegister().toArray(new Class[0]));
+        bus.subscribe();
+        bus.preInit();
     }
 
     @Override
-    public void init(FMLInitializationEvent e) {
-
+    public void init(IRegisterBus bus, FMLInitializationEvent e) {
+        bus.init();
     }
 
     @Override
-    public void postInit(FMLPostInitializationEvent e) {
-
+    public void postInit(IRegisterBus bus, FMLPostInitializationEvent e) {
+        bus.postInit();
     }
 
-    @Override
-    public void serverStarting(FMLServerStartingEvent e) {
-
+    private List<Class<?>> commonClassesToReg() {
+        return Arrays.asList(
+            InitItems.class,
+            InitBlocks.class,
+            RegisterHandler.class,
+            InitCapabilities.class
+        );
     }
 
-    @Override
-    public void serverStopping(FMLServerStoppingEvent e) {
-
-    }
+    public abstract List<Class<?>> classesToRegister();
 }

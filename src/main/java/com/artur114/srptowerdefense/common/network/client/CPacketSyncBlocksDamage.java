@@ -1,9 +1,9 @@
 package com.artur114.srptowerdefense.common.network.client;
 
-import com.artur114.srptowerdefense.common.systems.blockdamage.IDamagedChunk;
-import com.artur114.srptowerdefense.common.systems.blockdamage.client.IClientDamagedChunk;
-import com.artur114.srptowerdefense.common.capabilities.SRPTDCapabilities;
-import com.artur114.bananalib.math.BananaMath;
+import com.artur114.bananalib.mc.BananaMC;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.IDamagedChunk;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.client.IClientDamagedChunk;
+import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +28,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
         this.chunk = chunkIn;
         this.data = dataIn;
 
-        this.data.setLong("chunkPos", BananaMath.chunkPosAsLong(chunkIn));
+        this.data.setLong("chunkPos", BananaMC.chunkPosAsLong(chunkIn));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
 
         this.data = ByteBufUtils.readTag(buf);
 
-        this.chunk = BananaMath.chunkPosFromLong(this.data.getLong("chunkPos"));
+        this.chunk = BananaMC.chunkPosFromLong(this.data.getLong("chunkPos"));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class CPacketSyncBlocksDamage implements IMessage {
                 Minecraft mc = Minecraft.getMinecraft();
                 if (mc.world.provider.getDimension() == message.dimension) {
                     Chunk chunk = mc.world.getChunkFromChunkCoords(message.chunk.x, message.chunk.z);
-                    IDamagedChunk protectedChunk = chunk.getCapability(SRPTDCapabilities.BLOCK_DAMAGE, null);
+                    IDamagedChunk protectedChunk = chunk.getCapability(InitCapabilities.BLOCK_DAMAGE, null);
                     if (protectedChunk instanceof IClientDamagedChunk) {
                         ((IClientDamagedChunk) protectedChunk).processSyncData(message.data);
                     }

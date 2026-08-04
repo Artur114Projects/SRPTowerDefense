@@ -1,4 +1,3 @@
-item.debug_carrot.name=Отладочная морковка
-item.debug_carrot.info.i=Бесконечный
+item.debug_fish.name=Отладочный лосось (не рыба)
 itemGroup.main=SRP: Tower Defence!
 srptowerdefense.for_creative=Только для креатива
