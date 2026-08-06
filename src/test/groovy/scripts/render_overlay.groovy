@@ -6,6 +6,8 @@ import com.artur114.srptowerdefense.common.init.InitCapabilities
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.ITowerDefenceObject
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.WaveAbstract
+import com.dhanantry.scapeandrunparasites.world.SRPSaveData
+import com.dhanantry.scapeandrunparasites.world.SRPWorldData
 import groovy.transform.BaseScript
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
@@ -26,12 +28,15 @@ MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance(
 if (server != null) {
     double tps = time(20)
     TextFormatting c = color(tps)
-    debug << "TPS: $c${String.format("%.2f", tps)}$TextFormatting.RESET"
+    double min = min(20)
+    TextFormatting c1 = color(min)
 
-    tps = time(8)
-    c = color(tps)
-    debug << "TPS acc 8: $c${String.format("%.2f", tps)}$TextFormatting.RESET"
+    debug << "TPS avg $c${String.format("%.2f", tps)}$TextFormatting.RESET min $c1${String.format("%.2f", min)}$TextFormatting.RESET"
+
+    debug << "SRP Phase $TextFormatting.RED${SRPSaveData.get(server.getWorld(player.dimension), 72).getEvolutionPhase(player.dimension)}"
 }
+
+
 
 RayTraceResult res = player.rayTrace(8, partialTicksIn)
 
@@ -41,14 +46,20 @@ if (res?.typeOfHit == RayTraceResult.Type.BLOCK) {
     debug << "Look at [?, ?, ?]"
 }
 
-
-BananaCaps.capability(FMLCommonHandler.instance().minecraftServerInstance.getWorld(0), InitCapabilities.TOWER_DEFENCE_SYSTEM).ifPresent {
-    it.tdObjects(ITowerDefenceObject).findAll{it instanceof IWave}.collect{(IWave) it}.sort{it.targetChunk().distanceSq(it.pos())}.each {
-        if (it != null) {
-            debug << "${TextFormatting.YELLOW}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} ${it.id()}${TextFormatting.RESET} ${formatPos(it.pos())} -> ${formatPos(it.target().causePos())} size ${it instanceof WaveAbstract ? "$TextFormatting.BLUE${it.entityRecords.size()}$TextFormatting.RESET" : ""} ${it instanceof WaveAbstract && it.entityRecords.any{it.value.isLoaded()} ? "${TextFormatting.GREEN}loaded${TextFormatting.RESET}" : ""}"
+try {
+    BananaCaps.capability(FMLCommonHandler.instance().minecraftServerInstance.getWorld(0), InitCapabilities.TOWER_DEFENCE_SYSTEM).ifPresent {
+        it.tdObjects(ITowerDefenceObject).each {
+            if (it != null && !(it instanceof IWave)) {
+                debug << "${TextFormatting.AQUA}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} ${it.id()}${TextFormatting.RESET} ${formatPos(it.pos())}"
+            }
+        }
+        it.tdObjects(IWave).sort { it.targetChunk().distanceSq(it.pos()) }.each {
+            if (it != null) {
+                debug << "${TextFormatting.YELLOW}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} ${it.id()}${TextFormatting.RESET} ${formatPos(it.pos())} -> ${formatPos(it.target().causePos())} size ${it instanceof WaveAbstract ? "$TextFormatting.BLUE${it.entityRecords.size()}$TextFormatting.RESET" : ""} ${it instanceof WaveAbstract && it.entityRecords.any { it.value.isLoaded() } ? "${TextFormatting.GREEN}loaded${TextFormatting.RESET}" : ""}"
+            }
         }
     }
-}
+} catch (Exception ignored) {}
 
 this.renderList(debug)
 
@@ -86,4 +97,13 @@ double time(int avg) {
         avgArr[i] = server.tickTimeArray[(server.tickCounter - i) % 100]
     }
     return Math.min(20.0, 1000.0 / (MathHelper.average(avgArr) * 1.0E-6D))
+}
+
+double min(int range) {
+    MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+    long[] avgArr = new long[range]
+    for (i in 0..<range) {
+        avgArr[i] = server.tickTimeArray[(server.tickCounter - i) % 100]
+    }
+    return Math.min(20.0, 1000.0 / (avgArr.toList().sort()[avgArr.length - 1] * 1.0E-6D))
 }

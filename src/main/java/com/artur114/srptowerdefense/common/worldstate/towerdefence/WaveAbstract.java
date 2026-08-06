@@ -8,12 +8,19 @@ import com.artur114.bananalib.math.m2d.box.IBox2IM;
 import com.artur114.bananalib.math.m2d.vec.*;
 import com.artur114.bananalib.mc.BananaMC;
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.bananalib.mc.nbt.IAutoNBTSerializable;
+import com.artur114.bananalib.mc.nbt.INBTSerializable;
+import com.artur114.bananalib.mc.nbt.auto.AutoNBTEntry;
 import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -30,21 +37,26 @@ public abstract class WaveAbstract implements IWave {
     protected IVec2DM targetChunk;
     protected IWaveTarget target;
     protected WorldServer world;
+    protected int targetId;
     protected IVec2DM pos;
     protected IBox2IM box;
     protected Random rand;
     protected float speed;
     protected int id;
 
-    public WaveAbstract() {}
+    public WaveAbstract() {
+        this.rand = new Random();
+        this.targetChunk = new Vec2DM();
+        this.entityRecords = new Int2ObjectOpenHashMap<>();
+    }
 
     public WaveAbstract(IVec2I wavePos, IWaveTarget target, float speed) {
         this.pos = new Vec2DM(wavePos);
-        this.box = new Box2IM(wavePos, wavePos);
+        this.box = new Box2IM(wavePos, wavePos).grow(2);;
 
         this.speed = speed;
-        this.target = target;
         this.rand = new Random();
+        this.targetId = target.id();
         this.targetChunk = new Vec2DM();
         this.entityRecords = new Int2ObjectOpenHashMap<>();
     }
@@ -84,6 +96,14 @@ public abstract class WaveAbstract implements IWave {
         this.world = world;
         this.owner = owner;
         this.id = id;
+
+        ITowerDefenceObject obj = owner.tdObjFromId(this.targetId);
+
+        if (obj instanceof IWaveTarget) {
+            this.target = (IWaveTarget) obj;
+        } else {
+            this.target = IWaveTarget.INVALID;
+        }
     }
 
     @Override
@@ -94,11 +114,7 @@ public abstract class WaveAbstract implements IWave {
     @Override
     public void onEntityDied(TowerDefenceEntity entity) {
         if (entity.data.hasKey(EntityRecord.ENTITY_RECORD_NBT_LOCATION)) {
-            EntityRecord record = this.entityRecords.remove(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
-
-            if (record != null) {
-                System.out.println("Record(" + record.id + ") is removed");
-            }
+            this.entityRecords.remove(entity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
         }
     }
 
@@ -117,7 +133,7 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public boolean isAlive() {
-        return !this.entityRecords.isEmpty() && this.target.isValide();
+        return !this.entityRecords.isEmpty() && this.target.isAlive();
     }
 
     @Override
@@ -132,7 +148,7 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public IVec2D targetChunk() {
-        return this.targetChunk.set(this.target.causeChunk());
+        return this.targetChunk.set(this.target.pos());
     }
 
     @Override
@@ -150,16 +166,16 @@ public abstract class WaveAbstract implements IWave {
         return this.box;
     }
 
-    protected int addEntity(ICanCreateEntity creator) {
+    protected int addEntity(ResourceLocation entity) {
         int id = this.rand.nextInt();
-        this.entityRecords.put(id, new EntityRecord(creator, this, id));
+        this.entityRecords.put(id, new EntityRecord(entity, this, id));
         return id;
     }
 
-    protected void addEntities(ICanCreateEntity creator, int count) {
+    protected void addEntity(ResourceLocation entity, int count) {
         for (int i = 0; i != count; i++) {
             int id = this.rand.nextInt();
-            this.entityRecords.put(id, new EntityRecord(creator, this, id));
+            this.entityRecords.put(id, new EntityRecord(entity, this, id));
         }
     }
 
@@ -173,7 +189,6 @@ public abstract class WaveAbstract implements IWave {
                 this.updateMoveTarget();
             }
 
-            this.updateEntitiesMoveSpeed();
             this.rebindMoveTarget();
             this.updateWavePos();
         } else {
@@ -185,19 +200,20 @@ public abstract class WaveAbstract implements IWave {
         int x = BananaMath.floor(this.pos.x());
         int y = BananaMath.floor(this.pos.y());
 
-        this.box.set(x, y, x, y);
+        this.box.set(x, y, x, y).grow(2);
     }
 
     protected void loadRecords(Chunk chunk) {
         PosMc3IM blockPos = PosMc3IM.obtain();
+        IVec2I pos = this.pos.floor();
 
         for (EntityRecord record : this.entityRecords.values()) {
             if (!record.isLoaded()) {
-                blockPos.setChunk(chunk.x, chunk.z).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setY(BananaMC.findHighestBlock(this.world, blockPos));
+                blockPos.setChunk(pos).add(this.rand.nextInt(16), 0, this.rand.nextInt(16)).setY(BananaMC.findHighestBlock(this.world, blockPos));
                 record.load(this.world, blockPos);
 
                 if (this.entityMoveTarget == null) {
-                    this.entityMoveTarget = new PosMc3IM().setChunk(chunk.getPos()).add(8, 0, 8).setY(BananaMC.findHighestBlock(this.world, blockPos));
+                    this.entityMoveTarget = new PosMc3IM().setChunk(pos).add(8, 0, 8).setY(BananaMC.findHighestBlock(this.world, blockPos));
                 }
             }
         }
@@ -235,7 +251,7 @@ public abstract class WaveAbstract implements IWave {
 
         int x = BananaMath.round(range * vec.x) + (this.rand.nextInt(r * 2) - r);
         int z = BananaMath.round(range * vec.z) + (this.rand.nextInt(r * 2) - r);
-        blockPos.set((IVec3IC) this.entityMoveTarget).add(x, 0, z).setY(BananaMC.findHighestBlock(this.world, blockPos, state -> !state.getMaterial().isLiquid() && state.getMaterial().isReplaceable())).up();
+        blockPos.set((IVec3IC) this.entityMoveTarget).add(x, 0, z).setY(BananaMC.findHighestBlock(this.world, blockPos, state -> state.getMaterial() == Material.LEAVES)).up();
         this.entityMoveTarget.set((IVec3IC) blockPos);
 
         PosMc3IM.release(blockPos);
@@ -245,25 +261,6 @@ public abstract class WaveAbstract implements IWave {
         for (EntityRecord record : this.entityRecords.values()) {
             if (record.isLoaded()) {
                 record.entity().setMoveTarget(this.entityMoveTarget);
-            }
-        }
-    }
-
-    protected void updateEntitiesMoveSpeed() {
-        float maxDistance = -1.0F;
-
-        for (EntityRecord record : this.entityRecords.values()) {
-            if (record.isLoaded()) {
-                float dist = (float) record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget);
-                if (dist > maxDistance) {
-                    maxDistance = dist;
-                }
-            }
-        }
-
-        for (EntityRecord record : this.entityRecords.values()) {
-            if (record.isLoaded()) {
-                record.entity().setMoveSpeed((float) (this.speed * (record.entity().entity.getDistanceSqToCenter(this.entityMoveTarget) / maxDistance)));
             }
         }
     }
@@ -291,71 +288,71 @@ public abstract class WaveAbstract implements IWave {
 
     @Override
     public void readFromNBT(@NotNull NBTTagCompound nbt) {
-
+        this.targetId = nbt.getInteger("targetId");
+        this.speed = nbt.getFloat("speed");
+        this.pos = new Vec2DM(nbt.getDouble("x"), nbt.getDouble("y"));
+        this.box = new Box2IM(this.pos, this.pos).grow(2);
+        NBTTagList list = nbt.getTagList("entityRecords", 10);
+        for (int i = 0; i != list.tagCount(); i++) {
+            NBTTagCompound n = list.getCompoundTagAt(i);
+            int id = n.getInteger("recordId");
+            EntityRecord record = new EntityRecord(this, id);
+            record.readFromNBT(n);
+            this.entityRecords.put(id, record);
+        }
     }
 
     @Override
     public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound nbt) {
+        nbt.setInteger("targetId", this.targetId);
+        nbt.setFloat("speed", this.speed);
+        nbt.setDouble("x", this.pos.x());
+        nbt.setDouble("y", this.pos.y());
+        NBTTagList list = new NBTTagList();
+        this.entityRecords.forEach((id, record) -> {
+            NBTTagCompound n = new NBTTagCompound();
+            n.setInteger("recordId", id);
+            list.appendTag(record.writeToNBT(n));
+        });
+        nbt.setTag("entityRecords", list);
         return nbt;
     }
 
-    public static class EntityCreatorRl implements ICanCreateEntity {
-        private final ResourceLocation rl;
-
-        public EntityCreatorRl(ResourceLocation rl) {
-            this.rl = rl;
-        }
-
-        public EntityCreatorRl(String rl) {
-            this.rl = new ResourceLocation(rl);
-        }
-
-        @Override
-        public EntityLiving create(World world) {
-            return (EntityLiving) EntityList.createEntityByIDFromName(this.rl, world);
-        }
-    }
-
-    public static class EntityCreatorClass implements ICanCreateEntity {
-        private final Class<? extends EntityLiving> clazz;
-
-        public EntityCreatorClass(Class<? extends EntityLiving> clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public EntityLiving create(World world) {
-            return (EntityLiving) EntityList.newEntity(this.clazz, world);
-        }
-    }
-
-    public interface ICanCreateEntity {
-        EntityLiving create(World world);
-    }
-
-    public static class EntityRecord {
+    public static class EntityRecord implements IAutoNBTSerializable {
         public static final String ENTITY_RECORD_NBT_LOCATION = "entity_record_id";
-        private final ICanCreateEntity record;
+        private TowerDefenceEntity entity;
         private final WaveAbstract owner;
         private final int id;
-        private TowerDefenceEntity entity;
 
-        private EntityRecord(ICanCreateEntity record, WaveAbstract owner, int id) {
-            this.record = record;
+        @AutoNBTEntry
+        private String record;
+
+        private EntityRecord(WaveAbstract owner, int id) {
+            this.owner = owner;
+            this.id = id;
+        }
+
+        private EntityRecord(ResourceLocation record, WaveAbstract owner, int id) {
+            this.record = record.toString();
             this.owner = owner;
             this.id = id;
         }
 
         public void load(World world, BlockPos pos) {
-            EntityLiving entity = this.record.create(world);
-            if (entity != null) {
+            if (!this.canEntityUpdate(world, pos)) {
+                return;
+            }
+            Entity entityRaw = EntityList.createEntityByIDFromName(new ResourceLocation(this.record), world);
+            if (entityRaw instanceof EntityLiving) {
+                EntityLiving entity = (EntityLiving) entityRaw;
                 TowerDefenceEntity data = entity.getCapability(InitCapabilities.TD_ENTITY_DATA, null);
                 if (data != null) {
                     this.entity = data;
 
                     data.data.setInteger(ENTITY_RECORD_NBT_LOCATION, this.id);
                     data.bind(this.owner);
-
+                    data.setMoveSpeed(this.owner.speed);
+                    entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(10);
                     entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
                     entity.rotationYawHead = entity.rotationYaw;
                     entity.renderYawOffset = entity.rotationYaw;
@@ -364,19 +361,15 @@ public abstract class WaveAbstract implements IWave {
 
                     if (!world.spawnEntity(entity)) {
                         this.entity = null;
-                        return;
                     }
-
-                    System.out.println("Record(" + this.id + ")" + " loaded to pos:" + pos);
                 }
             }
         }
 
         public boolean isLoaded() {
-            boolean loaded = this.entity != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.canEntityUpdate();
+            boolean loaded = this.entity != null && this.entity.entity.world.getEntityByID(this.entity.entity.getEntityId()) != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.canEntityUpdate(this.entity.entity.world, this.entity.entity.getPosition());
             if (!loaded && this.entity != null) {
                 this.entity = this.entity.kill();
-                System.out.println("Record(" + this.id + ")" + " unloaded");
             }
             return loaded;
         }
@@ -385,11 +378,9 @@ public abstract class WaveAbstract implements IWave {
             return this.entity;
         }
 
-        private boolean canEntityUpdate() {
-            EntityLiving entity = this.entity.entity;
-            World world = entity.world;
-            int x = MathHelper.floor(entity.posX);
-            int z = MathHelper.floor(entity.posZ);
+        private boolean canEntityUpdate(World world, BlockPos pos) {
+            int x = pos.getX();
+            int z = pos.getZ();
             boolean isForced = !world.isRemote && world.getPersistentChunks().containsKey(new net.minecraft.util.math.ChunkPos(x >> 4, z >> 4));
             int range = isForced ? 0 : 32;
 

@@ -7,12 +7,11 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 
-public class EntityAIWaveMove extends EntityAIBase {
-    private final PosMc3IM prevTarget = new PosMc3IM();
+public class EntityAIWaveMoveFlight extends EntityAIBase {
     private final TowerDefenceEntity waveData;
     private final EntityCreature creature;
 
-    public EntityAIWaveMove(TowerDefenceEntity data) {
+    public EntityAIWaveMoveFlight(TowerDefenceEntity data) {
         this.creature = data.entity;
         this.waveData = data;
         this.setMutexBits(3);
@@ -26,20 +25,10 @@ public class EntityAIWaveMove extends EntityAIBase {
     @Override
     public void updateTask() {
         if (this.waveData.moveSpeed() != -1.0F) {
-            this.creature.getNavigator().setSpeed(this.waveData.moveSpeed());
-            if (this.creature.ticksExisted % 8 == 0 && (!this.prevTarget.equals(this.waveData.moveTarget()) || this.creature.getNavigator().noPath())) {
-                BlockPos pos = this.waveData.moveTarget();
-                if (pos != null && this.creature.getDistanceSq(pos) > 6 * 6) {
-                    this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
-                    this.prevTarget.set(pos);
-                }
+            BlockPos pos = this.waveData.moveTarget();
+            if (pos != null) {
+                this.creature.getMoveHelper().setMoveTo(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), this.waveData.moveSpeed());
             }
         }
-    }
-
-    @Override
-    public void resetTask() {
-        this.prevTarget.setZero();
-        this.creature.getNavigator().clearPath();
     }
 }

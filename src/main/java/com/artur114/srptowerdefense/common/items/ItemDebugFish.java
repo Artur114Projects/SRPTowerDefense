@@ -7,9 +7,8 @@ import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.main.SRPTDMain;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -19,6 +18,7 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IRarity;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -85,6 +85,10 @@ public class ItemDebugFish extends BItemBase {
 				player.world.removeEntity(entity);
 			}
 		}
+        if (!player.world.isRemote && player.isSneaking()) {
+            player.sendMessage(new TextComponentString(EntityList.getKey(entity).toString()));
+            player.sendMessage(new TextComponentString(entity.getClass().toString()));
+        }
 		entity.hurtResistantTime = 0;
 		return super.onLeftClickEntity(stack, player, entity);
 	}

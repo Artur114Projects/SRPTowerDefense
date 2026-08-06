@@ -69,6 +69,10 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         return flag;
     }
 
+    public boolean canDespawn() {
+        return !this.isBindToTDObj();
+    }
+
     public boolean isBindToTDObj() {
         return this.tdObj != null;
     }

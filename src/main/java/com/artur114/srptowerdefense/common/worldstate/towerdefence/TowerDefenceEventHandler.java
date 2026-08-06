@@ -23,7 +23,6 @@ import java.util.Random;
 
 @Mod.EventBusSubscriber
 public class TowerDefenceEventHandler {
-    private static int counter = 0; // Debug
 
     @SubscribeEvent
     public static void attachCapabilitiesEntity(AttachCapabilitiesEvent<Entity> e) {
@@ -45,7 +44,7 @@ public class TowerDefenceEventHandler {
 
 
                 if (e.world.getTotalWorldTime() % 1200 == 0) { // Debug
-                    manager.addObject(new WaveDebug(new Vec2I(0, 20).rotate(360.0D * new Random().nextDouble())), counter++);
+                    manager.addObject(new WaveDebug(e.world ,new Vec2I(0, 20).rotate(360.0D * new Random().nextDouble()), (IWaveTarget) manager.tdObjFromId(0)), manager.createSafeId());
                 }
             }
         }

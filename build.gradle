@@ -35,10 +35,10 @@ dependencies {
     include('com.github.Artur114Projects.BananaLib:math:1.0.5-betta') {transitive=false}
     include('com.github.Artur114Projects.BananaLib:mc:1.0.5-betta') {transitive=false}
 
-    implementation localGroovy()
+//    implementation fileTree(dir: "libs", includes: ['*.jar'])
     implementation 'com.github.Artur114Projects.BananaLib:math-groovy:1.0.5-betta'
     implementation 'org.jetbrains:annotations:24.0.0'
-    compile fileTree(dir: "libs", includes: ['*.jar'])
+    implementation localGroovy()
 }
 
 minecraft {
@@ -46,6 +46,17 @@ minecraft {
     version = "1.12.2-14.23.5.2847"
     mappings = "snapshot_20171003"
     clientRunArgs += ["--uuid", "11111111-1111-1111-1111-111111111111"]
+}
+
+processResources {
+    Map replaceProperties = [mod_version: mod_version, build_id: new Date().format("dd'.'MM'.'yyy'-'HH:mm:ss") + "-UTC+3"]
+    List includeFiles = ["mcmod.info"]
+
+    inputs.properties replaceProperties
+
+    filesMatching(includeFiles) {
+        it.expand(replaceProperties)
+    }
 }
 
 jar {
@@ -64,3 +75,20 @@ jar {
         ])
     }
 }
+
+tasks.register("openOut") {
+    doLast {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            try {
+                new ProcessBuilder(
+                        "explorer", "/select,",
+                        file("build/libs/${archivesBaseName}-${version}.jar").absolutePath
+                ).start()
+            } catch (IOException e) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
+
+build.finalizedBy(tasks.named("openOut"))

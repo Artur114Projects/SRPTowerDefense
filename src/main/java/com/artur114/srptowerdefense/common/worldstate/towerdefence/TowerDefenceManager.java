@@ -11,16 +11,23 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
+    private static final Logger log = LogManager.getLogger("SRPTowerDefence");
     private final Map<Class<? extends ITowerDefenceObject>, List<? extends ITowerDefenceObject>> class2ObjectMap = new HashMap<>();
     private final Int2ObjectMap<ITowerDefenceObject> objectsMap = new Int2ObjectOpenHashMap<>();
+    private final SecureRandom idGen = new SecureRandom();
     private final WorldServer world;
 
     public TowerDefenceManager(WorldServer world) {
         this.world = world;
+
+        this.addObject(new WaveDebug.WaveTargetDebug(), 0);
     }
 
     public void update() {
@@ -60,13 +67,17 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
         this.processChunkData(data);
     }
 
+    public int createSafeId() {
+        return this.idGen.nextInt();
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends ITowerDefenceObject> List<T> tdObjects(Class<T> clazz) {
         if (this.class2ObjectMap.containsKey(clazz)) {
             return (List<T>) this.class2ObjectMap.get(clazz);
         }
 
-        List<T> list = new ArrayList<>(this.objectsMap.values().size());
+        List<T> list = new ArrayList<>(this.objectsMap.size());
         if (clazz.equals(ITowerDefenceObject.class)) {
             list.addAll((Collection<? extends T>) this.objectsMap.values());
         } else {
@@ -149,11 +160,42 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        return new NBTTagCompound();
+        NBTTagCompound nbt = new NBTTagCompound();
+        NBTTagList list = new NBTTagList();
+        this.objectsMap.forEach((id, obj) -> {
+            NBTTagCompound n = new NBTTagCompound();
+            n.setInteger("objId", id);
+            n.setString("objClass", obj.getClass().getName());
+            list.appendTag(obj.writeToNBT(n));
+        });
+        nbt.setTag("tdObjects", list);
+        return nbt;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
+        NBTTagList list = nbt.getTagList("tdObjects", 10);
+        for (int i = 0; i != list.tagCount(); i++) {
+            NBTTagCompound obj = list.getCompoundTagAt(i);
+            String clazzName = obj.getString("objClass");
+            Class<?> clazz;
 
+            try {
+                clazz = Class.forName(clazzName);
+            } catch (ClassNotFoundException e) {
+                log.warn("Cannot find obj class for deserialize {}, skipping...", clazzName); continue;
+            }
+
+            try {
+                ITowerDefenceObject instance = (ITowerDefenceObject) clazz.newInstance();
+                int id = obj.getInteger("objId");
+                instance.readFromNBT(obj);
+                this.objectsMap.put(id, instance);
+            } catch (Exception e) {
+                log.warn("Can't instantiate obj {}, skipping...", clazz, e);
+            }
+        }
+
+        this.objectsMap.forEach((id, obj) -> obj.init(this.world, this, id));
     }
 }

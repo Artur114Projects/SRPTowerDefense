@@ -5,10 +5,13 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.pathfinding.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 
 public class PathFinderForced extends PathFinder {
+    private static final Logger log = LogManager.getLogger("SRPTD/Pathfinding");
     private final PathPointForced[] pathOptions = new PathPointForced[32];
     private final PathBuildHeap pathHeap = new PathBuildHeap();
     private final WalkNodeProcessorForced nodeProcessor;
@@ -41,11 +44,11 @@ public class PathFinderForced extends PathFinder {
 
     @Nullable
     private Path findPath(PathPointForced pathFrom, PathPointForced pathTo, float maxDistance) {
-//        long nano = System.nanoTime();
+        long nano = System.nanoTime();
 
         this.pathHeap.init(pathTo);
         PathBuilder path = this.pathHeap.copy(this.pathHeap.addPath(this.pathHeap.createBuilder().addPoint(pathFrom)));
-        int maxIterationCount = (int) (200 * (maxDistance / 32.0F));
+        int maxIterationCount = 200;
         int iterationCount = 0;
 
         while (!this.pathHeap.isPathEmpty()) {
@@ -62,14 +65,24 @@ public class PathFinderForced extends PathFinder {
                 continue;
             }
 
-            if (current.isEnded() && (!path.isEnded() || path.totalPathCost > current.totalPathCost)) {
-                this.pathHeap.releaseBuilder(path);
-                path = current;
-
-                if (path.totalBreakCost > 0) {
-                    continue;
+            if (current.isEnded()) {
+                if (!path.isEnded()) {
+                    this.pathHeap.releaseBuilder(path);
+                    path = current;
                 } else {
+                    if (current.totalBreakCost < path.totalBreakCost) {
+                        this.pathHeap.releaseBuilder(path);
+                        path = current;
+                    } else if (current.totalBreakCost == path.totalBreakCost && current.totalPathCost < path.totalPathCost) {
+                        this.pathHeap.releaseBuilder(path);
+                        path = current;
+                    }
+                }
+
+                if (path.totalBreakCost == 0) {
                     break;
+                } else {
+                    continue;
                 }
             }
 
@@ -102,7 +115,7 @@ public class PathFinderForced extends PathFinder {
         Path build = path.build();
         this.pathHeap.releaseBuilder(path);
 
-//        System.out.println("Pathfinding is took:" + ((System.nanoTime() - nano) / 1000000.0F) + "ms");
+        log.info("is took {}ms", (System.nanoTime() - nano) / 1000000.0F);
 
         return build;
     }
