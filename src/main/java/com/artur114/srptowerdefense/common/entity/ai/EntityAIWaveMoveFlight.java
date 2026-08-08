@@ -28,6 +28,7 @@ public class EntityAIWaveMoveFlight extends EntityAIBase {
             BlockPos pos = this.waveData.moveTarget();
             if (pos != null) {
                 this.creature.getMoveHelper().setMoveTo(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), this.waveData.moveSpeed());
+                this.creature.getLookHelper().setLookPosition(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), 180.0F, 20.0F);
             }
         }
     }

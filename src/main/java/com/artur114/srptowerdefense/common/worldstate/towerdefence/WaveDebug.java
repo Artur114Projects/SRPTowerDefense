@@ -32,6 +32,10 @@ public class WaveDebug extends WaveAbstract {
         int v = 8 + this.rand.nextInt(8);
         int att = 0;
 
+        if (this.rand.nextFloat() < 0.25) {
+            v *= 4;
+        }
+
         while (v > 0 && att < 6) {
             Biome.SpawnListEntry entry = SRPWorldParasiteSpawner.getSpawnListEntryForTypeAt((WorldServer) world, blockPos);
             if (entry != null) {

@@ -12,7 +12,6 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 public class ToolTipManager {
     private static final float HARDNESS_TO_JM2 = 80_000.0F;
 
-
     public void itemTooltipEvent(ItemTooltipEvent e) {
         if (GuiScreen.isShiftKeyDown() && e.getItemStack().getItem() instanceof ItemBlock && Minecraft.getMinecraft().world != null) {
             ItemBlock itemBlock = (ItemBlock) e.getItemStack().getItem();

@@ -20,9 +20,4 @@ public class CommonEventsHandler {
     public static void spawnEvent(LivingSpawnEvent.CheckSpawn e) {
         PARASITE_SPAWN_MANAGER.livingSpawnEventCheckSpawn(e);
     }
-
-    @SubscribeEvent
-    public static void despawnEvent(LivingSpawnEvent.AllowDespawn e) {
-        PARASITE_SPAWN_MANAGER.livingSpawnEventAllowDespawn(e);
-    }
 }

@@ -2,6 +2,7 @@ package com.artur114.srptowerdefense.main;
 
 import com.artur114.bananalib.mc.registry.BananaRegisterBus;
 import com.artur114.bananalib.mc.registry.IRegisterBus;
+import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.common.util.groovy.DevScriptsShell;
 import com.artur114.srptowerdefense.proxy.IProxy;
@@ -26,8 +27,8 @@ import java.nio.file.Paths;
 @Mod.EventBusSubscriber
 @Mod(modid = SRPTDMain.MODID, useMetadata = true)
 public class SRPTDMain {
-    public static final DevScriptsShell DEV_SHELL = new DevScriptsShell(Paths.get("..", "src/test/groovy/scripts").toAbsolutePath().normalize()).loadClass("BaseDevScript.groovy");
-    public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("main") {public @NotNull ItemStack getTabIconItem() {return new ItemStack(InitItems.DEBUGGING_FISH);}};
+    public static final DevScriptsShell DEV_SHELL = new DevScriptsShell(Paths.get("..", "src/test/groovy/scripts").toAbsolutePath().normalize());
+    public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("main") {public @NotNull ItemStack getTabIconItem() {return new ItemStack(InitBlocks.AREA_PROTECTOR);}};
     public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(SRPTDMain.MODID);
     public static final IRegisterBus REGISTER_BUS = new BananaRegisterBus().putNetWrapper(NETWORK);
     public static final EventBus INTERNAL_EVENT_BUS = new EventBus();
@@ -69,5 +70,9 @@ public class SRPTDMain {
 
     public static ResourceLocation loc(String id) {
         return new ResourceLocation(MODID, id);
+    }
+
+    static {
+        DEV_SHELL.evaluate("register_scripts.groovy");
     }
 }

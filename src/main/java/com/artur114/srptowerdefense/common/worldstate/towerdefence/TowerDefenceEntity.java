@@ -1,6 +1,8 @@
 package com.artur114.srptowerdefense.common.worldstate.towerdefence;
 
+import com.artur114.bananalib.mc.cap.BananaCaps;
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
@@ -11,11 +13,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
+    private Object2BooleanMap<Class<?>> instanceOfMap = null;
     public final EntityParasiteBase entity;
-    public NBTTagCompound data;
-    private Object2BooleanMap<Class<? extends ITowerDefenceObject>> instanceOfMap = null;
-    private PosMc3IM blockPos;
     private ITowerDefenceObject tdObj;
+    public NBTTagCompound data;
+    private PosMc3IM blockPos;
     private float speed;
 
     public TowerDefenceEntity(EntityParasiteBase entity) {
@@ -57,7 +59,7 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         this.tdObj = tdObj;
     }
 
-    public boolean isObjInstanceOf(Class<? extends ITowerDefenceObject> clazz) {
+    public boolean isObjInstanceOf(Class<?> clazz) {
         if (this.instanceOfMap == null) {
             this.instanceOfMap = new Object2BooleanOpenHashMap<>();
         }
@@ -67,6 +69,14 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         boolean flag = clazz.isInstance(this.tdObj);
         this.instanceOfMap.put(clazz, flag);
         return flag;
+    }
+
+    public void onEvolved(EntityParasiteBase newEntity) {
+        if (this.isBindToTDObj() && this.isObjInstanceOf(ITDEntityManager.class)) {
+            BananaCaps.capability(newEntity, InitCapabilities.TD_ENTITY_DATA).ifPresent(data -> {
+                ((ITDEntityManager) this.tdObj).onEntityEvolved(this, data);
+            });
+        }
     }
 
     public boolean canDespawn() {

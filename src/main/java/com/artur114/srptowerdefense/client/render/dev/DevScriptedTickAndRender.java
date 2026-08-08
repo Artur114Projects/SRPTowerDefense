@@ -52,6 +52,7 @@ public class DevScriptedTickAndRender implements ILoadStagePost {
         if (FMLLaunchHandler.isDeobfuscatedEnvironment()) {
             MinecraftForge.EVENT_BUS.register(this);
         }
+
     }
 }
 

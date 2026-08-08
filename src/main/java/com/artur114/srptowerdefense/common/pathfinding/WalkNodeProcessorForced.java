@@ -139,45 +139,6 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
             if (pathPointZN != null && pathPointZN.distanceTo(targetPoint) < maxDistance) {
                 pathOptions[i++] = pathPointZN;
             }
-
-            if (y == 0) {
-                boolean flagZN = pathPointZN == null || pathPointZN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZN.costMalus == 0.0F && pathPointZN.posToBreak == null);
-                boolean flagZP = pathPointZP == null || pathPointZP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointZP.costMalus == 0.0F && pathPointZP.posToBreak == null);
-                boolean flagXP = pathPointXP == null || pathPointXP.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXP.costMalus == 0.0F && pathPointXP.posToBreak == null);
-                boolean flagXN = pathPointXN == null || pathPointXN.nodeType == PathNodeTypeForced.OPEN.toMc() || (pathPointXN.costMalus == 0.0F && pathPointXN.posToBreak == null);
-
-                if (flagZN && flagXN) {
-                    PathPoint pathPointCorner = this.getSafePoint(blockPos.set(currentPoint.x - 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
-
-                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                        pathOptions[i++] = pathPointCorner;
-                    }
-                }
-
-                if (flagZN && flagXP) {
-                    PathPoint pathPointCorner = this.getSafePoint(blockPos.set(currentPoint.x + 1, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
-
-                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                        pathOptions[i++] = pathPointCorner;
-                    }
-                }
-
-                if (flagZP && flagXN) {
-                    PathPoint pathPointCorner = this.getSafePoint(blockPos.set(currentPoint.x - 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
-
-                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                        pathOptions[i++] = pathPointCorner;
-                    }
-                }
-
-                if (flagZP && flagXP) {
-                    PathPoint pathPointCorner = this.getSafePoint(blockPos.set(currentPoint.x + 1, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
-
-                    if (pathPointCorner != null && pathPointCorner.distanceTo(targetPoint) < maxDistance) {
-                        pathOptions[i++] = pathPointCorner;
-                    }
-                }
-            }
         }
 
         PosMc3IM.release(blockPos);

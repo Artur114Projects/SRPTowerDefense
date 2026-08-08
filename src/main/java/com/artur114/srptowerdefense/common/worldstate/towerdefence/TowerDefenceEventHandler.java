@@ -65,7 +65,7 @@ public class TowerDefenceEventHandler {
     public static void canDeSpawn(LivingSpawnEvent.AllowDespawn e) {
         if (!e.getWorld().isRemote && e.getEntity() != null) {
             TowerDefenceEntity data = e.getEntity().getCapability(InitCapabilities.TD_ENTITY_DATA, null);
-            if (data != null && data.isBindToTDObj()) {
+            if (data != null && !data.canDespawn()) {
                 e.setResult(Event.Result.DENY);
             }
         }

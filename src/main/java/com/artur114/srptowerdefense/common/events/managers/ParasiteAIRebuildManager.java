@@ -7,6 +7,7 @@ import com.artur114.srptowerdefense.common.entity.ai.EntityAIBreakGears;
 import com.artur114.srptowerdefense.common.entity.ai.EntityAIWaveMove;
 import com.artur114.srptowerdefense.common.pathfinding.PathNavigateGroundForced;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceEntity;
+import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityCanFly;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityPStationary;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.Entity;
@@ -34,7 +35,7 @@ public class ParasiteAIRebuildManager {
                         parasite.navigator = new PathNavigateGroundForced(parasite, parasite.world);
                     }
                     this.openPriority(parasite.tasks, 4);
-                    if (parasite.navigator instanceof PathNavigateFlying) {
+                    if (parasite instanceof EntityCanFly) {
                         parasite.tasks.addTask(4, new EntityAIWaveMoveFlight(data));
                     } else {
                         parasite.tasks.addTask(4, new EntityAIBreakGears(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));

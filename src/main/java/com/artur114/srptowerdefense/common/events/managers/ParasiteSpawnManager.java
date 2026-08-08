@@ -10,20 +10,13 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class ParasiteSpawnManager {
     public void livingSpawnEventCheckSpawn(LivingSpawnEvent.CheckSpawn e) {
-        IBox2I box = new Box2I(0, 0, 0, 0).grow(4);
+        IBox2I box = new Box2I(0, 0, 0, 0).grow(2134958);
 
         if (box.contains(((int) e.getX()) >> 4, ((int) e.getZ()) >> 4)) {
             TowerDefenceEntity data = e.getEntityLiving().getCapability(InitCapabilities.TD_ENTITY_DATA, null);
             if (data != null && !data.isBindToTDObj()) {
                 e.setResult(Event.Result.DENY);
             }
-        }
-    }
-
-    public void livingSpawnEventAllowDespawn(LivingSpawnEvent.AllowDespawn e) {
-        TowerDefenceEntity data = e.getEntityLiving().getCapability(InitCapabilities.TD_ENTITY_DATA, null);
-        if (data != null && !data.canDespawn()) {
-            e.setResult(Event.Result.DENY);
         }
     }
 }

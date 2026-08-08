@@ -12,6 +12,7 @@ import com.artur114.bananalib.mc.nbt.IAutoNBTSerializable;
 import com.artur114.bananalib.mc.nbt.INBTSerializable;
 import com.artur114.bananalib.mc.nbt.auto.AutoNBTEntry;
 import com.artur114.srptowerdefense.common.init.InitCapabilities;
+import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.material.Material;
@@ -28,6 +29,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Random;
 
 public abstract class WaveAbstract implements IWave {
@@ -119,6 +121,19 @@ public abstract class WaveAbstract implements IWave {
     }
 
     @Override
+    public void onEntityEvolved(TowerDefenceEntity oldEntity, TowerDefenceEntity newEntity) {
+        if (oldEntity == null || newEntity == null) {
+            return;
+        }
+
+        EntityRecord record = this.entityRecords.get(oldEntity.data.getInteger(EntityRecord.ENTITY_RECORD_NBT_LOCATION));
+
+        if (record != null) {
+            record.onEvolved(newEntity);
+        }
+    }
+
+    @Override
     public NBTTagCompound modifyEntityData(NBTTagCompound entity) {
         return null;
     }
@@ -166,6 +181,10 @@ public abstract class WaveAbstract implements IWave {
         return this.box;
     }
 
+    protected boolean canAutoMove() {
+        return this.target.pos().distanceSq(this.pos) > 2 * 2;
+    }
+
     protected int addEntity(ResourceLocation entity) {
         int id = this.rand.nextInt();
         this.entityRecords.put(id, new EntityRecord(entity, this, id));
@@ -191,7 +210,7 @@ public abstract class WaveAbstract implements IWave {
 
             this.rebindMoveTarget();
             this.updateWavePos();
-        } else {
+        } else if (this.canAutoMove()) {
             this.entityMoveTarget = null;
 
             this.pos.add(vec);
@@ -318,14 +337,14 @@ public abstract class WaveAbstract implements IWave {
         return nbt;
     }
 
-    public static class EntityRecord implements IAutoNBTSerializable {
+    public static class EntityRecord implements INBTSerializable {
         public static final String ENTITY_RECORD_NBT_LOCATION = "entity_record_id";
+        private final IVec2IM prevPos = new Vec2IM();
+        private NBTTagCompound entityData = null;
         private TowerDefenceEntity entity;
         private final WaveAbstract owner;
-        private final int id;
-
-        @AutoNBTEntry
         private String record;
+        private final int id;
 
         private EntityRecord(WaveAbstract owner, int id) {
             this.owner = owner;
@@ -336,6 +355,16 @@ public abstract class WaveAbstract implements IWave {
             this.record = record.toString();
             this.owner = owner;
             this.id = id;
+        }
+
+        public void onEvolved(TowerDefenceEntity newEntity) {
+            newEntity.setMoveTarget(this.entity.moveTarget());
+            newEntity.setMoveSpeed(this.entity.moveSpeed());
+            newEntity.data = this.entity.data.copy();
+            newEntity.bind(this.owner);
+            this.entity = newEntity;
+
+            this.record = Objects.requireNonNull(EntityList.getKey(newEntity.entity)).toString();
         }
 
         public void load(World world, BlockPos pos) {
@@ -352,8 +381,12 @@ public abstract class WaveAbstract implements IWave {
                     data.data.setInteger(ENTITY_RECORD_NBT_LOCATION, this.id);
                     data.bind(this.owner);
                     data.setMoveSpeed(this.owner.speed);
-                    entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(10);
-                    entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
+                    if (this.entityData != null) {
+                        entity.readFromNBT(this.entityData);
+                    }
+                    if ((!this.prevPos.equals(this.owner.pos.floor()) && this.owner.canAutoMove()) || this.entityData == null) {
+                        entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
+                    }
                     entity.rotationYawHead = entity.rotationYaw;
                     entity.renderYawOffset = entity.rotationYaw;
                     entity.onInitialSpawn(world.getDifficultyForLocation(new BlockPos(entity)), null);
@@ -369,6 +402,7 @@ public abstract class WaveAbstract implements IWave {
         public boolean isLoaded() {
             boolean loaded = this.entity != null && this.entity.entity.world.getEntityByID(this.entity.entity.getEntityId()) != null && this.entity.entity.isAddedToWorld() && this.entity.entity.addedToChunk && this.canEntityUpdate(this.entity.entity.world, this.entity.entity.getPosition());
             if (!loaded && this.entity != null) {
+                this.prevPos.set(this.owner.pos);
                 this.entity = this.entity.kill();
             }
             return loaded;
@@ -391,6 +425,39 @@ public abstract class WaveAbstract implements IWave {
             PosMc3IM.release(to);
 
             return flag;
+        }
+
+        private void writeEntity(NBTTagCompound nbt) {
+            if (this.entity == null) {
+                if (this.entityData != null) {
+                    nbt.setTag("entityData", this.entityData);
+                }
+            } else {
+                NBTTagCompound data = new NBTTagCompound();
+                this.entity.entity.writeToNBT(data);
+                nbt.setTag("entityData", this.entityData = data);
+            }
+        }
+
+        @Override
+        public void readFromNBT(@NotNull NBTTagCompound nbt) {
+            this.record = nbt.getString("record");
+            this.prevPos.set(nbt.getInteger("prevX"), nbt.getInteger("prevY"));
+            if (nbt.hasKey("entityData")) {
+                this.entityData = nbt.getCompoundTag("entityData");
+            }
+        }
+
+        @Override
+        public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound nbt) {
+            if (this.entity != null) {
+                this.prevPos.set(this.owner.pos);
+            }
+            nbt.setInteger("prevX", this.prevPos.x());
+            nbt.setInteger("prevY", this.prevPos.y());
+            nbt.setString("record", this.record);
+            this.writeEntity(nbt);
+            return nbt;
         }
     }
 }

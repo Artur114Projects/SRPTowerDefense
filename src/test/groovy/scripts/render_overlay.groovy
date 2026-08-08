@@ -7,7 +7,6 @@ import com.artur114.srptowerdefense.common.worldstate.towerdefence.ITowerDefence
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.WaveAbstract
 import com.dhanantry.scapeandrunparasites.world.SRPSaveData
-import com.dhanantry.scapeandrunparasites.world.SRPWorldData
 import groovy.transform.BaseScript
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
@@ -17,10 +16,10 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.fml.common.FMLCommonHandler
+import scripts.classes.BaseDevScript
 
 @BaseScript
 BaseDevScript script
-
 
 def debug = ["FPS: ${Minecraft.minecraft.debugFPS}"]
 

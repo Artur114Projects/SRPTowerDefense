@@ -1,4 +1,4 @@
-package scripts
+package scripts.classes
 
 import com.artur114.bananalib.math.core.m3d.box.IBox3DC
 import com.artur114.bananalib.math.core.m3d.box.IBox3IC
@@ -12,7 +12,7 @@ import com.artur114.bananalib.math.m3d.vec.Vec3D
 import com.artur114.bananalib.math.m3d.vec.Vec3I
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3I
 import com.artur114.bananalib.mc.math.m3d.vec.VecMc3D
-import com.artur114.srptowerdefense.common.util.groovy.DevScriptsShell
+import com.artur114.srptowerdefense.common.util.groovy.IGroovyEngine
 import net.minecraft.client.particle.Particle
 import net.minecraft.client.renderer.BufferBuilder
 import net.minecraft.client.renderer.GlStateManager
@@ -238,7 +238,7 @@ abstract class BaseDevScript extends Script {
         return logIn
     }
 
-    DevScriptsShell getShell() {
+    IGroovyEngine getShell() {
         return shellIn
     }
 }

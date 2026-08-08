@@ -50,12 +50,11 @@ public class PathNavigateGroundForced extends PathNavigateGround {
             ((EntityParasiteBase) this.entity).setSkillBreakBlocksValues(0.0F, 0, 0);
         }
 
-
         Path path = this.getPath();
         if (this.entity.ticksExisted % 8 == 0 && !this.noPath() && path != null) {
-            if (path.getPathPointFromIndex(path.getCurrentPathIndex()).y > this.entity.posY) {
+            {
                 PathPoint point = path.getPathPointFromIndex(path.getCurrentPathIndex());
-                if (this.entity.getDistanceSq(point.x, point.y, point.z) < 1.5F * 1.5F) {
+                if (point.y > this.entity.posY && this.entity.getDistanceSq(point.x + 0.5, point.y + 0.5, point.z + 0.5) < 2.0F * 2.0F) {
                     this.entity.getJumpHelper().setJumping();
                 }
             }
