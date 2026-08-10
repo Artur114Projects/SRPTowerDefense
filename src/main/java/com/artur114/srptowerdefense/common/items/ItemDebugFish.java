@@ -18,7 +18,9 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IRarity;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -27,6 +29,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 import static net.minecraft.item.ItemStack.DECIMALFORMAT;
@@ -86,8 +90,12 @@ public class ItemDebugFish extends BItemBase {
 			}
 		}
         if (!player.world.isRemote && player.isSneaking()) {
-            player.sendMessage(new TextComponentString(EntityList.getKey(entity).toString()));
-            player.sendMessage(new TextComponentString(entity.getClass().toString()));
+            String name = EntityList.getKey(entity).toString();
+
+            player.sendMessage(new TextComponentString(name).setStyle(new Style().setColor(TextFormatting.GREEN)));
+            player.sendMessage(new TextComponentString(entity.getClass().getName().replace("com.dhanantry.scapeandrunparasites.", "")));
+
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(name), null);
         }
 		entity.hurtResistantTime = 0;
 		return super.onLeftClickEntity(stack, player, entity);

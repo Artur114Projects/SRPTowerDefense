@@ -21,13 +21,26 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     private static final Logger log = LogManager.getLogger("SRPTowerDefence");
     private final Map<Class<? extends ITowerDefenceObject>, List<? extends ITowerDefenceObject>> class2ObjectMap = new HashMap<>();
     private final Int2ObjectMap<ITowerDefenceObject> objectsMap = new Int2ObjectOpenHashMap<>();
+    private final Map<ResourceLocation, ITDObjectsGenerator> generators = new HashMap<>();
     private final SecureRandom idGen = new SecureRandom();
     private final WorldServer world;
 
     public TowerDefenceManager(WorldServer world) {
         this.world = world;
 
-        this.addObject(new WaveDebug.WaveTargetDebug(), 0);
+        for (Class<? extends ITDObjectsGenerator> clazz : ITDObjectsGenerator.classes()) {
+            ITDObjectsGenerator generator = ITDObjectsGenerator.create(clazz);
+
+            if (generator != null) {
+                this.generators.put(ITDObjectsGenerator.nameFromClass(clazz), generator);
+            } else {
+                log.warn("Failed to create generator {}", clazz.getName());
+            }
+        }
+    }
+
+    public void load() {
+        this.objectsMap.forEach((id, obj) -> obj.init(this.world, this, id));
     }
 
     public void update() {
@@ -44,6 +57,10 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
                 iterator.remove();
                 this.onObjRemoved(obj);
             }
+        }
+
+        for (ITDObjectsGenerator generator : this.generators.values()) {
+            generator.update(this.world, this);
         }
     }
 
@@ -168,6 +185,13 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
             n.setString("objClass", obj.getClass().getName());
             list.appendTag(obj.writeToNBT(n));
         });
+        NBTTagList list1 = new NBTTagList();
+        this.generators.forEach((id, obj) -> {
+            NBTTagCompound n = new NBTTagCompound();
+            n.setString("name", id.toString());
+            list1.appendTag(obj.writeToNBT(n));
+        });
+        nbt.setTag("tdGenerators", list1);
         nbt.setTag("tdObjects", list);
         return nbt;
     }
@@ -195,7 +219,20 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
                 log.warn("Can't instantiate obj {}, skipping...", clazz, e);
             }
         }
+        NBTTagList list1 = nbt.getTagList("tdGenerators", 10);
+        for (int i = 0; i != list1.tagCount(); i++) {
+            NBTTagCompound obj = list1.getCompoundTagAt(i);
+            ResourceLocation name = new ResourceLocation(obj.getString("name"));
 
-        this.objectsMap.forEach((id, obj) -> obj.init(this.world, this, id));
+            ITDObjectsGenerator generator = this.generators.get(name);
+
+            if (generator != null) {
+                generator.readFromNBT(obj);
+            }
+        }
+    }
+
+    static {
+        ITDObjectsGenerator.registerGenerator(SRPTDMain.loc("spawn_generator"), SpawnWaveGenerator.class);
     }
 }

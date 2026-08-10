@@ -11,6 +11,8 @@ import com.artur114.srptowerdefense.server.event.PublicSStoppingEvent;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -19,6 +21,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 
 // TODO: 05.03.2026 Вырезать опцию smooth world в optiFine
@@ -27,6 +30,7 @@ import java.nio.file.Paths;
 @Mod.EventBusSubscriber
 @Mod(modid = SRPTDMain.MODID, useMetadata = true)
 public class SRPTDMain {
+    public static final ForgeChunkManager.LoadingCallback CALLBACK = (tickets, world) -> tickets.forEach(ForgeChunkManager::releaseTicket);
     public static final DevScriptsShell DEV_SHELL = new DevScriptsShell(Paths.get("..", "src/test/groovy/scripts").toAbsolutePath().normalize());
     public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("main") {public @NotNull ItemStack getTabIconItem() {return new ItemStack(InitBlocks.AREA_PROTECTOR);}};
     public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(SRPTDMain.MODID);
@@ -49,7 +53,7 @@ public class SRPTDMain {
     }
 
     @Mod.EventHandler
-    public static void Init(FMLInitializationEvent event) {
+    public static void init(FMLInitializationEvent event) {
         proxy.init(REGISTER_BUS, event);
     }
 

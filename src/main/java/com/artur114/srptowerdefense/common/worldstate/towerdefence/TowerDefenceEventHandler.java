@@ -14,6 +14,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,17 +36,23 @@ public class TowerDefenceEventHandler {
     }
 
     @SubscribeEvent
+    public static void worldLoad(WorldEvent.Load e) {
+        if (e.getWorld() != null && !e.getWorld().isRemote) {
+            TowerDefenceManager manager = e.getWorld().getCapability(InitCapabilities.TOWER_DEFENCE_SYSTEM, null);
+
+            if (manager != null) {
+                manager.load();
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void worldTick(TickEvent.WorldTickEvent e) {
-        if (e.phase == TickEvent.Phase.START && !e.world.isRemote && e.world.getTotalWorldTime() % 8 == 0) {
+        if (e.phase == TickEvent.Phase.START && !e.world.isRemote) {
             TowerDefenceManager manager = e.world.getCapability(InitCapabilities.TOWER_DEFENCE_SYSTEM, null);
 
             if (manager != null) {
                 manager.update();
-
-
-                if (e.world.getTotalWorldTime() % 1200 == 0) { // Debug
-                    manager.addObject(new WaveDebug(e.world ,new Vec2I(0, 20).rotate(360.0D * new Random().nextDouble()), (IWaveTarget) manager.tdObjFromId(0)), manager.createSafeId());
-                }
             }
         }
     }

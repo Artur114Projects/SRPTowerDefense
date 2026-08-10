@@ -1,5 +1,6 @@
 package com.artur114.srptowerdefense.common.pathfinding;
 
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.EntityDamageRegistry;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.pathfinding.*;
@@ -8,11 +9,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PathNavigateGroundForced extends PathNavigateGround {
+    public int timeFromLastDamage = 0;
     private double speedInWater;
     private double speedOnGround;
 
     public PathNavigateGroundForced(EntityLiving entityLiving, World world) {
         super(entityLiving, world);
+    }
+
+    @Override
+    public float getPathSearchRange() {
+        return 48.0F;
     }
 
     @Override
@@ -52,11 +59,13 @@ public class PathNavigateGroundForced extends PathNavigateGround {
 
         Path path = this.getPath();
         if (this.entity.ticksExisted % 8 == 0 && !this.noPath() && path != null) {
+            this.timeFromLastDamage += 8;
             {
                 PathPoint point = path.getPathPointFromIndex(path.getCurrentPathIndex());
                 if (point.y > this.entity.posY && this.entity.getDistanceSq(point.x + 0.5, point.y + 0.5, point.z + 0.5) < 2.0F * 2.0F) {
                     this.entity.getJumpHelper().setJumping();
                 }
+                this.entity.getLookHelper().setLookPosition(point.x, point.y, point.z, (float) this.entity.getHorizontalFaceSpeed(), (float) this.entity.getVerticalFaceSpeed());
             }
             for (int i = -1; i != 1; i++) {
                 PathPoint point = path.getPathPointFromIndex(Math.max(0, path.getCurrentPathIndex() + i));
@@ -65,8 +74,9 @@ public class PathNavigateGroundForced extends PathNavigateGround {
                     BreakArea area = ((PathPointForced) point).posToBreak;
 
                     if (area != null) {
-                        if (area.entityDamage(this.entity, 128 * 8)) {
+                        if (area.entityDamage(this.entity, EntityDamageRegistry.damageOf(this.entity))) {
                             this.ticksAtLastPos = this.totalTicks;
+                            this.timeFromLastDamage = 0;
                             this.timeoutTimer = 0;
                         }
                     }

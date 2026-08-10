@@ -115,7 +115,7 @@ public class PathFinderForced extends PathFinder {
         Path build = path.build();
         this.pathHeap.releaseBuilder(path);
 
-        log.info("is took {}ms", (System.nanoTime() - nano) / 1000000.0F);
+//        log.info("is took {}ms", (System.nanoTime() - nano) / 1000000.0F);
 
         return build;
     }

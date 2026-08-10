@@ -1,6 +1,8 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.EntityDamageRegistry;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceEntity;
 import net.minecraft.entity.EntityCreature;
@@ -27,12 +29,15 @@ public class EntityAIWaveMove extends EntityAIBase {
     public void updateTask() {
         if (this.waveData.moveSpeed() != -1.0F) {
             this.creature.getNavigator().setSpeed(this.waveData.moveSpeed());
+            BlockPos pos = this.waveData.moveTarget();
             if (this.creature.ticksExisted % 8 == 0 && (!this.prevTarget.equals(this.waveData.moveTarget()) || this.creature.getNavigator().noPath())) {
-                BlockPos pos = this.waveData.moveTarget();
                 if (pos != null && this.creature.getDistanceSq(pos) > 6 * 6) {
                     this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
                     this.prevTarget.set(pos);
                 }
+            }
+            if (pos != null && this.creature.getDistanceSq(pos) < 4) {
+                BlockDamageHandler.entityDamage(this.creature, pos, EntityDamageRegistry.damageOf(this.creature));
             }
         }
     }

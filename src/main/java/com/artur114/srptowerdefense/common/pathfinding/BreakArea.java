@@ -33,15 +33,15 @@ public class BreakArea implements Iterable<BlockPos> {
         return new BreakArea(this.area);
     }
 
-    public boolean entityDamage(EntityLiving entity, int damagePer8TicsToOneBlock) {
-        if (entity.ticksExisted % 8 != 0) {
+    public boolean entityDamage(EntityLiving entity, int damagePerSecondToOneBlock) {
+        if (entity.ticksExisted % 20 != 0) {
             return false;
         }
         boolean flag = false;
         for (int i = 0; i != this.area.length; i++) {
             BlockPos pos = this.area[i];
             if (!entity.world.isAirBlock(pos)) {
-                BlockDamageHandler.entityDamage(entity, pos, damagePer8TicsToOneBlock);
+                BlockDamageHandler.entityDamage(entity, pos, damagePerSecondToOneBlock);
                 if (entity.world.isAirBlock(pos)) {
                     flag = true;
                 } else {

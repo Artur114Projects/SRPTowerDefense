@@ -11,10 +11,13 @@ import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 
 public interface IWaveTarget extends ITowerDefenceObject {
+    boolean isForcedChunk(IVec2D pos);
     BlockPos[] causalBlocks();
     BlockPos causePos();
 
     IWaveTarget INVALID = new IWaveTarget() {
+        @Override
+        public boolean isForcedChunk(IVec2D pos) {return false;}
         @Override
         public BlockPos[] causalBlocks() {return new BlockPos[0];}
         @Override

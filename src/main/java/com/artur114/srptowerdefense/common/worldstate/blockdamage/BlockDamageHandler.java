@@ -33,7 +33,7 @@ public class BlockDamageHandler {
         }
     }
 
-    public static void entityDamage(EntityLiving entity, BlockPos pos, int damagePer8Tics) {
+    public static void entityDamage(EntityLiving entity, BlockPos pos, int damagePerSecond) {
         Chunk chunk = entity.world.getChunkFromBlockCoords(pos);
         IDamagedChunk damagedChunk = chunk.getCapability(InitCapabilities.BLOCK_DAMAGE, null);
 
@@ -41,14 +41,14 @@ public class BlockDamageHandler {
             float multiplier = ((IServerDamagedChunk) damagedChunk).damageMultiplierFor(pos);
             int tick;
 
-            if (damagePer8Tics * multiplier >= 1) {
-                tick = 8;
+            if (damagePerSecond * multiplier >= 1) {
+                tick = 20;
             } else {
-                tick = Math.round((1.2F / (damagePer8Tics * multiplier))) * 8;
+                tick = Math.round((1.2F / (damagePerSecond * multiplier))) * 20;
             }
 
             if (entity.ticksExisted % tick == 0) {
-                ((IServerDamagedChunk) damagedChunk).damage(pos, (int) ((damagePer8Tics / 8.0F) * tick));
+                ((IServerDamagedChunk) damagedChunk).damage(pos, (int) ((damagePerSecond / 20.0F) * tick));
             }
         }
     }

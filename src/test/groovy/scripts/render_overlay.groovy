@@ -5,12 +5,16 @@ import com.artur114.bananalib.mc.cap.BananaCaps
 import com.artur114.srptowerdefense.common.init.InitCapabilities
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.ITowerDefenceObject
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave
+import com.artur114.srptowerdefense.common.worldstate.towerdefence.ProtectedZone
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.WaveAbstract
+import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase
 import com.dhanantry.scapeandrunparasites.world.SRPSaveData
 import groovy.transform.BaseScript
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
+import net.minecraft.entity.EntityLiving
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.RayTraceResult
@@ -45,16 +49,37 @@ if (res?.typeOfHit == RayTraceResult.Type.BLOCK) {
     debug << "Look at [?, ?, ?]"
 }
 
+if (server != null) {
+    debug << "Forced chunks $TextFormatting.GREEN${server.getWorld(player.dimension).getPersistentChunks().size()}"
+
+
+//    AxisAlignedBB box = new AxisAlignedBB(player.getPosition().add(-256, -256, -256), player.getPosition().add(256 + 1, 256 + 1, 256 + 1));
+//    List<EntityLiving> entities = server.getWorld(player.dimension).getEntitiesWithinAABB(EntityLiving.class, box);
+//    int i = 0;
+//    entities.each {
+//        if (it instanceof EntityParasiteBase) {
+//            i++;
+//        }
+//    }
+//
+//    debug << "Parasites $TextFormatting.RED$i"
+}
+
 try {
     BananaCaps.capability(FMLCommonHandler.instance().minecraftServerInstance.getWorld(0), InitCapabilities.TOWER_DEFENCE_SYSTEM).ifPresent {
         it.tdObjects(ITowerDefenceObject).each {
-            if (it != null && !(it instanceof IWave)) {
-                debug << "${TextFormatting.AQUA}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} ${it.id()}${TextFormatting.RESET} ${formatPos(it.pos())}"
+            if (it != null && !(it instanceof IWave) && !(it instanceof ProtectedZone)) {
+                debug << "${TextFormatting.AQUA}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} (${it.id()})${TextFormatting.RESET} ${formatPos(it.pos())}"
+            }
+        }
+        it.tdObjects(ProtectedZone).each {
+            if (it != null) {
+                debug << "${TextFormatting.AQUA}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} (${it.id()})${TextFormatting.RESET} ${formatPos(it.pos())} chunks $TextFormatting.AQUA${it.protectedChunks.size()}$TextFormatting.RESET tickeds $TextFormatting.AQUA${it.tickedLoadCountMap.size()}"
             }
         }
         it.tdObjects(IWave).sort { it.targetChunk().distanceSq(it.pos()) }.each {
             if (it != null) {
-                debug << "${TextFormatting.YELLOW}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} ${it.id()}${TextFormatting.RESET} ${formatPos(it.pos())} -> ${formatPos(it.target().causePos())} size ${it instanceof WaveAbstract ? "$TextFormatting.BLUE${it.entityRecords.size()}$TextFormatting.RESET" : ""} ${it instanceof WaveAbstract && it.entityRecords.any { it.value.isLoaded() } ? "${TextFormatting.GREEN}loaded${TextFormatting.RESET}" : ""}"
+                debug << "${TextFormatting.YELLOW}${it.class.name.substring(it.class.name.lastIndexOf('.') + 1)} (${it.id()})${TextFormatting.RESET} ${formatPos(it.pos())} -> ${formatPos(it.target().causePos())} size ${it instanceof WaveAbstract ? "$TextFormatting.BLUE${it.entityRecords.size()}$TextFormatting.RESET" : ""} ${it instanceof WaveAbstract && it.entityRecords.any { it.value.isLoaded() } ? "${TextFormatting.GREEN}loaded${TextFormatting.RESET}" : ""} dist $TextFormatting.AQUA${String.format("%.2f", it.pos().distance(it.target().pos()) * 16)}"
             }
         }
     }

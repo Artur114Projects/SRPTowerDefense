@@ -9,11 +9,13 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
     private Object2BooleanMap<Class<?>> instanceOfMap = null;
+    private int unnaturalLocationCounter = 0;
     public final EntityParasiteBase entity;
     private ITowerDefenceObject tdObj;
     public NBTTagCompound data;
@@ -52,10 +54,33 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         this.blockPos.set(pos);
     }
 
+    public void tickOnUnnaturalLocation() {
+        if (this.unnaturalLocationCounter > 16 * 60 * 20) {
+            this.entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, 1);
+        }
+
+        if (this.unnaturalLocationCounter > 20 * 60 * 20) {
+            this.entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, 3);
+        }
+
+        if (this.unnaturalLocationCounter > 24 * 60 * 20) {
+            this.entity.attackEntityFrom(DamageSource.OUT_OF_WORLD, 8);
+            this.entity.setFire(2);
+        }
+
+        this.unnaturalLocationCounter += 32;
+    }
+
     public void bind(ITowerDefenceObject tdObj) {
-        this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
-        this.entity.cannotDespawn(false);
-        this.entity.setWait(0);
+        if (tdObj != null) {
+            this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
+            this.entity.cannotDespawn(false);
+            this.entity.setWait(0);
+        } else {
+            this.entity.clearActivePotions();
+            this.entity.cannotDespawn(true);
+            this.entity.setWait(0);
+        }
         this.tdObj = tdObj;
     }
 
@@ -95,9 +120,12 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = new NBTTagCompound();
         if (this.isBindToTDObj()) compound.setInteger("bindToObject", this.objectId());
+        compound.setInteger("unnaturalLocationCounter", this.unnaturalLocationCounter);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {}
+    public void deserializeNBT(NBTTagCompound nbt) {
+        this.unnaturalLocationCounter = nbt.getInteger("unnaturalLocationCounter");
+    }
 }

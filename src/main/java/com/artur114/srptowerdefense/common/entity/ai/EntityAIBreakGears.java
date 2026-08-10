@@ -2,6 +2,7 @@ package com.artur114.srptowerdefense.common.entity.ai;
 
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.EntityDamageRegistry;
 import com.dhanantry.scapeandrunparasites.entity.ai.misc.EntityParasiteBase;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -58,8 +59,8 @@ public class EntityAIBreakGears extends EntityAIBase {
 
         this.creature.getLookHelper().setLookPosition(this.foundedGear.getX() + 0.5, this.foundedGear.getY() + 0.5, this.foundedGear.getZ() + 0.5, 30F, 30F);
 
-        if (this.creature.ticksExisted % 8 == 0 && d <= 4D) {
-            BlockDamageHandler.entityDamage(this.creature, this.foundedGear, 256);
+        if (d <= 4D) {
+            BlockDamageHandler.entityDamage(this.creature, this.foundedGear, EntityDamageRegistry.damageOf(this.creature));
             ((EntityParasiteBase) this.creature).setAttackCooldownAni(100);
         }
     }
