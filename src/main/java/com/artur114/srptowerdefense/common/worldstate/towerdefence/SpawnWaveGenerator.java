@@ -30,7 +30,8 @@ public class SpawnWaveGenerator implements ITDObjectsGenerator {
             "srparasites:hostii", "srparasites:airscrew",
             "srparasites:host", "srparasites:carrier_colony",
             "srparasites:architect", "srparasites:kirin",
-            "srparasites:mar_enderman", "srparasites:sim_enderman"
+            "srparasites:mar_enderman", "srparasites:sim_enderman",
+            "srparasites:haunter"
         ).map(ResourceLocation::new).collect(Collectors.toList()));
     }
 
@@ -50,7 +51,7 @@ public class SpawnWaveGenerator implements ITDObjectsGenerator {
                 }
 
                 for (int i = 0; i != count; i++) {
-                    manager.addObject(this.createWave(world, zone, new Vec2D(this.randInt(16, 24), 0).rotate(360.0D * this.rand.nextDouble()).add(zone.pos()), phase), manager.createSafeId());
+                    manager.addObject(this.createWave(world, zone, new Vec2D(this.randInt(16, 32), 0).rotate(360.0D * this.rand.nextDouble()).add(zone.pos()), phase), manager.createSafeId());
                 }
             }
         }

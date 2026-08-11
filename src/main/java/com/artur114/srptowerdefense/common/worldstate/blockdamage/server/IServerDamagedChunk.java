@@ -12,11 +12,10 @@ public interface IServerDamagedChunk extends IDamagedChunk, INBTSerializable<NBT
     void repair(BlockPos pos, int amount);
     void damage(int x, int y, int z, int amount);
     void repair(int x, int y, int z, int amount);
-    float damageMultiplierFor(BlockPos pos);
-    float repairMultiplierFor(BlockPos pos);
     void syncToClient(EntityPlayerMP clientIn);
     void sendInitialDataToClient(EntityPlayerMP clientIn);
     void onBlockBreak(BlockPos pos);
+    void doRegeneration();
     ChunkPos getPos();
     int getDimension();
 

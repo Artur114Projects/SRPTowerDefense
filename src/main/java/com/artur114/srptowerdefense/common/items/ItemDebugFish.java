@@ -48,7 +48,7 @@ public class ItemDebugFish extends BItemBase {
 
 	@Override
 	public @NotNull EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		BlockDamageHandler.damage(worldIn, pos, 32);
+		BlockDamageHandler.damage(worldIn, pos, (int) (800 / 0.1F));
 		return EnumActionResult.SUCCESS;
 	}
 
@@ -93,7 +93,7 @@ public class ItemDebugFish extends BItemBase {
             String name = EntityList.getKey(entity).toString();
 
             player.sendMessage(new TextComponentString(name).setStyle(new Style().setColor(TextFormatting.GREEN)));
-            player.sendMessage(new TextComponentString(entity.getClass().getName().replace("com.dhanantry.scapeandrunparasites.", "")));
+            player.sendMessage(new TextComponentString(entity.getClass().getName().replace("com.dhanantry.scapeandrunparasites.", "")).setStyle(new Style().setColor(TextFormatting.AQUA)));
 
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(name), null);
         }
@@ -115,7 +115,7 @@ public class ItemDebugFish extends BItemBase {
     @SubscribeEvent
     public static void blockInteraction(PlayerInteractEvent.LeftClickBlock e) {
         if (e.getItemStack().getItem() == InitItems.DEBUGGING_FISH) {
-            BlockDamageHandler.repair(e.getWorld(), e.getPos(), 16);
+            BlockDamageHandler.repair(e.getWorld(), e.getPos(), Integer.MAX_VALUE);
             e.setCanceled(true);
         }
     }

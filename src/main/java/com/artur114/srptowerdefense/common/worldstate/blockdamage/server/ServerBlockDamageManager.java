@@ -32,6 +32,22 @@ public class ServerBlockDamageManager {
         e.addCapability(new ResourceLocation(SRPTDMain.MODID, "blocks_damage"), new BananaCapProv<>(new ServerDamagedChunk(e.getObject().getWorld(), e.getObject().getPos()), InitCapabilities.BLOCK_DAMAGE));
     }
 
+    public void tickEventWorldTickEvent(TickEvent.WorldTickEvent e) {
+        if (e.phase == TickEvent.Phase.END) {
+            return;
+        }
+
+        for (Chunk chunk : ((WorldServer) e.world).getChunkProvider().getLoadedChunks()) {
+            IDamagedChunk damagedChunk = chunk.getCapability(InitCapabilities.BLOCK_DAMAGE, null);
+
+            if (damagedChunk != null && !damagedChunk.isRemote()) {
+                if ((e.world.getTotalWorldTime() + ChunkPos.asLong(chunk.x, chunk.z)) % 40 == 0) {
+                    ((IServerDamagedChunk) damagedChunk).doRegeneration();
+                }
+            }
+        }
+    }
+
     public void blockEventBreakEvent(BlockEvent.BreakEvent e) {
         Chunk chunk = e.getWorld().getChunkFromBlockCoords(e.getPos());
 

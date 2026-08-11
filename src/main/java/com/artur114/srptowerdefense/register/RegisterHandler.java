@@ -4,6 +4,7 @@ import com.artur114.bananalib.mc.registry.ann.AutoInstantiate;
 import com.artur114.bananalib.mc.registry.data.PacketRegData;
 import com.artur114.bananalib.mc.registry.data.PacketRegDataList;
 import com.artur114.bananalib.mc.registry.interf.IHasNetworkPacket;
+import com.artur114.bananalib.mc.registry.interf.ILoadStagePost;
 import com.artur114.bananalib.mc.registry.interf.ILoadStagePre;
 import com.artur114.srptowerdefense.common.commands.CommandTeleportToWave;
 import com.artur114.srptowerdefense.common.network.client.CPacketAreaProtector;

@@ -1,3 +1,6 @@
 item.debug_fish.name=Отладочный лосось (не рыба)
 itemGroup.main=SRP: Tower Defence!
 srptowerdefense.for_creative=Только для креатива
+blockdamage.resistance_cause.natural=естественный блок
+blockdamage.resistance_cause.parasite=паразитический блок
+blockdamage.resistance_cause.organic=полу органический блок

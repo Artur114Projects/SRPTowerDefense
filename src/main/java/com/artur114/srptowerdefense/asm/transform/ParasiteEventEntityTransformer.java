@@ -1,14 +1,27 @@
 package com.artur114.srptowerdefense.asm.transform;
 
 import com.artur114.bananalib.asm.AbstractASMTransformer;
+import com.artur114.bananalib.asm.BananaASM;
 import com.artur114.bananalib.asm.tree.ClassNodeAdv;
 import com.artur114.bananalib.asm.util.IASMLogger;
 import com.artur114.bananalib.asm.util.InsnBuilder;
 import com.artur114.srptowerdefense.asm.ASMTransformerSRPTD;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 
 public class ParasiteEventEntityTransformer extends AbstractASMTransformer {
     public ParasiteEventEntityTransformer() {
         super("com.dhanantry.scapeandrunparasites.util.ParasiteEventEntity");
+    }
+
+    @Override
+    public byte[] transform(IASMLogger logger, String className, byte[] bytecode) {
+        ClassReader reader = new ClassReader(bytecode);
+        ClassNodeAdv clazz = BananaASM.createClassNode(reader);
+        this.transform(logger, className, clazz);
+        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
+        clazz.accept(writer);
+        return writer.toByteArray();
     }
 
     @Override

@@ -47,7 +47,6 @@ public class CPacketSyncBlocksDamage implements IMessage {
         ByteBufUtils.writeTag(buf, this.data);
     }
 
-    @SideOnly(Side.CLIENT)
     public static class HandlerSPC implements IMessageHandler<CPacketSyncBlocksDamage, IMessage> {
 
         @Override

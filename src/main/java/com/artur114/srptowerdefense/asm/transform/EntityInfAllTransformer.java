@@ -25,6 +25,9 @@ public class EntityInfAllTransformer implements IASMTransformer, InsnCodes {
 
     @Override
     public byte[] transform(IASMLogger logger, String className, byte[] bytecode) {
+        if (bytecode == null) {
+            return null;
+        }
         ClassReader reader = new ClassReader(bytecode);
         ClassNodeAdv clazz = BananaASM.createClassNode(reader);
         this.transform(logger, className, clazz);

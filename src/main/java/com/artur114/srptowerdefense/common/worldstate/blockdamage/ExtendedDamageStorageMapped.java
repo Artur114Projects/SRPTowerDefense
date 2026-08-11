@@ -2,9 +2,8 @@ package com.artur114.srptowerdefense.common.worldstate.blockdamage;
 
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
 import com.google.common.collect.AbstractIterator;
-import it.unimi.dsi.fastutil.shorts.Short2ByteMap;
-import it.unimi.dsi.fastutil.shorts.Short2ByteOpenHashMap;
-import net.minecraft.nbt.NBTTagByte;
+import it.unimi.dsi.fastutil.shorts.Short2ShortMap;
+import it.unimi.dsi.fastutil.shorts.Short2ShortOpenHashMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagShort;
@@ -12,12 +11,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
+
 public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
-    private final Short2ByteMap data = new Short2ByteOpenHashMap();
+    private final Short2ShortMap data = new Short2ShortOpenHashMap();
+    private static final int MAX_DATA = 65535;
 
     @Override
     public int getDamage(int x, int y, int z) {
-        return this.data.get(this.packPos(x, y, z));
+        return this.data.get((short) (((x & 15) << 8) | ((y & 15) << 4) | (z & 15))) & 0xFFFF;
     }
 
     @Override
@@ -27,16 +29,16 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
 
     @Override
     public boolean setDamage(int x, int y, int z, int amount) {
-        amount = Math.min(amount, Byte.MAX_VALUE);
+        amount = Math.min(amount, MAX_DATA);
         amount = Math.max(amount, 0);
 
-        short index = this.packPos(x, y, z);
-        byte data = this.data.get(index);
+        short index = (short) (((x & 15) << 8) | ((y & 15) << 4) | (z & 15));
+        int data = this.data.get(index) & 0xFFFF;
 
         boolean flag = data != amount;
 
         if (amount != 0) {
-            this.data.put(index, (byte) amount);
+            this.data.put(index, (short) amount);
         } else {
             this.data.remove(index);
         }
@@ -47,6 +49,11 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
     @Override
     public boolean setDamage(BlockPos pos, int amount) {
         return this.setDamage(pos.getX(), pos.getY(), pos.getZ(), amount);
+    }
+
+    @Override
+    public Iterator<Short2ShortMap.Entry> iterator() {
+        return this.data.short2ShortEntrySet().iterator();
     }
 
     @Override
@@ -90,7 +97,6 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
         return posBuf;
     }
 
-
     @Override
     public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound nbt) {
         if (this.isEmpty()) {
@@ -98,8 +104,8 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
         }
         NBTTagList damageData = new NBTTagList();
         NBTTagList damagePos = new NBTTagList();
-        for (Short2ByteMap.Entry entry : this.data.short2ByteEntrySet()) {
-            damageData.appendTag(new NBTTagByte(entry.getByteValue()));
+        for (Short2ShortMap.Entry entry : this.data.short2ShortEntrySet()) {
+            damageData.appendTag(new NBTTagShort(entry.getShortValue()));
             damagePos.appendTag(new NBTTagShort(entry.getShortKey()));
         }
         nbt.setTag("damageData", damageData);
@@ -113,7 +119,7 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
             return;
         }
 
-        NBTTagList damageData = nbt.getTagList("damageData", 1);
+        NBTTagList damageData = nbt.getTagList("damageData", 2);
         NBTTagList damagePos = nbt.getTagList("damagePos", 2);
         int[] posBuf = new int[3];
 
@@ -123,7 +129,7 @@ public class ExtendedDamageStorageMapped implements IExtendedDamageStorage {
 
         for (int i = 0; i != damagePos.tagCount(); i++) {
             int[] pos = this.unpackPos(posBuf, ((NBTTagShort) damagePos.get(i)).getShort());
-            byte data = ((NBTTagByte) damageData.get(i)).getByte();
+            int data = ((NBTTagShort) damageData.get(i)).getShort() & 0xFFFF;
 
             this.setDamage(pos[0], pos[1], pos[2], data);
         }

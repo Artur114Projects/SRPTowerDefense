@@ -25,8 +25,6 @@ import java.util.List;
 
 
 // TODO: 05.03.2026 Вырезать опцию smooth world в optiFine
-// TODO: Переписать регистрацию на шину
-// TODO: Хукнутся в ParasiteEventEntity::spawnNext
 @Mod.EventBusSubscriber
 @Mod(modid = SRPTDMain.MODID, useMetadata = true)
 public class SRPTDMain {

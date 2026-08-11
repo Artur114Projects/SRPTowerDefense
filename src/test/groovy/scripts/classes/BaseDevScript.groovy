@@ -182,6 +182,16 @@ abstract class BaseDevScript extends Script {
         )
     }
 
+    void drawBox(AxisAlignedBB box, Color color, float alpha) {
+        double x = Particle.interpPosX
+        double y = Particle.interpPosY
+        double z = Particle.interpPosZ
+        RenderGlobal.drawBoundingBox(
+                box.minX - x, box.minY - y, box.minZ - z, box.maxX - x, box.maxY - y, box.maxZ - z,
+                color.red / 255, color.green / 255, color.blue / 255, alpha
+        )
+    }
+
     void drawBox(IVec3IC min, IVec3IC max, Color color) {
         this.drawBox(new Box3I(min.x(), min.y(), min.z(), max.x(), max.y(), max.z()), color)
     }

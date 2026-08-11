@@ -58,26 +58,28 @@ public class PathNavigateGroundForced extends PathNavigateGround {
         }
 
         Path path = this.getPath();
-        if (this.entity.ticksExisted % 8 == 0 && !this.noPath() && path != null) {
-            this.timeFromLastDamage += 8;
-            {
+        if (!this.noPath() && path != null) {
+            if (this.entity.ticksExisted % 8 == 0) {
                 PathPoint point = path.getPathPointFromIndex(path.getCurrentPathIndex());
                 if (point.y > this.entity.posY && this.entity.getDistanceSq(point.x + 0.5, point.y + 0.5, point.z + 0.5) < 2.0F * 2.0F) {
                     this.entity.getJumpHelper().setJumping();
                 }
                 this.entity.getLookHelper().setLookPosition(point.x, point.y, point.z, (float) this.entity.getHorizontalFaceSpeed(), (float) this.entity.getVerticalFaceSpeed());
             }
-            for (int i = -1; i != 1; i++) {
-                PathPoint point = path.getPathPointFromIndex(Math.max(0, path.getCurrentPathIndex() + i));
+            if (this.entity.ticksExisted % 20 == 0) {
+                this.timeFromLastDamage += 20;
+                for (int i = -1; i != 1; i++) {
+                    PathPoint point = path.getPathPointFromIndex(Math.max(0, path.getCurrentPathIndex() + i));
 
-                if (point instanceof PathPointForced) {
-                    BreakArea area = ((PathPointForced) point).posToBreak;
+                    if (point instanceof PathPointForced) {
+                        BreakArea area = ((PathPointForced) point).posToBreak;
 
-                    if (area != null) {
-                        if (area.entityDamage(this.entity, EntityDamageRegistry.damageOf(this.entity))) {
-                            this.ticksAtLastPos = this.totalTicks;
-                            this.timeFromLastDamage = 0;
-                            this.timeoutTimer = 0;
+                        if (area != null) {
+                            if (area.entityDamage(this.entity, EntityDamageRegistry.damageOf(this.entity))) {
+                                this.ticksAtLastPos = this.totalTicks;
+                                this.timeFromLastDamage = 0;
+                                this.timeoutTimer = 0;
+                            }
                         }
                     }
                 }

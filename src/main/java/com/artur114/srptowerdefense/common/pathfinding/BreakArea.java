@@ -34,9 +34,6 @@ public class BreakArea implements Iterable<BlockPos> {
     }
 
     public boolean entityDamage(EntityLiving entity, int damagePerSecondToOneBlock) {
-        if (entity.ticksExisted % 20 != 0) {
-            return false;
-        }
         boolean flag = false;
         for (int i = 0; i != this.area.length; i++) {
             BlockPos pos = this.area[i];

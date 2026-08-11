@@ -1,6 +1,8 @@
 package com.artur114.srptowerdefense.common.entity.ai;
 
 import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageHandler;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.EntityDamageRegistry;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.IWave;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceEntity;
 import net.minecraft.entity.EntityCreature;
@@ -29,6 +31,9 @@ public class EntityAIWaveMoveFlight extends EntityAIBase {
             if (pos != null) {
                 this.creature.getMoveHelper().setMoveTo(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), this.waveData.moveSpeed());
                 this.creature.getLookHelper().setLookPosition(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), 180.0F, 20.0F);
+            }
+            if (pos != null && this.creature.getDistanceSq(pos) < 4) {
+                BlockDamageHandler.entityDamage(this.creature, pos, EntityDamageRegistry.damageOf(this.creature));
             }
         }
     }

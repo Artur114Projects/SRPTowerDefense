@@ -38,17 +38,8 @@ public class BlockDamageHandler {
         IDamagedChunk damagedChunk = chunk.getCapability(InitCapabilities.BLOCK_DAMAGE, null);
 
         if (damagedChunk != null && !damagedChunk.isRemote()) {
-            float multiplier = ((IServerDamagedChunk) damagedChunk).damageMultiplierFor(pos);
-            int tick;
-
-            if (damagePerSecond * multiplier >= 1) {
-                tick = 20;
-            } else {
-                tick = Math.round((1.2F / (damagePerSecond * multiplier))) * 20;
-            }
-
-            if (entity.ticksExisted % tick == 0) {
-                ((IServerDamagedChunk) damagedChunk).damage(pos, (int) ((damagePerSecond / 20.0F) * tick));
+            if (entity.ticksExisted % 20 == 0) {
+                ((IServerDamagedChunk) damagedChunk).damage(pos, damagePerSecond);
             }
         }
     }

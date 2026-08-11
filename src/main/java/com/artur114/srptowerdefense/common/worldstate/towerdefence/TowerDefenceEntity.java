@@ -18,6 +18,7 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
     private int unnaturalLocationCounter = 0;
     public final EntityParasiteBase entity;
     private ITowerDefenceObject tdObj;
+    private boolean isDirectTarget;
     public NBTTagCompound data;
     private PosMc3IM blockPos;
     private float speed;
@@ -46,12 +47,20 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         this.speed = speed;
     }
 
+    public void setDirectTarget(boolean directTarget) {
+        this.isDirectTarget = directTarget;
+    }
+
     public BlockPos moveTarget() {
         return this.blockPos;
     }
 
     public void setMoveTarget(BlockPos pos) {
         this.blockPos.set(pos);
+    }
+
+    public boolean isDirectTarget() {
+        return this.isDirectTarget;
     }
 
     public void tickOnUnnaturalLocation() {

@@ -3,14 +3,17 @@ package com.artur114.srptowerdefense.common.worldstate.blockdamage;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.client.ClientBlockDamageManager;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.server.ServerBlockDamageManager;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Objects;
 
@@ -23,6 +26,11 @@ public class BlockDamageEventsHandler {
     public static void attachCapabilitiesChunk(AttachCapabilitiesEvent<Chunk> e) {
         if (e.getObject() != null && !e.getObject().isEmpty() && e.getObject().getWorld() != null &&  e.getObject().getWorld().isRemote) CLIENT_MANAGER.attachCapabilitiesEventChunk(e);
         if (e.getObject() != null && !e.getObject().isEmpty() && e.getObject().getWorld() != null && !e.getObject().getWorld().isRemote) SERVER_MANAGER.attachCapabilitiesEventChunk(e);
+    }
+
+    @SubscribeEvent
+    public static void worldTick(TickEvent.WorldTickEvent e) {
+        if (!e.world.isRemote) SERVER_MANAGER.tickEventWorldTickEvent(e);
     }
 
     @SubscribeEvent
@@ -40,18 +48,9 @@ public class BlockDamageEventsHandler {
         if (!Objects.requireNonNull(e.getChunkInstance()).getWorld().isRemote) SERVER_MANAGER.chunkWatchEventWatch(e);
     }
 
-    @SubscribeEvent
-    public static void chunkUnloadEvent(ChunkEvent.Unload e) {
-        if (e.getWorld().isRemote) CLIENT_MANAGER.chunkEventUnload(e);
-    }
-
-    @SubscribeEvent
-    public static void chunkLoadEvent(ChunkEvent.Load e) {
-        if (e.getWorld().isRemote) CLIENT_MANAGER.chunkEventLoad(e);
-    }
-
-    @SubscribeEvent
-    public static void clientTickEvent(TickEvent.ClientTickEvent e) {
-        if (e.side == Side.CLIENT) CLIENT_MANAGER.tickEventClientTickEvent(e);
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void renderWorldLast(RenderWorldLastEvent e) {
+        CLIENT_MANAGER.renderWorldLastEvent(e);
     }
 }

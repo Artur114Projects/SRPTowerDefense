@@ -4,18 +4,21 @@ import com.artur114.bananalib.mc.math.m3d.vec.PosMc3IM;
 import com.artur114.srptowerdefense.common.network.client.CPacketSyncBlocksDamage;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.BlockDamageEventsHandler;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.DamagedChunk;
-import com.artur114.srptowerdefense.common.worldstate.blockdamage.ExtendedDamageStorage1Byte;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.ExtendedDamageStorageMapped;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.IExtendedDamageStorage;
+import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.BlockMetaRegistry;
 import com.artur114.srptowerdefense.main.SRPTDMain;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import it.unimi.dsi.fastutil.shorts.Short2ShortMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+
+import java.util.Iterator;
 
 public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedChunk {
     private final SyncManager syncManager;
@@ -48,12 +51,19 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         PosMc3IM pos = PosMc3IM.obtain().set((x & 15) + this.pos.getXStart(), y, (z & 15) + this.pos.getZStart());
 
         if (storage == null) {
-            storage = new ExtendedDamageStorage1Byte();
+            storage = new ExtendedDamageStorageMapped();
             this.storages[y >> 4] = storage;
             this.initStoragesCount++;
         }
 
-        int newDamage = (int) (storage.getDamage(x, y, z) + (amount * this.damageMultiplierFor(pos)));
+        float resistance = BlockMetaRegistry.resistanceOf(this.world, pos);
+        int newDamage;
+
+        if (resistance < 0.0F) {
+            newDamage = 0;
+        } else {
+            newDamage = (int) (storage.getDamage(x, y, z) + (MAX_DAMAGE * (amount / resistance)));
+        }
 
         if (newDamage > MAX_DAMAGE) {
             this.world.destroyBlock(pos.toImmutable(), false);
@@ -81,7 +91,15 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         }
 
         PosMc3IM pos = PosMc3IM.obtain().set((x & 15) + this.pos.getXStart(), y, (z & 15) + this.pos.getZStart());
-        int newDamage = (int) (storage.getDamage(x, y, z) - (amount * this.repairMultiplierFor(pos)));
+        float resistance = BlockMetaRegistry.solidResistanceOf(this.world, pos);
+        int newDamage;
+
+        if (resistance < 0.0F) {
+            newDamage = 0;
+        } else {
+            newDamage = (int) (storage.getDamage(x, y, z) - (MAX_DAMAGE * (amount / resistance)));
+        }
+
         boolean flag = storage.setDamage(x, y, z, newDamage);
 
         if (storage.isEmpty()) {
@@ -95,32 +113,6 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         }
 
         PosMc3IM.release(pos);
-    }
-
-    @Override
-    public float damageMultiplierFor(BlockPos pos) {
-        IBlockState state = this.world.getBlockState(pos);
-        Material material = state.getMaterial();
-        Block block = state.getBlock();
-        float hardness = block.getBlockHardness(state, this.world, pos);
-        if (material.isLiquid() || block.isAir(state, this.world, pos) || hardness < 0.0F) {
-            return 0.0F;
-        } else {
-            return 1.0F / (hardness * 4.0F);
-        }
-    }
-
-    @Override
-    public float repairMultiplierFor(BlockPos pos) {
-        IBlockState state = this.world.getBlockState(pos);
-        Material material = state.getMaterial();
-        Block block = state.getBlock();
-        float hardness = block.getBlockHardness(state, this.world, pos);
-        if (material.isLiquid() || block.isAir(state, this.world, pos) || hardness < 0.0F) {
-            return 128.0F;
-        } else {
-            return 1.0F / hardness;
-        }
     }
 
     @Override
@@ -145,6 +137,62 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         if (flag) {
             this.syncManager.notifyDamageChange(pos.getX(), pos.getY(), pos.getZ(), 0);
         }
+    }
+
+    @Override
+    public void doRegeneration() {
+        if (this.isEmpty()) {
+            return;
+        }
+        PosMc3IM pos = PosMc3IM.obtain();
+        boolean doAnyThing = false;
+        for (int i = 0; i != this.storages.length; i++) {
+            IExtendedDamageStorage storage = this.storages[i];
+
+            if (storage == null || storage.isEmpty()) {
+                continue;
+            }
+
+            Iterator<Short2ShortMap.Entry> iterator = storage.iterator();
+            while (iterator.hasNext()) {
+                Short2ShortMap.Entry entry = iterator.next();
+                short packedPos = entry.getShortKey();
+                int x = (packedPos >> 8) & 15;
+                int y = ((packedPos >> 4) & 15) + (i << 4);
+                int z = packedPos & 15;
+
+                pos.set((x & 15) + this.pos.getXStart(), y, (z & 15) + this.pos.getZStart());
+                float resistance = BlockMetaRegistry.solidResistanceOf(this.world, pos);
+                int damage = entry.getShortValue() & 0xFFFF;
+                int newDamage;
+
+                if (resistance < 0.0F) {
+                    newDamage = 0;
+                } else {
+                    IBlockState state = this.world.getBlockState(pos);
+                    newDamage = (int) (damage - (MAX_DAMAGE * ((BlockMetaRegistry.regenPowerOf(state.getBlock()) * 2) / resistance)));
+                }
+
+                if (newDamage <= 0) {
+                    iterator.remove();
+                } else {
+                    entry.setValue((short) newDamage);
+                }
+
+                if (damage != newDamage) {
+                    doAnyThing = true;
+                }
+            }
+
+            if (storage.isEmpty()) {
+                this.storages[i] = null;
+                this.initStoragesCount--;
+            }
+        }
+        if (doAnyThing) {
+            this.syncManager.doSendAllData();
+        }
+        PosMc3IM.release(pos);
     }
 
     @Override
@@ -206,7 +254,7 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
 
         for (int i = 0; i != list.tagCount(); i++) {
             NBTTagCompound data = list.getCompoundTagAt(i);
-            IExtendedDamageStorage storage = new ExtendedDamageStorage1Byte();
+            IExtendedDamageStorage storage = new ExtendedDamageStorageMapped();
             storage.readFromNBT(data);
             this.storages[data.getInteger("storageIndex")] = storage;
             this.initStoragesCount++;
@@ -217,9 +265,15 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
         private NBTTagList rawDataList = new NBTTagList();
         private final ServerDamagedChunk chunk;
         private NBTTagCompound data = null;
+        private boolean doSendAllData = false;
 
         private SyncManager(ServerDamagedChunk chunk) {
             this.chunk = chunk;
+        }
+
+        protected void doSendAllData() {
+            this.doSendAllData = true;
+            BlockDamageEventsHandler.SERVER_MANAGER.addToSyncQueue(this.chunk);
         }
 
         protected void notifyDamageChange(int x, int y, int z, int newDamage) {
@@ -227,7 +281,7 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
 
             data.setByte("storage", (byte) (y >> 4));
             data.setShort("packedPos", this.packPos(x, y, z));
-            data.setByte("damage", (byte) Math.max(0, Math.min(newDamage, MAX_DAMAGE)));
+            data.setShort("damage", (short) MathHelper.clamp(newDamage, 0, MAX_DAMAGE));
 
             this.rawDataList.appendTag(data);
 
@@ -236,15 +290,20 @@ public class ServerDamagedChunk extends DamagedChunk implements IServerDamagedCh
 
         protected NBTTagCompound data() {
             if (this.data == null) {
-                NBTTagCompound data = new NBTTagCompound();
-                data.setTag("dataChange", this.rawDataList);
-                this.data = data;
+                if (this.doSendAllData) {
+                    this.data = this.chunk.serializeNBT();
+                } else {
+                    NBTTagCompound data = new NBTTagCompound();
+                    data.setTag("dataChange", this.rawDataList);
+                    this.data = data;
+                }
             }
             return this.data;
         }
 
         protected void finish() {
             this.rawDataList = new NBTTagList();
+            this.doSendAllData = false;
             this.data = null;
         }
 

@@ -5,8 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IClientDamagedChunk extends IDamagedChunk {
     void processSyncData(NBTTagCompound dataIn);
-    void unloadChunk();
-    void update();
+    void draw();
 
     default boolean isRemote() {return true;}
 }

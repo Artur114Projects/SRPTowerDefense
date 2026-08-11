@@ -319,6 +319,7 @@ public abstract class WaveAbstract implements IWave {
         for (EntityRecord record : this.entityRecords.values()) {
             if (record.isLoaded()) {
                 record.entity().setMoveTarget(this.entityMoveTarget);
+                record.entity().setDirectTarget(this.entityMoveTarget.equals(this.target.causePos()));
             }
         }
     }

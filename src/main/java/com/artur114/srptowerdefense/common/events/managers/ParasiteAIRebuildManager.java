@@ -38,7 +38,6 @@ public class ParasiteAIRebuildManager {
                     if (parasite instanceof EntityCanFly) {
                         parasite.tasks.addTask(4, new EntityAIWaveMoveFlight(data));
                     } else {
-                        parasite.tasks.addTask(4, new EntityAIBreakGears(parasite, parasite.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue()));
                         parasite.tasks.addTask(4, new EntityAIWaveMove(data));
                     }
                 }

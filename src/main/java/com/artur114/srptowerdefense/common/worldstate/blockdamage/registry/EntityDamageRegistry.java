@@ -5,6 +5,6 @@ import net.minecraft.entity.EntityLiving;
 
 public class EntityDamageRegistry {
     public static int damageOf(EntityLiving entity) {
-        return 32 * 20;
+        return (int) (4000 / 0.25F);
     }
 }

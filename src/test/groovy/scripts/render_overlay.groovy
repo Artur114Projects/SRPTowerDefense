@@ -37,8 +37,8 @@ if (server != null) {
     debug << "TPS avg $c${String.format("%.2f", tps)}$TextFormatting.RESET min $c1${String.format("%.2f", min)}$TextFormatting.RESET"
 
     debug << "SRP Phase $TextFormatting.RED${SRPSaveData.get(server.getWorld(player.dimension), 72).getEvolutionPhase(player.dimension)}"
+    debug << "SRP Generation $TextFormatting.RED${SRPSaveData.get(server.getWorld(player.dimension), 72).getGeneration(player.dimension)}"
 }
-
 
 
 RayTraceResult res = player.rayTrace(8, partialTicksIn)
