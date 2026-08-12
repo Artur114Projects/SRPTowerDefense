@@ -96,7 +96,7 @@ public class TileEntityAreaProtector extends BTileBase implements ITileBlockUseL
     }
 
     private boolean canActivate() {
-        return this.pos.getY() >= 64 && this.pos.getY() <= 64 + 16;
+        return this.pos.getY() > 60 && this.pos.getY() < 80;
     }
 
     private void onActivate() {

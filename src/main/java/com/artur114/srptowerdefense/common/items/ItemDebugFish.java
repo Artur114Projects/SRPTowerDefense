@@ -41,8 +41,6 @@ public class ItemDebugFish extends BItemBase {
 	public ItemDebugFish(String name) {
 		super(name);
 		this.setMaxStackSize(1);
-		this.setContainerItem(this);
-		this.setMaxDamage(2);
 		this.setCreativeTab(SRPTDMain.CREATIVE_TAB);
 	}
 

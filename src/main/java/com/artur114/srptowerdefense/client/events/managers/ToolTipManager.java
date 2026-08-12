@@ -1,5 +1,6 @@
 package com.artur114.srptowerdefense.client.events.managers;
 
+import com.artur114.srptowerdefense.common.util.CIMetricsUtils;
 import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.BlockMetaRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -27,11 +28,12 @@ public class ToolTipManager {
                 inserter = ((s) -> tt.add(tt.size() - 1, s));
             }
 
-            inserter.accept("Ударная вязкость: " + TextFormatting.YELLOW + formatJoules(resilience));
+            //TODO: Локализовать
+            inserter.accept("Ударная вязкость: " + TextFormatting.YELLOW + CIMetricsUtils.formatJoules(resilience));
             BlockMetaRegistry.BlockMeta meta = BlockMetaRegistry.metaOf(itemBlock.getBlock());
 
             if (meta.regenPower() != -1) {
-                inserter.accept("Мощность регенерации: " + TextFormatting.GREEN + this.formatWatts(meta.regenPower()));
+                inserter.accept("Мощность регенерации: " + TextFormatting.GREEN + CIMetricsUtils.formatWatts(meta.regenPower()));
             }
 
             if (meta.resistanceMulCause() != BlockMetaRegistry.ResMulCause.DEFAULT) {
@@ -43,43 +45,5 @@ public class ToolTipManager {
 
     private float calculateResilience(Block block) {
         return BlockMetaRegistry.solidResistanceOf(block, block.getBlockHardness(block.getDefaultState(), Minecraft.getMinecraft().world, BlockPos.ORIGIN));
-    }
-
-    private String formatJoules(float val) {
-        String[] vals = new String[] {"%.1f §fДж/м²", "%.1f §fкДж/м²", "%.1f §fМДж/м²", "%.1f §fГДж/м²"};
-
-        if (val < 0) {
-            return "∞ §fДж/м²";
-        }
-
-        float j = val;
-        for (int i = 0; i != vals.length; i++) {
-            if (j / 1000.0F >= 0.5) {
-                j /= 1000.0F;
-            } else {
-                return String.format(vals[i], j);
-            }
-        }
-
-        return String.format(vals[3], j);
-    }
-
-    private String formatWatts(float val) {
-        String[] vals = new String[] {"%.1f §fВт/м²", "%.1f §fкВт/м²", "%.1f §fМВт/м²", "%.1f §fГВт/м²"};
-
-        if (val < 0) {
-            return "∞ §fВт/м²";
-        }
-
-        float j = val;
-        for (int i = 0; i != vals.length; i++) {
-            if (j / 1000.0F >= 0.5) {
-                j /= 1000.0F;
-            } else {
-                return String.format(vals[i], j);
-            }
-        }
-
-        return String.format(vals[3], j);
     }
 }

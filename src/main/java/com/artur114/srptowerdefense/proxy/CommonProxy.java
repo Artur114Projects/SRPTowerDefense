@@ -1,10 +1,7 @@
 package com.artur114.srptowerdefense.proxy;
 
 import com.artur114.bananalib.mc.registry.IRegisterBus;
-import com.artur114.srptowerdefense.common.init.InitBlockMeta;
-import com.artur114.srptowerdefense.common.init.InitBlocks;
-import com.artur114.srptowerdefense.common.init.InitCapabilities;
-import com.artur114.srptowerdefense.common.init.InitItems;
+import com.artur114.srptowerdefense.common.init.*;
 import com.artur114.srptowerdefense.register.RegisterHandler;
 import net.minecraftforge.fml.common.event.*;
 
@@ -36,7 +33,8 @@ public abstract class CommonProxy implements IProxy {
             InitBlocks.class,
             RegisterHandler.class,
             InitCapabilities.class,
-            InitBlockMeta.class
+            InitBlockMeta.class,
+            InitSounds.class
         );
     }
 

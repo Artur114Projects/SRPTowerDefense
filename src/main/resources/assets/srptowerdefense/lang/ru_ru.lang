@@ -1,4 +1,10 @@
 item.debug_fish.name=Отладочный лосось (не рыба)
+item.wooden_mallet.name=Деревянная киянка
+item.stone_mallet.name=Каменная киянка
+item.iron_mallet.name=Стальная киянка
+#
+tile.area_protector.name=Карантинный маяк
+#
 itemGroup.main=SRP: Tower Defence!
 srptowerdefense.for_creative=Только для креатива
 blockdamage.resistance_cause.natural=естественный блок

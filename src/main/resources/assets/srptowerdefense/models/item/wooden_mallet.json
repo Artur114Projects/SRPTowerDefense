@@ -1,0 +1,6 @@
+{
+  "parent": "srptowerdefense:item/mallet",
+  "textures": {
+    "0": "srptowerdefense:items/wooden_mallet"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    " I ",
+    " I "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:iron_block"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "A": {
+      "item": "minecraft:anvil",
+      "data": 0
+    }
+  },
+  "result": {
+    "item": "srptowerdefense:iron_mallet",
+    "count": 1
+  }
+}

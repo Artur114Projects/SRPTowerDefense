@@ -1,3 +1,9 @@
-item.debug_fish.name=Debugging fish
+item.debug_fish.name=Debugging Salmon (not a fish)
+item.wooden_mallet.name=Wooden Mallet
+item.stone_mallet.name=Stone Mallet
+item.iron_mallet.name=Steel Mallet
+#
+tile.area_protector.name=Quarantine Beacon
+#
 itemGroup.main=SRP: Tower Defence!
-srptowerdefense.for_creative=For creativity only
+srptowerdefense.for_creative=For Creativity Only

@@ -1,0 +1,19 @@
+{
+  "middle_punch": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "srptowerdefense:middle_punch0",
+        "stream": false
+      },
+      {
+        "name": "srptowerdefense:middle_punch1",
+        "stream": false
+      },
+      {
+        "name": "srptowerdefense:middle_punch2",
+        "stream": false
+      }
+    ]
+  }
+}
