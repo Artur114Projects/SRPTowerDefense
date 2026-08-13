@@ -1,6 +1,8 @@
 package com.artur114.srptowerdefense.client.gui;
 
 import com.artur114.bananalib.math.BananaMath;
+import com.artur114.bananalib.math.m2d.box.Box2I;
+import com.artur114.bananalib.math.m2d.box.IBox2I;
 import com.artur114.bananalib.math.m2d.vec.Vec2IM;
 import com.artur114.bananalib.mc.BananaMC;
 import com.artur114.srptowerdefense.common.network.server.SPacketAreaProtector;
@@ -12,15 +14,18 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class GuiAreaProtector extends GuiScreen {
@@ -31,11 +36,14 @@ public class GuiAreaProtector extends GuiScreen {
     public GuiButton activateButton = null;
     public boolean isMapCompiled = false;
     public TileEntityAreaProtector tile;
+    public String errorMessageP1 = I18n.format("tile.area_protector.cant_activate");
+    public String errorMessage = null;
+    public IBox2I redButtonBox;
     public int protChunks = 0;
     public int compileIndex = 0;
     public final int xSize = 272;
     public final int ySize = 192;
-    public boolean online = false;
+    public boolean online;
     public final BlockPos pos;
     public float prevViewRadius = 0;
     public float viewRadius = 0;
@@ -71,6 +79,7 @@ public class GuiAreaProtector extends GuiScreen {
         this.addButton(new ButtonAdv(0, x + 213, y + 64, 15, 10, SRPTDMain.loc("textures/gui/pm_buttons.png"), 30, 20, 1));
         this.addButton(new ButtonAdv(1, x + 244, y + 64, 15, 10, SRPTDMain.loc("textures/gui/pm_buttons.png"), 30, 20, 0));
         this.addButton(this.activateButton = new ButtonAdv(2, x + 227, y + 151, 19, 17, SRPTDMain.loc("textures/gui/red_button.png"), 19, 51, 0));
+        this.redButtonBox = new Box2I(x + 227, y + 151, x + 227 + 19, y + 151 + 17);
         this.setProtected(radius, radius, true);
         this.activateButton.enabled = !this.online;
 
@@ -112,6 +121,8 @@ public class GuiAreaProtector extends GuiScreen {
         this.drawTexturedModalRect(x + 8, y + 8, 0, 0, 256, 256);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        this.drawToolTip(mouseX, mouseY);
     }
 
     @Override
@@ -169,6 +180,14 @@ public class GuiAreaProtector extends GuiScreen {
         return false;
     }
 
+    public void drawToolTip(int mouseX, int mouseY) {
+        if (this.redButtonBox.contains(mouseX, mouseY)) {
+            if (this.errorMessage != null) {
+                this.drawHoveringText(Arrays.asList(TextFormatting.RED + this.errorMessageP1, TextFormatting.RED + this.errorMessage), mouseX, mouseY);
+            }
+        }
+    }
+
     public void messageFromServer(NBTTagCompound nbt) {
         switch (nbt.getInteger("action")) {
             case 0:
@@ -179,6 +198,9 @@ public class GuiAreaProtector extends GuiScreen {
                 ChunkPos pos = BananaMC.chunkPosFromLong(nbt.getLong("pos"));
                 ChunkPos center = new ChunkPos(this.pos);
                 this.setProtected(pos.x - center.x + (size / 2), pos.z - center.z + (size / 2), nbt.getBoolean("state"));
+                break;
+            case 2:
+                this.errorMessage = I18n.format(nbt.getString("errorMessage"));
                 break;
         }
     }
@@ -246,6 +268,8 @@ public class GuiAreaProtector extends GuiScreen {
         GlStateManager.scale(scale, scale, 1);
         Vec2IM vec = Vec2IM.obtain();
         float viewR = BananaMath.lerp(this.prevViewRadius, this.viewRadius, partialTicks);
+        float offsetX = 96.0F - (curenSize * 8.0F) * scale;
+        float offsetY = 96.0F - (curenSize * 8.0F) * scale;
 
         for (int i = 0; i != size * size; i++) {
             int xC = i % size;
@@ -284,7 +308,6 @@ public class GuiAreaProtector extends GuiScreen {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             }
 
-
             float dist = vec.set((xC - radius + this.curenRadius), (zC - radius + this.curenRadius)).distance(this.curenRadius, this.curenRadius);
             GlStateManager.color(0.0F, 0.0F, 0.0F, ((dist - viewR) * 0.25F));
             GlStateManager.disableTexture2D();
@@ -292,7 +315,9 @@ public class GuiAreaProtector extends GuiScreen {
             GlStateManager.enableTexture2D();
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (mouseX > (xI * scale) + x + 8 && mouseX < ((xI + 16) * scale) + x + 8 && mouseY > (yI * scale) + y + 8 && mouseY < ((yI + 16) * scale) + y + 8) {
+            int screenX = (int)(x + offsetX + xI * scale);
+            int screenY = (int)(y + offsetY + yI * scale);
+            if (mouseX >= screenX && mouseX < screenX + 16 * scale && mouseY >= screenY && mouseY < screenY + 16 * scale) {
                 this.mc.renderEngine.bindTexture(SRPTDMain.loc("textures/gui/gui_area_protector_selection.png"));
                 drawModalRectWithCustomSizedTexture(xI, yI, 0, 0, 16, 16, 16, 16);
             }

@@ -65,6 +65,13 @@ public class CPacketAreaProtector extends NBTPacketBase {
         SRPTDMain.NETWORK.sendTo(new CPacketAreaProtector(nbt), player);
     }
 
+    public static void sendErrorActivateRequest(EntityPlayerMP player, String errorMessage) {
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setInteger("action", 2);
+        nbt.setString("errorMessage", errorMessage);
+        SRPTDMain.NETWORK.sendTo(new CPacketAreaProtector(nbt), player);
+    }
+
     public static void sendAcceptProtectRequest(EntityPlayerMP player, ChunkPos pos, boolean state) {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("action", 1);

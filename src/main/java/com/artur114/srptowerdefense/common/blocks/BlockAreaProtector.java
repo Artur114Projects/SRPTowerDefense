@@ -7,6 +7,9 @@ import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
@@ -14,6 +17,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class BlockAreaProtector extends BBlockTileBase<TileEntityAreaProtector> {
@@ -23,13 +28,17 @@ public class BlockAreaProtector extends BBlockTileBase<TileEntityAreaProtector> 
     }
 
     @Override
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, ITooltipFlag advanced) {
+        tooltip.addAll(Arrays.asList(I18n.format("tile.area_protector.info").split("<br>")));
+        tooltip.add("");
+        for (String s : I18n.format("tile.area_protector.info.warn").split("<br>")) {
+            tooltip.add(TextFormatting.RED + s);
+        }
+    }
+
+    @Override
     protected @Nullable Item createItemBlock() {
-        return new BItemBlockBase(this) {
-            @Override
-            public String getItemStackDisplayName(ItemStack stack) {
-                return TextFormatting.RED + super.getItemStackDisplayName(stack);
-            }
-        }.setRegistryName(Objects.requireNonNull(this.getRegistryName()));
+        return new BItemBlockBase(this).setRarity(EnumRarity.EPIC).setRegistryName(Objects.requireNonNull(this.getRegistryName()));
     }
 
     @Override

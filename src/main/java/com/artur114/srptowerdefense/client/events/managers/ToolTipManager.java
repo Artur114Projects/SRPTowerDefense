@@ -28,17 +28,16 @@ public class ToolTipManager {
                 inserter = ((s) -> tt.add(tt.size() - 1, s));
             }
 
-            //TODO: Локализовать
-            inserter.accept("Ударная вязкость: " + TextFormatting.YELLOW + CIMetricsUtils.formatJoules(resilience));
+            inserter.accept(I18n.format("srptowerdefense.info.resistance_power") + " " + TextFormatting.YELLOW + CIMetricsUtils.formatJoules(resilience));
             BlockMetaRegistry.BlockMeta meta = BlockMetaRegistry.metaOf(itemBlock.getBlock());
 
             if (meta.regenPower() != -1) {
-                inserter.accept("Мощность регенерации: " + TextFormatting.GREEN + CIMetricsUtils.formatWatts(meta.regenPower()));
+                inserter.accept(I18n.format("srptowerdefense.info.regen_power") + " " + TextFormatting.GREEN + CIMetricsUtils.formatWatts(meta.regenPower()));
             }
 
             if (meta.resistanceMulCause() != BlockMetaRegistry.ResMulCause.DEFAULT) {
                 TextFormatting color = meta.resistanceMul() >= 1 ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED;
-                inserter.accept(color + "×" + (1 / meta.resistanceMul()) + " урон (" + I18n.format(meta.resistanceMulCause().causeTranslationKey()) + ")");
+                inserter.accept(color + "×" + (1 / meta.resistanceMul()) + " " + I18n.format("srptowerdefense.info.damage") + " (" + I18n.format(meta.resistanceMulCause().causeTranslationKey()) + ")");
             }
         }
     }

@@ -82,11 +82,11 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
 
     public void bind(ITowerDefenceObject tdObj) {
         if (tdObj != null) {
-            this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
+//            this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
             this.entity.cannotDespawn(false);
             this.entity.setWait(0);
         } else {
-            this.entity.clearActivePotions();
+//            this.entity.clearActivePotions();
             this.entity.cannotDespawn(true);
             this.entity.setWait(0);
         }

@@ -34,7 +34,8 @@ public abstract class CommonProxy implements IProxy {
             RegisterHandler.class,
             InitCapabilities.class,
             InitBlockMeta.class,
-            InitSounds.class
+            InitSounds.class,
+            InitEntityDamage.class
         );
     }
 

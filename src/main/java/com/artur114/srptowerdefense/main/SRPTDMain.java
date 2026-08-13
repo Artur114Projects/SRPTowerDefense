@@ -2,6 +2,7 @@ package com.artur114.srptowerdefense.main;
 
 import com.artur114.bananalib.mc.registry.BananaRegisterBus;
 import com.artur114.bananalib.mc.registry.IRegisterBus;
+import com.artur114.srptowerdefense.common.creative.SRPTDCreativeTab;
 import com.artur114.srptowerdefense.common.init.InitBlocks;
 import com.artur114.srptowerdefense.common.init.InitItems;
 import com.artur114.srptowerdefense.common.util.groovy.DevScriptsShell;
@@ -30,7 +31,7 @@ import java.util.List;
 public class SRPTDMain {
     public static final ForgeChunkManager.LoadingCallback CALLBACK = (tickets, world) -> tickets.forEach(ForgeChunkManager::releaseTicket);
     public static final DevScriptsShell DEV_SHELL = new DevScriptsShell(Paths.get("..", "src/test/groovy/scripts").toAbsolutePath().normalize());
-    public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("main") {public @NotNull ItemStack getTabIconItem() {return new ItemStack(InitBlocks.AREA_PROTECTOR);}};
+    public static final SRPTDCreativeTab CREATIVE_TAB = new SRPTDCreativeTab(SRPTDMain.MODID);
     public static final SimpleNetworkWrapper NETWORK = new SimpleNetworkWrapper(SRPTDMain.MODID);
     public static final IRegisterBus REGISTER_BUS = new BananaRegisterBus().putNetWrapper(NETWORK);
     public static final EventBus INTERNAL_EVENT_BUS = new EventBus();

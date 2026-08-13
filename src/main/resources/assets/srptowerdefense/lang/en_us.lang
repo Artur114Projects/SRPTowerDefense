@@ -2,8 +2,28 @@ item.debug_fish.name=Debugging Salmon (not a fish)
 item.wooden_mallet.name=Wooden Mallet
 item.stone_mallet.name=Stone Mallet
 item.iron_mallet.name=Steel Mallet
+item.mallet.all.info.0=Compacts (repairs) blocks
+item.mallet.all.info.1=Compaction energy:
+item.mallet.all.info.2=Compaction area:
 #
-tile.area_protector.name=Quarantine Beacon
+srptowerdefense.info.damage=damage
+srptowerdefense.info.regen_power=Regeneration power:
+srptowerdefense.info.resistance_power=Impact strength:
+blockdamage.resistance_cause.natural=natural block
+blockdamage.resistance_cause.parasite=parasitic block
+blockdamage.resistance_cause.organic=semi-organic block
 #
-itemGroup.main=SRP: Tower Defence!
+tile.area_protector.name=Defense Beacon
+tile.area_protector.info=Allows you to disable the spawning of parasites and keep the area up to 21×21 chunks loaded, but the parasites will begin to attack the protected area and try to break the beacon
+tile.area_protector.info.warn=Once launched, the beacon cannot be turned off, and a block failure leads to a strong explosion
+tile.area_protector.cant_activate=It is impossible to activate the beacon because:
+tile.area_protector.cant_activate.0=the block is outside the height range 60-80
+tile.area_protector.cant_activate.1=there is already a beacon within a radius of 12 chunks
+tile.area_protector.cant_activate.2=unknown error, this shouldn't happen
+#
+srptowerdefense.ci_metrics.meters2=m²<n>km²
+srptowerdefense.ci_metrics.joules/meter2=J/m²<n>kJ/m²<n>MJ/m²<n>GJ/m²
+srptowerdefense.ci_metrics.watts/meter2=W/m²<n>kW/m²<n>MW/m²<n>GW/m²
+#
+itemGroup.srptowerdefense=SRP: Tower Defence!
 srptowerdefense.for_creative=For Creativity Only

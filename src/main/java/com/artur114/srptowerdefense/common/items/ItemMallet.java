@@ -9,6 +9,7 @@ import com.artur114.srptowerdefense.common.worldstate.blockdamage.registry.Block
 import com.artur114.srptowerdefense.main.SRPTDMain;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -49,9 +50,11 @@ public class ItemMallet extends BItemBase {
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-        tooltip.add("Уплотняет (ремонтирует) блоки");//TODO: Локализовать
-        tooltip.add("Энергия уплотнения: " + TextFormatting.YELLOW + CIMetricsUtils.formatJoules(this.repairPower));
-        tooltip.add("Площадь уплотнения: " + TextFormatting.AQUA + CIMetricsUtils.formatMeters2(this.repairArea * this.repairArea));
+        tooltip.add(I18n.format("item.mallet.all.info.0"));
+        tooltip.add(I18n.format("item.mallet.all.info.1") + " " + TextFormatting.YELLOW + CIMetricsUtils.formatJoules(this.repairPower));
+        if (this.repairArea > 1) {
+            tooltip.add(I18n.format("item.mallet.all.info.2") + " " + TextFormatting.AQUA + CIMetricsUtils.formatMeters2(this.repairArea * this.repairArea));
+        }
     }
 
     public int punchPower() {

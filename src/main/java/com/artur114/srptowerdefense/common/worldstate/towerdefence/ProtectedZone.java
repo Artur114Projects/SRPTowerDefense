@@ -17,6 +17,8 @@ import com.artur114.bananalib.mc.math.m2d.vec.PosMc2I;
 import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import com.artur114.srptowerdefense.common.tileentity.TileEntityAreaProtector;
 import com.artur114.srptowerdefense.main.SRPTDMain;
+import com.dhanantry.scapeandrunparasites.util.config.SRPConfigSystems;
+import com.dhanantry.scapeandrunparasites.world.SRPSaveData;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -96,6 +98,8 @@ public class ProtectedZone implements IWaveTarget {
     @Override
     public void onRemove() {
         this.unforceChunks();
+
+        SRPSaveData.get(this.world, 43).setTotalKills(this.world.provider.getDimension(), this.noSpawnChunks.size() * 100 * Math.max(1, SRPSaveData.get(this.world, 72).getEvolutionPhase(this.world.provider.getDimension())), true, this.world, true, 1);
     }
 
     @Override
@@ -107,16 +111,19 @@ public class ProtectedZone implements IWaveTarget {
                 continue;
             }
 
-            for (ClassInheritanceMultiMap<Entity> map : chunk.getEntityLists()) {
-                for (Entity entity : map) {
-                    TowerDefenceEntity data = entity.getCapability(InitCapabilities.TD_ENTITY_DATA, null);
-
-                    if (data != null) {
-                        data.tickOnUnnaturalLocation();
-                    }
+            try {
+                for (ClassInheritanceMultiMap<Entity> map : chunk.getEntityLists()) {
+                    try {
+                        for (Entity entity : map) {
+                            TowerDefenceEntity data = entity.getCapability(InitCapabilities.TD_ENTITY_DATA, null);
+                            if (data != null) data.tickOnUnnaturalLocation();
+                        }
+                    } catch (Exception ignored) {}
                 }
-            }
+            } catch (Exception ignored) {}
         }
+
+        SRPSaveData.get(this.world, 43).setTotalKills(this.world.provider.getDimension(), this.noSpawnChunks.size() * SRPSaveData.get(this.world, 72).getEvolutionPhase(this.world.provider.getDimension()) * 4, true, this.world, true, 1);
     }
 
     @Override

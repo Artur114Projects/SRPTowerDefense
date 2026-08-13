@@ -7,6 +7,7 @@ import com.artur114.bananalib.mc.base.tileabs.ITileBlockBreakListener;
 import com.artur114.bananalib.mc.base.tileabs.ITileBlockPlaceListener;
 import com.artur114.bananalib.mc.base.tileabs.ITileBlockUseListener;
 import com.artur114.bananalib.mc.cap.BananaCaps;
+import com.artur114.bananalib.mc.math.m2d.vec.IPosMc2I;
 import com.artur114.bananalib.mc.math.m2d.vec.PosMc2I;
 import com.artur114.bananalib.mc.nbt.BananaAutoNBT;
 import com.artur114.bananalib.mc.nbt.auto.AutoNBTEntry;
@@ -14,6 +15,8 @@ import com.artur114.srptowerdefense.common.init.InitCapabilities;
 import com.artur114.srptowerdefense.common.network.client.CPacketAreaProtector;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.ITowerDefenceObject;
 import com.artur114.srptowerdefense.common.worldstate.towerdefence.ProtectedZone;
+import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceEntity;
+import com.artur114.srptowerdefense.common.worldstate.towerdefence.TowerDefenceManager;
 import com.artur114.srptowerdefense.main.SRPTDMain;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -31,6 +34,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class TileEntityAreaProtector extends BTileBase implements ITileBlockUseListener, ITileBlockBreakListener {
     @AutoNBTEntry
@@ -66,6 +71,8 @@ public class TileEntityAreaProtector extends BTileBase implements ITileBlockUseL
 
                 if (obj instanceof ProtectedZone) {
                     this.zone = (ProtectedZone) obj;
+                } else {
+                    this.active = false;
                 }
             });
         }
@@ -77,10 +84,15 @@ public class TileEntityAreaProtector extends BTileBase implements ITileBlockUseL
                 this.range = MathHelper.clamp(nbt.getInteger("range"), 2, 10);
                 break;
             case 1:
-                if (!this.active && this.canActivate()) {
-                    this.active = true;
-                    this.onActivate();
-                    CPacketAreaProtector.sendAcceptActivateRequest(sender);
+                if (!this.active) {
+                    String cause = this.canActivate();
+                    if (cause == null) {
+                        this.active = true;
+                        this.onActivate();
+                        CPacketAreaProtector.sendAcceptActivateRequest(sender);
+                    } else {
+                        CPacketAreaProtector.sendErrorActivateRequest(sender, cause);
+                    }
                 }
                 break;
             case 2:
@@ -95,8 +107,25 @@ public class TileEntityAreaProtector extends BTileBase implements ITileBlockUseL
         }
     }
 
-    private boolean canActivate() {
-        return this.pos.getY() > 60 && this.pos.getY() < 80;
+    private String canActivate() {
+        if (this.pos.getY() < 60 || this.pos.getY() > 80) {
+            return "tile.area_protector.cant_activate.0";
+        }
+        Optional<TowerDefenceManager> optional = BananaCaps.capability(this.world, InitCapabilities.TOWER_DEFENCE_SYSTEM);
+        if (!optional.isPresent()) {
+            return "tile.area_protector.cant_activate.2";
+        } else {
+            TowerDefenceManager manager = optional.get();
+            ChunkPos pos = new ChunkPos(this.pos);
+            for (ProtectedZone zone : manager.tdObjects(ProtectedZone.class)) {
+                IPosMc2I zonePos = zone.chunkPos();
+                if (Math.abs(zonePos.x() - pos.x) + Math.abs(zonePos.y() - pos.z) <= 12) {
+                    return "tile.area_protector.cant_activate.1";
+                }
+            }
+        }
+
+        return null;
     }
 
     private void onActivate() {

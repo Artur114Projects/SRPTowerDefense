@@ -2,11 +2,28 @@ item.debug_fish.name=Отладочный лосось (не рыба)
 item.wooden_mallet.name=Деревянная киянка
 item.stone_mallet.name=Каменная киянка
 item.iron_mallet.name=Стальная киянка
+item.mallet.all.info.0=Уплотняет (ремонтирует) блоки
+item.mallet.all.info.1=Энергия уплотнения:
+item.mallet.all.info.2=Площадь уплотнения:
 #
-tile.area_protector.name=Карантинный маяк
-#
-itemGroup.main=SRP: Tower Defence!
-srptowerdefense.for_creative=Только для креатива
+srptowerdefense.info.damage=урон
+srptowerdefense.info.regen_power=Мощность регенерации:
+srptowerdefense.info.resistance_power=Ударная вязкость:
 blockdamage.resistance_cause.natural=естественный блок
 blockdamage.resistance_cause.parasite=паразитический блок
 blockdamage.resistance_cause.organic=полу органический блок
+#
+tile.area_protector.name=Защитный маяк
+tile.area_protector.info=Позволяет отключить спавн паразитов и загрузить область размером до 21×21 чанков,<br>но паразиты начнут атаковать защищенную область и пытаться сломать маяк
+tile.area_protector.info.warn=После запуска маяк невозможно отключить,<br>а поломка блока приведет к сильному взрыву
+tile.area_protector.cant_activate=Невозможно активировать маяк т.к.
+tile.area_protector.cant_activate.0=блок находится вне диапазона высот 60-80
+tile.area_protector.cant_activate.1=в радиусе 12 чанков уже есть маяк
+tile.area_protector.cant_activate.2=неизвестная ошибка, такого не должно быть
+#
+srptowerdefense.ci_metrics.meters2=м²<n>км²
+srptowerdefense.ci_metrics.joules/meter2=Дж/м²<n>кДж/м²<n>МДж/м²<n>ГДж/м²
+srptowerdefense.ci_metrics.watts/meter2=Вт/м²<n>кВт/м²<n>МВт/м²<n>ГВт/м²
+#
+itemGroup.srptowerdefense=SRP: Tower Defence!
+srptowerdefense.for_creative=Только для творческого режима
