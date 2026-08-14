@@ -14,6 +14,10 @@ blockdamage.resistance_cause.parasite=паразитический блок
 blockdamage.resistance_cause.organic=полу органический блок
 #
 tile.area_protector.name=Защитный маяк
+tile.reinforced_concrete.name=Железобетон
+tile.armored_bricks.name=Бронированные кирпичи
+tile.reinforced_bricks.name=Армированные кирпичи
+tile.organic_concrete.name=Полуорганический железобетон
 tile.area_protector.info=Позволяет отключить спавн паразитов и загрузить область размером до 21×21 чанков,<br>но паразиты начнут атаковать защищенную область и пытаться сломать маяк
 tile.area_protector.info.warn=После запуска маяк невозможно отключить,<br>а поломка блока приведет к сильному взрыву
 tile.area_protector.cant_activate=Невозможно активировать маяк т.к.

@@ -1,0 +1,7 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "normal": { "model": "srptowerdefense:armored_bricks" },
+    "inventory": { "model": "srptowerdefense:armored_bricks" }
+  }
+}

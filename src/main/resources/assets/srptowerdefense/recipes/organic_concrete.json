@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CSC",
+    "SIS",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "srptowerdefense:reinforced_concrete"
+    },
+    "S": {
+      "item": "minecraft:sugar"
+    },
+    "I": {
+      "item": "srparasites:semiorganic_ingot"
+    }
+  },
+  "result": {
+    "item": "srptowerdefense:organic_concrete",
+    "count": 4
+  }
+}

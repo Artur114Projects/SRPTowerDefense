@@ -94,7 +94,7 @@ public class BlockMetaRegistry {
         meta.resistanceMul = mul;
     }
 
-    public static void bindResistance(Block block, ResMulCause cause, float resistance) {
+    public static void bindResistance(Block block, float resistance) {
         BlockMeta meta = META_MAP.computeIfAbsent(block, b -> BlockMeta.createDef());
         meta.resistanceOverride = resistance;
         meta.isOverrideResistance = true;

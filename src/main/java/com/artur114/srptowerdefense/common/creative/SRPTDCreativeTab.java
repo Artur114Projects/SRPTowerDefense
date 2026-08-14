@@ -14,14 +14,18 @@ public class SRPTDCreativeTab extends CreativeTabs {
     }
 
     @Override
-    public void displayAllRelevantItems(NonNullList<ItemStack> p_78018_1_) {
+    public void displayAllRelevantItems(@NotNull NonNullList<ItemStack> list) {
         for (Item item : SRPTDMain.REGISTER_BUS.items()) {
-            item.getSubItems(this, p_78018_1_);
+            if (item == InitItems.DEBUGGING_FISH) {
+                continue;
+            }
+            item.getSubItems(this, list);
         }
+        list.add(new ItemStack(InitItems.DEBUGGING_FISH));
     }
 
     @Override
     public @NotNull ItemStack getTabIconItem() {
-        return new ItemStack(InitItems.WOODEN_MALLET);
+        return new ItemStack(InitItems.IRON_MALLET);
     }
 }

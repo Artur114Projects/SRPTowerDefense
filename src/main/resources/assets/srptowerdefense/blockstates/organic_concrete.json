@@ -1,0 +1,7 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "normal": { "model": "srptowerdefense:organic_concrete" },
+    "inventory": { "model": "srptowerdefense:organic_concrete" }
+  }
+}

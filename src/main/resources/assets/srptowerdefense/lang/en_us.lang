@@ -14,6 +14,10 @@ blockdamage.resistance_cause.parasite=parasitic block
 blockdamage.resistance_cause.organic=semi-organic block
 #
 tile.area_protector.name=Defense Beacon
+tile.armored_bricks.name=Armored Bricks
+tile.reinforced_bricks.name=Reinforced Bricks
+tile.reinforced_concrete.name=Reinforced Concrete
+tile.organic_concrete.name=Semiorganic Reinforced Concrete
 tile.area_protector.info=Allows you to disable the spawning of parasites and keep the area up to 21×21 chunks loaded, but the parasites will begin to attack the protected area and try to break the beacon
 tile.area_protector.info.warn=Once launched, the beacon cannot be turned off, and a block failure leads to a strong explosion
 tile.area_protector.cant_activate=It is impossible to activate the beacon because:

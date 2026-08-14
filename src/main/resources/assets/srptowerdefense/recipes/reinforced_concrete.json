@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ICI",
+    "CIC",
+    "ICI"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:concrete_powder",
+      "data": 32767
+    },
+    "I": {
+      "item": "minecraft:iron_bars"
+    }
+  },
+  "result": {
+    "item": "srptowerdefense:reinforced_concrete",
+    "count": 8
+  }
+}

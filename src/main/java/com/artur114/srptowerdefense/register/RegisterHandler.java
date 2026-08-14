@@ -23,6 +23,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AutoInstantiate
 public class RegisterHandler implements IHasNetworkPacket, IHasCraftRecipe, ILoadStagePre {
@@ -51,6 +53,9 @@ public class RegisterHandler implements IHasNetworkPacket, IHasCraftRecipe, ILoa
 
     @Override
     public List<ResourceLocation> registerCraftRecipesName() {
-        return Arrays.asList(SRPTDMain.loc("wooden_mallet"), SRPTDMain.loc("stone_mallet.json"), SRPTDMain.loc("iron_mallet.json"));
+        return Stream.of(
+            "wooden_mallet", "stone_mallet", "iron_mallet", "reinforced_concrete",
+            "organic_concrete", "reinforced_bricks", "armored_bricks"
+        ).map(SRPTDMain::loc).collect(Collectors.toList());
     }
 }

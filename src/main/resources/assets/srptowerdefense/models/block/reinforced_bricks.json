@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "srptowerdefense:blocks/reinforced_bricks",
+    "all": "srptowerdefense:blocks/reinforced_bricks"
+  }
+}

@@ -23,6 +23,7 @@ version = mod_version
 
 repositories {
     maven {url 'https://jitpack.io'}
+    maven {url 'https://dvs1.progwml6.com/files/maven'}
 }
 
 configurations {
@@ -35,6 +36,7 @@ dependencies {
     include('com.github.Artur114Projects.BananaLib:math:1.0.5-betta') {transitive=false}
     include('com.github.Artur114Projects.BananaLib:mc:1.0.5-betta') {transitive=false}
 
+    runtimeOnly "mezz.jei:jei_1.12.2:4.16.1.301"
     implementation fileTree(dir: "libs", includes: ['*.jar'])
     implementation 'com.github.Artur114Projects.BananaLib:math-groovy:1.0.5-betta'
     implementation 'org.jetbrains:annotations:24.0.0'

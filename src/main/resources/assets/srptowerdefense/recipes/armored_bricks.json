@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BCB",
+    "CIC",
+    "BCB"
+  ],
+  "key": {
+    "B": {
+      "item": "srptowerdefense:reinforced_bricks"
+    },
+    "C": {
+      "item": "srptowerdefense:organic_concrete"
+    },
+    "I": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "srptowerdefense:armored_bricks",
+    "count": 8
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BCB",
+    "CIC",
+    "BCB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:brick_block"
+    },
+    "C": {
+      "item": "srptowerdefense:reinforced_concrete"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "srptowerdefense:reinforced_bricks",
+    "count": 8
+  }
+}
