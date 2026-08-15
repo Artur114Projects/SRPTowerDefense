@@ -29,6 +29,9 @@ public class ParasiteAIRebuildManager {
             EntityParasiteBase parasite = (EntityParasiteBase) entity;
 
             BananaCaps.capability(parasite, InitCapabilities.TD_ENTITY_DATA).ifPresent(data -> {
+                if (parasite instanceof EntityCanFly) {
+                    parasite.setSkillBreakBlocksValues(0.0F, 0, 0);
+                }
                 if (data.isBindToTDObj()) {
                     parasite.setSkillBreakBlocksValues(0.0F, 0, 0);
                     if (parasite.navigator instanceof PathNavigateGround) {
