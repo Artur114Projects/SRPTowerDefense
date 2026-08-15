@@ -96,7 +96,9 @@ public class PathFinderForced extends PathFinder {
                 path = this.pathHeap.copy(current);
             }
 
+            this.nodeProcessor.bindContext(current);
             int optionsCount = this.nodeProcessor.findPathOptions(this.pathOptions, current.lastPoint, pathTo, Float.MAX_VALUE);
+            this.nodeProcessor.bindContext(null);
 
             for (int i = 0; i != optionsCount; i++) {
                 PathPointForced option = this.pathOptions[i];

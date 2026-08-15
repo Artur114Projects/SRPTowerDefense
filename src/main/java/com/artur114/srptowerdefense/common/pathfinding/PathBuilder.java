@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.Arrays;
 
@@ -64,6 +65,15 @@ public class PathBuilder {
         this.breakAreas.putAll(parent.breakAreas);
 
         return this;
+    }
+
+    public boolean isBlockMustBreak(BlockPos pos) {
+        for (BreakArea area : this.breakAreas.values()) {
+            if (area.contains(pos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isEnded() {

@@ -94,6 +94,7 @@ public class CPacketCreateFX extends NBTPacketBase {
     }
 
     public static void send(World world, BlockPos pos, FXType type, @Nullable NBTTagCompound nbt) {
+        pos = pos.toImmutable();
         NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 32);
         SRPTDMain.NETWORK.sendToAllAround(new CPacketCreateFX(pos, type, nbt), point);
     }

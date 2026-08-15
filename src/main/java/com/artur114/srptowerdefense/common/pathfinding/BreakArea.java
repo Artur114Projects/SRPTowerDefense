@@ -50,6 +50,15 @@ public class BreakArea implements Iterable<BlockPos> {
         return flag;
     }
 
+    public boolean contains(BlockPos pos) {
+        for (int i = 0; i != this.area.length; i++) {
+            if (this.area[i].equals(pos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @NotNull
     @Override
     public Iterator<BlockPos> iterator() {

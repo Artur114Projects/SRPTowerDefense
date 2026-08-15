@@ -29,8 +29,8 @@ public class EntityAIWaveMoveFlight extends EntityAIBase {
         if (this.waveData.moveSpeed() != -1.0F) {
             BlockPos pos = this.waveData.moveTarget();
             if (pos != null) {
-                this.creature.getMoveHelper().setMoveTo(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), this.waveData.moveSpeed());
-                this.creature.getLookHelper().setLookPosition(pos.getX(), pos.getY() + 1 + 4, pos.getZ(), 180.0F, 20.0F);
+                this.creature.getMoveHelper().setMoveTo(pos.getX(), pos.getY() + 1 + (this.waveData.isDirectTarget() ? 0 : 4), pos.getZ(), this.waveData.moveSpeed());
+                this.creature.getLookHelper().setLookPosition(pos.getX(), pos.getY() + 1 + (this.waveData.isDirectTarget() ? 0 : 4), pos.getZ(), 180.0F, 20.0F);
             }
             if (pos != null && this.creature.getDistanceSq(pos) < 4) {
                 BlockDamageHandler.entityDamage(this.creature, pos, EntityDamageRegistry.damageOf(this.creature));

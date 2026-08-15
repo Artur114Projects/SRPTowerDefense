@@ -32,6 +32,11 @@ import java.util.stream.Collectors;
 public class WalkNodeProcessorForced extends WalkNodeProcessor {
     protected final Int2ObjectMap<IForcedPathNodeType> nodeTypeCache = new Int2ObjectOpenHashMap<>();
     protected final Int2ObjectMap<PathPointForced> pointMap = new Int2ObjectOpenHashMap<>();
+    protected PathBuilder context = null;
+
+    public void bindContext(PathBuilder context) {
+        this.context = context;
+    }
 
     @Override
     public void postProcess() {
@@ -121,10 +126,16 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         for (int y = currentPoint.y > 0 ? -1 : 0; y != 2; y++) {
             BlockPos blockpos = blockPos.set(currentPoint.x, currentPoint.y + y, currentPoint.z).down();
             double d0 = (double) currentPoint.y + y - (1.0D - this.openBlockState(this.blockaccess, blockpos).getBoundingBox(this.blockaccess, blockpos).maxY);
+            PathPointForced pathPointD = null;
+            if (y == -1) pathPointD = this.getSafePoint(blockPos.set(currentPoint.x, currentPoint.y + y, currentPoint.z), currentPoint, d0);
             PathPointForced pathPointZP = this.getSafePoint(blockPos.set(currentPoint.x, currentPoint.y + y, currentPoint.z + 1), currentPoint, d0);
             PathPointForced pathPointXN = this.getSafePoint(blockPos.set(currentPoint.x - 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
             PathPointForced pathPointXP = this.getSafePoint(blockPos.set(currentPoint.x + 1, currentPoint.y + y, currentPoint.z), currentPoint, d0);
             PathPointForced pathPointZN = this.getSafePoint(blockPos.set(currentPoint.x, currentPoint.y + y, currentPoint.z - 1), currentPoint, d0);
+
+            if (pathPointD != null && pathPointD.distanceTo(targetPoint) < maxDistance) {
+                pathOptions[i++] = pathPointD;
+            }
 
             if (pathPointZP != null && pathPointZP.distanceTo(targetPoint) < maxDistance) {
                 pathOptions[i++] = pathPointZP;
@@ -419,7 +430,7 @@ public class WalkNodeProcessorForced extends WalkNodeProcessor {
         PathNodeType type = block.getAiPathNodeType(iblockstate, world, pos, this.currentEntity);
         if (type != null) return PathNodeTypeForced.fromMc(type);
 
-        if (material == Material.AIR)
+        if (material == Material.AIR || (this.context != null && this.context.isBlockMustBreak(pos)))
         {
             return PathNodeTypeForced.OPEN;
         }
