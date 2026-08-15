@@ -12,6 +12,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
 
 public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
     private Object2BooleanMap<Class<?>> instanceOfMap = null;
@@ -24,9 +25,9 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
     private float speed;
 
     public TowerDefenceEntity(EntityParasiteBase entity) {
-        this.blockPos = new PosMc3IM();
         this.data = new NBTTagCompound();
         this.entity = entity;
+        this.blockPos = null;
         this.speed = -1.0F;
     }
 
@@ -51,11 +52,14 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         this.isDirectTarget = directTarget;
     }
 
-    public BlockPos moveTarget() {
+    public @Nullable BlockPos moveTarget() {
         return this.blockPos;
     }
 
     public void setMoveTarget(BlockPos pos) {
+        if (this.blockPos == null) {
+            this.blockPos = new PosMc3IM();
+        }
         this.blockPos.set(pos);
     }
 
@@ -82,11 +86,9 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
 
     public void bind(ITowerDefenceObject tdObj) {
         if (tdObj != null) {
-//            this.entity.addPotionEffect(new PotionEffect(MobEffects.GLOWING, Integer.MAX_VALUE, 0, false, false));
             this.entity.cannotDespawn(false);
             this.entity.setWait(0);
         } else {
-//            this.entity.clearActivePotions();
             this.entity.cannotDespawn(true);
             this.entity.setWait(0);
         }
@@ -130,11 +132,13 @@ public class TowerDefenceEntity implements INBTSerializable<NBTTagCompound> {
         NBTTagCompound compound = new NBTTagCompound();
         if (this.isBindToTDObj()) compound.setInteger("bindToObject", this.objectId());
         compound.setInteger("unnaturalLocationCounter", this.unnaturalLocationCounter);
+        if (this.blockPos != null) compound.setLong("pos", this.blockPos.toLong());
         return compound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
         this.unnaturalLocationCounter = nbt.getInteger("unnaturalLocationCounter");
+        if (nbt.hasKey("pos")) this.blockPos = new PosMc3IM(BlockPos.fromLong(nbt.getLong("pos")));
     }
 }

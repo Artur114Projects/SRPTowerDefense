@@ -30,8 +30,8 @@ public class EntityAIWaveMove extends EntityAIBase {
         if (this.waveData.moveSpeed() != -1.0F) {
             this.creature.getNavigator().setSpeed(this.waveData.moveSpeed());
             BlockPos pos = this.waveData.moveTarget();
-            if (this.creature.ticksExisted % 8 == 0 && (!this.prevTarget.equals(this.waveData.moveTarget()) || this.creature.getNavigator().noPath())) {
-                if (pos != null && (this.creature.getDistanceSq(pos) > 6 * 6 || this.waveData.isDirectTarget())) {
+            if (pos != null && this.creature.ticksExisted % 8 == 0 && (!this.prevTarget.equals(pos) || this.creature.getNavigator().noPath())) {
+                if ((this.creature.getDistanceSq(pos) > 6 * 6 || this.waveData.isDirectTarget())) {
                     this.creature.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY() + 1, pos.getZ(), this.waveData.moveSpeed());
                     this.prevTarget.set(pos);
                 }
