@@ -38,6 +38,7 @@ import net.minecraftforge.common.ForgeChunkManager;
 import org.jetbrains.annotations.NotNull;
 
 public class ProtectedZone implements IWaveTarget {
+    private static final int[] EV_BONUS_PER_32_TICKS = {1, 1, 1, 6, 38, 1000, 4500, 105000, 110000, 170000};
     private final Object2IntMap<ForgeChunkManager.Ticket> tickedLoadCountMap = new Object2IntOpenHashMap<>();
     private final Long2ObjectMap<ForgeChunkManager.Ticket> forcedChunksMap = new Long2ObjectOpenHashMap<>();
     private final LongSet protectedChunks = new LongOpenHashSet();
@@ -123,7 +124,11 @@ public class ProtectedZone implements IWaveTarget {
             } catch (Exception ignored) {}
         }
 
-        SRPSaveData.get(this.world, 43).setTotalKills(this.world.provider.getDimension(), this.noSpawnChunks.size() * SRPSaveData.get(this.world, 72).getEvolutionPhase(this.world.provider.getDimension()) * 4, true, this.world, true, 1);
+        int phase = SRPSaveData.get(this.world, 72).getEvolutionPhase(this.world.provider.getDimension());
+        if (phase >= 0 && phase < EV_BONUS_PER_32_TICKS.length) {
+            int bonus = (int) Math.max(1, EV_BONUS_PER_32_TICKS[phase] * Math.min(this.noSpawnChunks.size() / 100.0F, 2.0F));
+            SRPSaveData.get(this.world, 43).setTotalKills(this.world.provider.getDimension(), bonus, true, this.world, true, 1);
+        }
     }
 
     @Override

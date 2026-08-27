@@ -8,13 +8,7 @@ import org.objectweb.asm.Type
 
 class Test {
     static void main(String[] args) {
-        SRPBlocks.declaredFields.each {
-            if (!it.name.toLowerCase().contains("gore".toLowerCase())) {
-                return
-            }
 
-            println "BlockMetaRegistry.bindResistanceMul(SRPBlocks.${it.name}, BlockMetaRegistry.ResMulCause.PARASITE_BLOCK, 0.5F);"
-        }
     }
 
     static void printDesc(Class<?> clazz, String name) {
