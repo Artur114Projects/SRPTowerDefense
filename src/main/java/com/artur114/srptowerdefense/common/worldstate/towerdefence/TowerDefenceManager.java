@@ -23,6 +23,7 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     private final Int2ObjectMap<ITowerDefenceObject> objectsMap = new Int2ObjectOpenHashMap<>();
     private final Map<ResourceLocation, ITDObjectsGenerator> generators = new HashMap<>();
     private final SecureRandom idGen = new SecureRandom();
+    private boolean isLoaded = false;
     private final WorldServer world;
 
     public TowerDefenceManager(WorldServer world) {
@@ -40,7 +41,9 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     }
 
     public void load() {
-        this.objectsMap.forEach((id, obj) -> obj.init(this.world, this, id));
+        if (!this.isLoaded) {
+            this.objectsMap.forEach((id, obj) -> obj.init(this.world, this, id)); this.isLoaded = true;
+        }
     }
 
     public void update() {
@@ -73,6 +76,9 @@ public class TowerDefenceManager implements INBTSerializable<NBTTagCompound> {
     }
 
     public void chunkLoad(Chunk chunk) {
+        if (!this.isLoaded) {
+            return;
+        }
         for (ITowerDefenceObject obj : this.objectsMap.values()) {
             if (obj.box().contains(chunk.x, chunk.z)) {
                 obj.onChunkLoaded(chunk);

@@ -38,7 +38,7 @@ import net.minecraftforge.common.ForgeChunkManager;
 import org.jetbrains.annotations.NotNull;
 
 public class ProtectedZone implements IWaveTarget {
-    private static final int[] EV_BONUS_PER_32_TICKS = {1, 1, 1, 6, 38, 1000, 4500, 105000, 110000, 170000};
+    private static final int[] EV_BONUS_PER_32_TICKS = {1, 1, 1, 3, 19, 500, 2250, 52500, 55000, 85000};
     private final Object2IntMap<ForgeChunkManager.Ticket> tickedLoadCountMap = new Object2IntOpenHashMap<>();
     private final Long2ObjectMap<ForgeChunkManager.Ticket> forcedChunksMap = new Long2ObjectOpenHashMap<>();
     private final LongSet protectedChunks = new LongOpenHashSet();

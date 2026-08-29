@@ -8,7 +8,7 @@ import org.objectweb.asm.Type
 
 class Test {
     static void main(String[] args) {
-
+        LangExtract.newInstance().run()
     }
 
     static void printDesc(Class<?> clazz, String name) {
